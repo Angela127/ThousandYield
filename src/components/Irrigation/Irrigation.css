@@ -1,0 +1,130 @@
+.irrigation-view {
+  margin-left: 240px;
+  padding: 2rem 3rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.view-header h1 {
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin-bottom: 0.25rem;
+}
+
+.view-header p {
+  color: var(--text-muted);
+}
+
+.irrigation-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.5rem;
+}
+
+.irrigation-grid {
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  gap: 2rem;
+}
+
+.usage-chart-card, .schedule-card {
+  background: var(--card-bg);
+  backdrop-filter: blur(10px);
+  border-radius: var(--border-radius-lg);
+  padding: 1.5rem;
+  box-shadow: var(--shadow-soft);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.usage-chart-card .card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.total-usage {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #2196F3;
+  background: rgba(33, 150, 243, 0.1);
+  padding: 4px 12px;
+  border-radius: 20px;
+}
+
+.schedule-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+
+.schedule-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  background: white;
+  border-radius: var(--border-radius-md);
+  border: 1px solid rgba(0,0,0,0.03);
+}
+
+.time-info {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  font-size: 0.9rem;
+}
+
+.zone-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.zone {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.duration {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.status-tag {
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 10px;
+  text-transform: uppercase;
+}
+
+.status-tag.completed { background: rgba(76, 175, 80, 0.1); color: #4CAF50; }
+.status-tag.upcoming { background: rgba(33, 150, 243, 0.1); color: #2196F3; }
+
+.add-schedule-btn {
+  width: 100%;
+  padding: 0.8rem;
+  border-radius: var(--border-radius-sm);
+  border: 1px solid rgba(0,0,0,0.1);
+  background: white;
+  color: var(--text-primary);
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  transition: var(--transition);
+}
+
+.add-schedule-btn:hover {
+  background: var(--primary-green);
+  color: white;
+  border-color: var(--primary-green);
+}

@@ -1,0 +1,150 @@
+import React, { useState } from 'react';
+import './Settings.css';
+import { 
+  Settings as SettingsIcon, 
+  User, 
+  Bell, 
+  Shield, 
+  Sprout, 
+  Thermometer, 
+  Droplets, 
+  FlaskConical,
+  Save
+} from 'lucide-react';
+
+const ThresholdItem = ({ label, icon: Icon, min, max, unit, onChange }) => (
+  <div className="threshold-item">
+    <div className="threshold-label">
+      <Icon size={18} />
+      <span>{label}</span>
+    </div>
+    <div className="threshold-inputs">
+      <div className="input-group">
+        <label>Min</label>
+        <input type="number" defaultValue={min} />
+      </div>
+      <div className="input-divider">-</div>
+      <div className="input-group">
+        <label>Max</label>
+        <input type="number" defaultValue={max} />
+      </div>
+      <span className="unit">{unit}</span>
+    </div>
+  </div>
+);
+
+const Settings = () => {
+  const [activeSection, setActiveSection] = useState('thresholds');
+
+  const plantProfiles = [
+    { name: 'Lettuce (Standard)', selected: true },
+    { name: 'Spinach (Growth)', selected: false },
+    { name: 'Basil (Aromatic)', selected: false },
+    { name: 'Kale (Winter)', selected: false },
+  ];
+
+  return (
+    <div className="settings-view">
+      <header className="view-header">
+        <h1>System Settings</h1>
+        <p>Configure automation thresholds, plant profiles, and system preferences.</p>
+      </header>
+
+      <div className="settings-container">
+        <aside className="settings-nav">
+          <button 
+            className={`settings-nav-item ${activeSection === 'thresholds' ? 'active' : ''}`}
+            onClick={() => setActiveSection('thresholds')}
+          >
+            <Shield size={18} /> Thresholds
+          </button>
+          <button 
+            className={`settings-nav-item ${activeSection === 'profiles' ? 'active' : ''}`}
+            onClick={() => setActiveSection('profiles')}
+          >
+            <Sprout size={18} /> Plant Profiles
+          </button>
+          <button 
+            className={`settings-nav-item ${activeSection === 'notifications' ? 'active' : ''}`}
+            onClick={() => setActiveSection('notifications')}
+          >
+            <Bell size={18} /> Notifications
+          </button>
+          <button 
+            className={`settings-nav-item ${activeSection === 'account' ? 'active' : ''}`}
+            onClick={() => setActiveSection('account')}
+          >
+            <User size={18} /> Account
+          </button>
+        </aside>
+
+        <main className="settings-content">
+          {activeSection === 'thresholds' && (
+            <div className="settings-section">
+              <h3>Automation Thresholds</h3>
+              <p>Set the range for automatic system triggers (fans, pumps, heaters).</p>
+              
+              <div className="threshold-list">
+                <ThresholdItem label="Temperature" icon={Thermometer} min={20} max={26} unit="°C" />
+                <ThresholdItem label="Humidity" icon={Droplets} min={55} max={75} unit="%" />
+                <ThresholdItem label="Soil Moisture" icon={Sprout} min={35} max={50} unit="%" />
+                <ThresholdItem label="Water pH" icon={FlaskConical} min={5.8} max={6.5} unit="pH" />
+              </div>
+
+              <div className="settings-actions">
+                <button className="save-btn"><Save size={18} /> Save Changes</button>
+              </div>
+            </div>
+          )}
+
+          {activeSection === 'profiles' && (
+            <div className="settings-section">
+              <h3>Plant Profiles</h3>
+              <p>Select a pre-configured growth profile for your current crop.</p>
+              
+              <div className="profiles-grid">
+                {plantProfiles.map((profile, i) => (
+                  <div key={i} className={`profile-card ${profile.selected ? 'selected' : ''}`}>
+                    <div className="profile-info">
+                      <Sprout size={24} />
+                      <span>{profile.name}</span>
+                    </div>
+                    {profile.selected ? (
+                      <span className="active-tag">Active</span>
+                    ) : (
+                      <button className="select-btn">Select</button>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {activeSection === 'notifications' && (
+            <div className="settings-section">
+              <h3>Notification Preferences</h3>
+              <div className="notif-list">
+                {[
+                  { label: 'Critical Alerts', desc: 'pH, Temperature, Water Level failures', active: true },
+                  { label: 'System Reports', desc: 'Daily efficiency and usage summaries', active: true },
+                  { label: 'Growth Milestones', desc: 'Stage changes and harvest reminders', active: false },
+                  { label: 'Device Updates', desc: 'Firmware and automation log triggers', active: false },
+                ].map((item, i) => (
+                  <div key={i} className="notif-item">
+                    <div className="notif-info">
+                      <span className="notif-label">{item.label}</span>
+                      <span className="notif-desc">{item.desc}</span>
+                    </div>
+                    <div className={`switch ${item.active ? 'on' : ''}`}></div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </main>
+      </div>
+    </div>
+  );
+};
+
+export default Settings;
