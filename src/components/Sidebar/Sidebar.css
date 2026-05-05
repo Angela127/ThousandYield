@@ -33,7 +33,8 @@
   flex-grow: 1;
 }
 
-.nav-item {
+.nav-item,
+a.nav-item {
   display: flex;
   align-items: center;
   gap: 1rem;
@@ -49,14 +50,17 @@
   width: 100%;
   text-align: left;
   position: relative;
+  text-decoration: none;
 }
 
-.nav-item:hover {
+.nav-item:hover,
+a.nav-item:hover {
   color: var(--primary-green);
   background: rgba(58, 90, 64, 0.04);
 }
 
-.nav-item.active {
+.nav-item.active,
+a.nav-item.active {
   background: var(--primary-green);
   color: white;
   box-shadow: 0 4px 12px rgba(58, 90, 64, 0.2);

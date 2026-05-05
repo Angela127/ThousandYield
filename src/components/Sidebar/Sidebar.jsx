@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import './Sidebar.css';
 import {
   LayoutDashboard,
@@ -15,17 +16,17 @@ import {
   User
 } from 'lucide-react';
 
-const Sidebar = ({ activeTab, setActiveTab }) => {
+const Sidebar = () => {
+  const location = useLocation();
+
   const menuItems = [
-    { id: 'dashboard', icon: LayoutDashboard, label: 'Dashboard' },
-    { id: 'virtualfarm', icon: Warehouse, label: 'Virtual Farm' },
-    { id: 'fields', icon: Sprout, label: 'Fields' },
-    { id: 'irrigation', icon: Droplets, label: 'Irrigation' },
-    { id: 'climate', icon: CloudSun, label: 'Climate' },
-    { id: 'pests', icon: Bug, label: 'Pests' },
-    { id: 'inventory', icon: Box, label: 'Inventory' },
-    { id: 'reports', icon: FileText, label: 'Reports' },
-    { id: 'help', icon: HelpCircle, label: 'Help' },
+    { path: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
+    { path: '/virtual-farm', icon: Warehouse, label: 'Virtual Farm' },
+    { path: '/fields', icon: Sprout, label: 'Fields' },
+    { path: '/irrigation', icon: Droplets, label: 'Irrigation' },
+    { path: '/climate', icon: CloudSun, label: 'Climate' },
+    { path: '/reports', icon: FileText, label: 'Reports' },
+    { path: '/help', icon: HelpCircle, label: 'Help' },
   ];
 
   return (
@@ -37,33 +38,33 @@ const Sidebar = ({ activeTab, setActiveTab }) => {
 
       <nav className="sidebar-nav">
         {menuItems.map((item) => (
-          <button
-            key={item.id}
-            className={`nav-item ${activeTab === item.id ? 'active' : ''}`}
-            onClick={() => setActiveTab(item.id)}
+          <Link
+            key={item.path}
+            to={item.path}
+            className={`nav-item ${location.pathname === item.path ? 'active' : ''}`}
           >
             <item.icon size={20} />
             <span>{item.label}</span>
-          </button>
+          </Link>
         ))}
       </nav>
 
       <div className="sidebar-footer">
-        <button
-          className={`nav-item ${activeTab === 'notifications' ? 'active' : ''}`}
-          onClick={() => setActiveTab('notifications')}
+        <Link
+          to="/notifications"
+          className={`nav-item ${location.pathname === '/notifications' ? 'active' : ''}`}
         >
           <Bell size={20} />
           <span>Notification</span>
           <span className="badge">2</span>
-        </button>
-        <button
-          className={`nav-item ${activeTab === 'setting' ? 'active' : ''}`}
-          onClick={() => setActiveTab('setting')}
+        </Link>
+        <Link
+          to="/settings"
+          className={`nav-item ${location.pathname === '/settings' ? 'active' : ''}`}
         >
           <Settings size={20} />
           <span>Setting</span>
-        </button>
+        </Link>
         <div className="user-profile">
           <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" alt="User" />
           <div className="user-info">

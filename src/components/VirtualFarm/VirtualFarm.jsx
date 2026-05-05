@@ -25,11 +25,13 @@ const VirtualFarm = () => {
   const animFrameRef = useRef(null);
   const controlsRef = useRef(null);
   const interactionRef = useRef(null);
+  const loadingStartTimeRef = useRef(Date.now());
 
   const [hoveredInfo, setHoveredInfo] = useState(null);
   const [selectedInfo, setSelectedInfo] = useState(null);
   const [selectedPumpInfo, setSelectedPumpInfo] = useState(null);
   const [showInstructions, setShowInstructions] = useState(true);
+  const [sceneReady, setSceneReady] = useState(false);
   
   // New State
   const [showSettings, setShowSettings] = useState(false);
@@ -127,6 +129,18 @@ const VirtualFarm = () => {
     const onResize = () => handleResize(camera, renderer);
     window.addEventListener('resize', onResize);
 
+    // Scene is now ready for rendering - store start time for minimum loading duration
+    loadingStartTimeRef.current = Date.now();
+    const showReadyState = () => {
+      const elapsed = Date.now() - loadingStartTimeRef.current;
+      if (elapsed >= 500) {
+        setSceneReady(true);
+      } else {
+        setTimeout(showReadyState, 500 - elapsed);
+      }
+    };
+    const readyTimeout = setTimeout(showReadyState, 500);
+
     // === Animation Loop ===
     const clock = new THREE.Clock();
     let sprayTimer = 0;
@@ -186,6 +200,7 @@ const VirtualFarm = () => {
 
     // === Cleanup ===
     return () => {
+      clearTimeout(readyTimeout);
       cancelAnimationFrame(animFrameRef.current);
       window.removeEventListener('resize', onResize);
       canvas.removeEventListener('click', onCanvasClick);
@@ -214,6 +229,14 @@ const VirtualFarm = () => {
   return (
     <div className="virtual-farm-container" ref={containerRef}>
       <canvas ref={canvasRef} className="virtual-farm-canvas" />
+
+      {/* Loading Overlay - shown while scene initializes */}
+      {!sceneReady && (
+        <div className="vf-loading-overlay">
+          <div className="vf-loading-spinner" />
+          <p className="vf-loading-text">Initializing 3D Scene...</p>
+        </div>
+      )}
 
       {/* Settings Button */}
       <button className="vf-settings-btn" onClick={() => setShowSettings(true)}>
