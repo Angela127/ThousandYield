@@ -5,6 +5,7 @@ import Irrigation from './components/Irrigation/Irrigation';
 import Climate from './components/Climate/Climate';
 import AdvancedAnalysis from './components/Analysis/AdvancedAnalysis';
 import Settings from './components/Settings/Settings';
+import VirtualFarm from './components/VirtualFarm/VirtualFarm';
 import './App.css';
 
 function App() {
@@ -14,6 +15,8 @@ function App() {
     switch (activeTab) {
       case 'dashboard':
         return <Dashboard />;
+      case 'virtualfarm':
+        return <VirtualFarm />;
       case 'fields':
         return <AdvancedAnalysis />;
       case 'irrigation':

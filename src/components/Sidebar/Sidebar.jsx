@@ -7,6 +7,7 @@ import {
   CloudSun,
   Bug,
   Box,
+  Warehouse,
   FileText,
   HelpCircle,
   Bell,
@@ -17,6 +18,7 @@ import {
 const Sidebar = ({ activeTab, setActiveTab }) => {
   const menuItems = [
     { id: 'dashboard', icon: LayoutDashboard, label: 'Dashboard' },
+    { id: 'virtualfarm', icon: Warehouse, label: 'Virtual Farm' },
     { id: 'fields', icon: Sprout, label: 'Fields' },
     { id: 'irrigation', icon: Droplets, label: 'Irrigation' },
     { id: 'climate', icon: CloudSun, label: 'Climate' },
