@@ -109,8 +109,190 @@
 
 .summary-cards {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 1.25rem;
+}
+
+.card {
+  background: white;
+  border-radius: var(--border-radius-lg);
+  padding: 1.5rem;
+  box-shadow: var(--shadow-soft);
+  border: 1px solid rgba(0,0,0,0.02);
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.card-header h3 {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+
+.count-tag {
+  background: var(--bg-soft);
+  color: var(--primary-green);
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+/* Actuator Styles */
+.actuator-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+
+.actuator-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.group-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.unit-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.unit-pill {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  min-width: 160px;
+  font-size: 0.75rem;
+  padding: 0.6rem 0.8rem;
+  background: var(--bg-soft);
+  border-radius: 12px;
+  color: var(--text-muted);
+  font-weight: 600;
+  border: 1px solid rgba(0,0,0,0.05);
+  transition: var(--transition);
+}
+
+.unit-pill.active {
+  background: #E8F5E9;
+  color: #2E7D32;
+  border-color: #A5D6A7;
+}
+
+.unit-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.unit-info strong {
+  color: var(--text-primary);
+  font-size: 0.8rem;
+}
+
+.toggle-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  margin-left: 0.5rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  color: var(--text-muted);
+  transition: var(--transition);
+}
+
+.unit-pill.active .toggle-btn {
+  color: var(--primary-green);
+}
+
+.toggle-btn:hover {
+  transform: scale(1.1);
+}
+
+/* Rack Styles */
+.rack-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  max-height: 600px;
+  overflow-y: auto;
+  padding-right: 0.5rem;
+}
+
+.rack-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.rack-list::-webkit-scrollbar-track {
+  background: var(--bg-soft);
+}
+
+.rack-list::-webkit-scrollbar-thumb {
+  background: #C5E1A5;
+  border-radius: 10px;
+}
+
+.rack-item {
+  background: var(--bg-soft);
+  padding: 0.75rem 1rem;
+  border-radius: 12px;
+  transition: var(--transition);
+  border: 1px solid transparent;
+}
+
+.rack-item:hover {
+  background: white;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+  border-color: #C5E1A5;
+}
+
+.rack-title {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.rack-title strong {
+  font-size: 0.95rem;
+  color: var(--text-primary);
+}
+
+.crop-tag {
+  background: white;
+  color: var(--primary-green);
+  font-size: 0.7rem;
+  font-weight: 800;
+  padding: 0.15rem 0.5rem;
+  border-radius: 4px;
+  text-transform: uppercase;
+}
+
+.rack-stats {
+  display: flex;
+  gap: 1rem;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.rack-stats strong {
+  color: var(--text-primary);
 }
 
 .dashboard-grid {
@@ -122,12 +304,6 @@
 .grid-left {
   display: flex;
   flex-direction: column;
-  gap: 2rem;
-}
-
-.sub-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
   gap: 2rem;
 }
 
@@ -169,7 +345,6 @@
   display: flex;
   flex-direction: column;
   gap: 1rem;
-  margin-bottom: 1.5rem;
 }
 
 .advisor-tips li {
@@ -180,25 +355,9 @@
   border-radius: var(--border-radius-sm);
 }
 
-.advisor-btn {
-  width: 100%;
-  padding: 0.75rem;
-  border-radius: var(--border-radius-sm);
-  border: none;
-  background: var(--accent-green);
-  color: var(--primary-green);
-  font-weight: 700;
-  cursor: pointer;
-  transition: var(--transition);
-}
-
-.advisor-btn:hover {
-  filter: brightness(1.1);
-}
-
 @media (max-width: 1400px) {
   .summary-cards {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(2, 1fr);
   }
 }
 

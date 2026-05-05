@@ -1,7 +1,5 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { 
-  LineChart, 
-  Line, 
   XAxis, 
   YAxis, 
   CartesianGrid, 
@@ -10,32 +8,57 @@ import {
   AreaChart,
   Area
 } from 'recharts';
+import { db } from '../../firebase';
+import { collection, query, orderBy, limit, onSnapshot } from 'firebase/firestore';
 import './HistoricalCharts.css';
 
-const data = [
-  { time: '00:00', temp: 22, humidity: 65, moisture: 40 },
-  { time: '04:00', temp: 20, humidity: 70, moisture: 38 },
-  { time: '08:00', temp: 24, humidity: 60, moisture: 35 },
-  { time: '12:00', temp: 28, humidity: 55, moisture: 42 },
-  { time: '16:00', temp: 26, humidity: 58, moisture: 45 },
-  { time: '20:00', temp: 23, humidity: 62, moisture: 43 },
-  { time: '23:59', temp: 21, humidity: 68, moisture: 41 },
-];
-
 const HistoricalCharts = () => {
+  const [chartData, setChartData] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    // Query the last 24 hours of data (288 points at 5-min intervals)
+    const q = query(
+      collection(db, "telemetry"),
+      orderBy("room_data.timestamp", "asc"),
+      limit(288)
+    );
+
+    const unsubscribe = onSnapshot(q, (querySnapshot) => {
+      const data = [];
+      querySnapshot.forEach((doc) => {
+        const record = doc.data();
+        const timestamp = new Date(record.room_data.timestamp);
+        
+        data.push({
+          time: timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          temp: record.room_data.ambient_sensors.temp,
+          humidity: record.room_data.ambient_sensors.humidity,
+          fullTime: timestamp.toLocaleString()
+        });
+      });
+      setChartData(data);
+      setLoading(false);
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  if (loading) return <div className="loading-placeholder">Loading live telemetry...</div>;
+
   return (
     <div className="charts-grid">
+      {/* Temperature Chart */}
       <div className="chart-container">
         <div className="chart-header">
           <h3>Temperature Trends (°C)</h3>
-          <select className="chart-select">
-            <option>Last 24 Hours</option>
-            <option>Last Week</option>
-          </select>
+          <div className="current-value">
+            Latest: {chartData[chartData.length - 1]?.temp}°C
+          </div>
         </div>
         <div className="chart-wrapper">
           <ResponsiveContainer width="100%" height={250}>
-            <AreaChart data={data}>
+            <AreaChart data={chartData}>
               <defs>
                 <linearGradient id="colorTemp" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="5%" stopColor="#76A34A" stopOpacity={0.3}/>
@@ -43,8 +66,67 @@ const HistoricalCharts = () => {
                 </linearGradient>
               </defs>
               <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E0E0E0" />
-              <XAxis dataKey="time" stroke="#888888" fontSize={12} tickLine={false} axisLine={false} />
-              <YAxis stroke="#888888" fontSize={12} tickLine={false} axisLine={false} />
+              <XAxis 
+                dataKey="time" 
+                stroke="#888888" 
+                fontSize={10} 
+                tickLine={false} 
+                axisLine={false}
+                interval={24} // Show labels every 2 hours to avoid crowding
+              />
+              <YAxis stroke="#888888" fontSize={12} tickLine={false} axisLine={false} domain={['dataMin - 2', 'dataMax + 2']} />
+              <Tooltip 
+                labelStyle={{ color: '#333', fontWeight: 'bold' }}
+                contentStyle={{ 
+                  borderRadius: '12px', 
+                  border: 'none', 
+                  boxShadow: '0 4px 20px rgba(0,0,0,0.1)' 
+                }} 
+              />
+              <Area 
+                type="basis" 
+                dataKey="temp" 
+                stroke="#76A34A" 
+                strokeWidth={4}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                fillOpacity={1} 
+                fill="url(#colorTemp)" 
+                animationDuration={2500}
+                isAnimationActive={true}
+              />
+            </AreaChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
+
+      {/* Humidity Chart */}
+      <div className="chart-container">
+        <div className="chart-header">
+          <h3>Ambient Humidity (%)</h3>
+          <div className="current-value">
+            Latest: {chartData[chartData.length - 1]?.humidity}%
+          </div>
+        </div>
+        <div className="chart-wrapper">
+          <ResponsiveContainer width="100%" height={250}>
+            <AreaChart data={chartData}>
+              <defs>
+                <linearGradient id="colorHum" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#D4E157" stopOpacity={0.3}/>
+                  <stop offset="95%" stopColor="#D4E157" stopOpacity={0}/>
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E0E0E0" />
+              <XAxis 
+                dataKey="time" 
+                stroke="#888888" 
+                fontSize={10} 
+                tickLine={false} 
+                axisLine={false}
+                interval={24}
+              />
+              <YAxis stroke="#888888" fontSize={12} tickLine={false} axisLine={false} domain={['dataMin - 5', 'dataMax + 5']} />
               <Tooltip 
                 contentStyle={{ 
                   borderRadius: '12px', 
@@ -53,42 +135,18 @@ const HistoricalCharts = () => {
                 }} 
               />
               <Area 
-                type="monotone" 
-                dataKey="temp" 
-                stroke="#76A34A" 
-                strokeWidth={3}
+                type="basis" 
+                dataKey="humidity" 
+                stroke="#D4E157" 
+                strokeWidth={4}
+                strokeLinecap="round"
+                strokeLinejoin="round"
                 fillOpacity={1} 
-                fill="url(#colorTemp)" 
+                fill="url(#colorHum)" 
+                animationDuration={2500}
+                isAnimationActive={true}
               />
             </AreaChart>
-          </ResponsiveContainer>
-        </div>
-      </div>
-
-      <div className="chart-container">
-        <div className="chart-header">
-          <h3>Soil Moisture & Humidity (%)</h3>
-          <div className="chart-legend">
-            <span className="legend-item"><span className="dot moisture"></span> Moisture</span>
-            <span className="legend-item"><span className="dot humidity"></span> Humidity</span>
-          </div>
-        </div>
-        <div className="chart-wrapper">
-          <ResponsiveContainer width="100%" height={250}>
-            <LineChart data={data}>
-              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E0E0E0" />
-              <XAxis dataKey="time" stroke="#888888" fontSize={12} tickLine={false} axisLine={false} />
-              <YAxis stroke="#888888" fontSize={12} tickLine={false} axisLine={false} />
-              <Tooltip 
-                contentStyle={{ 
-                  borderRadius: '12px', 
-                  border: 'none', 
-                  boxShadow: '0 4px 20px rgba(0,0,0,0.1)' 
-                }} 
-              />
-              <Line type="monotone" dataKey="moisture" stroke="#2D5A27" strokeWidth={3} dot={{ r: 4 }} activeDot={{ r: 6 }} />
-              <Line type="monotone" dataKey="humidity" stroke="#D4E157" strokeWidth={3} dot={{ r: 4 }} activeDot={{ r: 6 }} />
-            </LineChart>
           </ResponsiveContainer>
         </div>
       </div>

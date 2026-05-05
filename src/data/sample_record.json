@@ -1,0 +1,121 @@
+{
+  "room_data": {
+    "timestamp": "2026-05-05T07:36:38.703Z",
+    "ambient_sensors": {
+      "temp": 26.4,
+      "humidity": 62.1,
+      "forecast_trend": "Steady"
+    },
+    "global_actuators": {
+      "ac_units": [
+        {
+          "id": "ac_unit_01",
+          "status": "ON",
+          "temp": 22
+        },
+        {
+          "id": "ac_unit_02",
+          "status": "OFF",
+          "temp": 24
+        }
+      ],
+      "fan_units": [
+        {
+          "id": "fan_unit_01",
+          "status": "ON",
+          "speed_level": 3
+        },
+        {
+          "id": "fan_unit_02",
+          "status": "ON",
+          "speed_level": 2
+        }
+      ]
+    },
+    "resource_trackers": {
+      "total_electricity_kwh": 45.8,
+      "total_water_litres": 120.5,
+      "total_fertilizer_ml": 500,
+      "total_pesticide_ml": 0
+    },
+    "racks": [
+      {
+        "rack_id": "rack_0101",
+        "crop_type": "Lettuce",
+        "rack_sensors": {
+          "ph": 5.8,
+          "ec_mscmn": 1.4,
+          "water_level_pct": 88.5,
+          "light_intensity_lux": 11500
+        },
+        "rack_controllers": {
+          "led_power_pct": 80,
+          "nutrient_pump": "OFF",
+          "pesticide_sprayer": "OFF",
+          "concentration_controller_status": "Balanced"
+        },
+        "plants": [
+          {
+            "plant_id": "plant_0101_01",
+            "lai_val": 4.5,
+            "health_score": 95.5,
+            "ai_detected_anomaly": "None"
+          },
+          {
+            "plant_id": "plant_0101_02",
+            "lai_val": 3.89,
+            "health_score": 97.9,
+            "ai_detected_anomaly": "None"
+          },
+          {
+            "plant_id": "plant_0101_03",
+            "lai_val": 2.38,
+            "health_score": 99.7,
+            "ai_detected_anomaly": "None"
+          },
+          {
+            "plant_id": "plant_0101_04",
+            "lai_val": 3.91,
+            "health_score": 99.9,
+            "ai_detected_anomaly": "None"
+          },
+          {
+            "plant_id": "plant_0101_05",
+            "lai_val": 3.98,
+            "health_score": 98.1,
+            "ai_detected_anomaly": "None"
+          },
+          {
+            "plant_id": "plant_0101_06",
+            "lai_val": 3.06,
+            "health_score": 96,
+            "ai_detected_anomaly": "None"
+          },
+          {
+            "plant_id": "plant_0101_07",
+            "lai_val": 2.57,
+            "health_score": 99.3
+          },
+          {
+            "plant_id": "plant_0101_08",
+            "lai_val": 4.27,
+            "health_score": 97.6,
+            "ai_detected_anomaly": "None"
+          },
+          {
+            "plant_id": "plant_0101_09",
+            "lai_val": 4.08,
+            "health_score": 95.4,
+            "ai_detected_anomaly": "None"
+          },
+          {
+            "plant_id": "plant_0101_10",
+            "lai_val": 3.06,
+            "health_score": 99.7,
+            "ai_detected_anomaly": "None"
+          }
+        ]
+      }
+    ]
+  }
+}
