@@ -126,24 +126,7 @@
   margin-top: 0.5rem;
 }
 
-/* ── Crosshair ── */
-
-.vf-crosshair {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  pointer-events: none;
-  z-index: 15;
-}
-
-.vf-crosshair-dot {
-  width: 4px;
-  height: 4px;
-  background: rgba(255, 255, 255, 0.7);
-  border-radius: 50%;
-  box-shadow: 0 0 6px rgba(255, 255, 255, 0.4);
-}
+/* ── Crosshair (Removed) ── */
 
 /* ── Hover Tooltip ── */
 
@@ -282,33 +265,7 @@
   padding-top: 0.6rem;
 }
 
-/* ── ESC Hint ── */
-
-.vf-esc-hint {
-  position: absolute;
-  top: 1.5rem;
-  left: 50%;
-  transform: translateX(-50%);
-  font-size: 0.75rem;
-  color: rgba(255, 255, 255, 0.4);
-  background: rgba(0, 0, 0, 0.4);
-  padding: 0.4rem 1rem;
-  border-radius: 8px;
-  backdrop-filter: blur(8px);
-  z-index: 10;
-  pointer-events: none;
-  animation: vf-fadeIn 0.5s ease-out;
-}
-
-.vf-key-inline {
-  display: inline-block;
-  padding: 0.1rem 0.5rem;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 4px;
-  font-weight: 600;
-  margin: 0 0.15rem;
-  font-size: 0.7rem;
-}
+/* ── ESC Hint (Removed) ── */
 
 /* ── Legend ── */
 
@@ -348,25 +305,13 @@
 }
 
 @keyframes vf-slideUp {
-  from {
-    opacity: 0;
-    transform: translateX(-50%) translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(-50%) translateY(0);
-  }
+  from { opacity: 0; transform: translateX(-50%) translateY(10px); }
+  to { opacity: 1; transform: translateX(-50%) translateY(0); }
 }
 
 @keyframes vf-slideIn {
-  from {
-    opacity: 0;
-    transform: translateX(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
+  from { opacity: 0; transform: translateX(20px); }
+  to { opacity: 1; transform: translateX(0); }
 }
 
 @keyframes vf-bounce {
@@ -377,4 +322,15 @@
 @keyframes vf-pulse {
   0%, 100% { opacity: 0.8; }
   50% { opacity: 0.4; }
+}
+
+.vf-scroll-anim {
+  animation: vf-scrollWheel 2s ease-in-out infinite;
+}
+
+@keyframes vf-scrollWheel {
+  0% { transform: translateY(-4px); opacity: 0; }
+  20% { opacity: 1; }
+  80% { opacity: 1; }
+  100% { transform: translateY(4px); opacity: 0; }
 }

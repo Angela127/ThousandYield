@@ -2,8 +2,15 @@ import React, { useRef, useEffect, useState, useCallback } from 'react';
 import * as THREE from 'three';
 import { createScene, createCamera, createRenderer, addLighting } from './scene/setup';
 import { createFloor, createGreenhouse, createGrowLights, createWaterTrays } from './scene/environment';
+import {
+  createParticles, updateParticles,
+  createIrrigationPipes, createNutrientTanks, createControlPanel,
+  createVentilationFans, updateFans,
+  createFloorDrains, createSupportCables, createFloorPuddles,
+  createRowLabels, createWaterDrips, updateWaterDrips, createToolCart,
+} from './scene/details';
 import { createTowers } from './scene/towers';
-import { FirstPersonControls } from './controls/FirstPersonControls';
+import { SmoothControls } from './controls/SmoothControls';
 import { TowerInteraction } from './interaction/TowerInteraction';
 import './VirtualFarm.css';
 
@@ -17,7 +24,6 @@ const VirtualFarm = () => {
   const [hoveredInfo, setHoveredInfo] = useState(null);
   const [selectedInfo, setSelectedInfo] = useState(null);
   const [showInstructions, setShowInstructions] = useState(true);
-  const [isLocked, setIsLocked] = useState(false);
 
   const handleResize = useCallback((camera, renderer) => {
     const container = containerRef.current;
@@ -52,21 +58,33 @@ const VirtualFarm = () => {
     const { towerMeshes, towerPositions } = createTowers(scene);
     createWaterTrays(scene, towerPositions);
 
+    // === Details ===
+    const particles = createParticles(scene);
+    createIrrigationPipes(scene, towerPositions);
+    createNutrientTanks(scene);
+    createControlPanel(scene);
+    const fans = createVentilationFans(scene);
+    createFloorDrains(scene);
+    createSupportCables(scene);
+    createFloorPuddles(scene);
+    createRowLabels(scene);
+    const drips = createWaterDrips(scene);
+    createToolCart(scene);
+
     // === Controls ===
-    const controls = new FirstPersonControls(camera, canvas);
+    const controls = new SmoothControls(camera, canvas);
     controlsRef.current = controls;
 
     // === Interaction ===
     const interaction = new TowerInteraction(camera, canvas, towerMeshes);
     interactionRef.current = interaction;
 
-    // === Pointer Lock State ===
-    const onLockChange = () => {
-      const locked = document.pointerLockElement === canvas;
-      setIsLocked(locked);
-      if (locked) setShowInstructions(false);
+    // === Interaction ===
+    // Click to hide instructions
+    const onCanvasClick = () => {
+      setShowInstructions(false);
     };
-    document.addEventListener('pointerlockchange', onLockChange);
+    canvas.addEventListener('click', onCanvasClick);
 
     // === Resize ===
     const onResize = () => handleResize(camera, renderer);
@@ -80,15 +98,15 @@ const VirtualFarm = () => {
 
       controls.update(delta);
 
-      // Only perform hover interaction when pointer is NOT locked
-      // (when pointer is locked, the mouse is captured for camera rotation)
-      if (!controls.isLocked) {
-        const hovered = interaction.update();
-        setHoveredInfo(hovered);
-        setSelectedInfo(interaction.getSelectedData());
-      } else {
-        setHoveredInfo(null);
-      }
+      // Animate details
+      updateParticles(particles);
+      updateFans(fans, delta);
+      updateWaterDrips(drips, delta);
+
+      // Perform hover interaction
+      const hovered = interaction.update();
+      setHoveredInfo(hovered);
+      setSelectedInfo(interaction.getSelectedData());
 
       renderer.render(scene, camera);
     };
@@ -98,7 +116,7 @@ const VirtualFarm = () => {
     return () => {
       cancelAnimationFrame(animFrameRef.current);
       window.removeEventListener('resize', onResize);
-      document.removeEventListener('pointerlockchange', onLockChange);
+      canvas.removeEventListener('click', onCanvasClick);
       controls.dispose();
       interaction.dispose();
       renderer.dispose();
@@ -120,7 +138,7 @@ const VirtualFarm = () => {
       <canvas ref={canvasRef} className="virtual-farm-canvas" />
 
       {/* Instructions Overlay */}
-      {showInstructions && !isLocked && (
+      {showInstructions && (
         <div className="vf-instructions-overlay" onClick={() => setShowInstructions(false)}>
           <div className="vf-instructions-card">
             <div className="vf-instructions-icon">🌱</div>
@@ -142,11 +160,20 @@ const VirtualFarm = () => {
                 <div className="vf-mouse-icon">
                   <svg width="32" height="42" viewBox="0 0 32 42" fill="none">
                     <rect x="1" y="1" width="30" height="40" rx="15" stroke="currentColor" strokeWidth="2" />
-                    <line x1="16" y1="1" x2="16" y2="16" stroke="currentColor" strokeWidth="2" />
-                    <circle cx="16" cy="10" r="3" fill="currentColor" />
+                    <path d="M16 10 L16 16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                    <path d="M10 20 L22 20" stroke="currentColor" strokeWidth="1" strokeDasharray="2 2" />
                   </svg>
                 </div>
-                <span className="vf-control-label">Look Around</span>
+                <span className="vf-control-label">Drag to Look</span>
+              </div>
+              <div className="vf-control-group">
+                <div className="vf-mouse-icon">
+                  <svg width="32" height="42" viewBox="0 0 32 42" fill="none">
+                    <rect x="1" y="1" width="30" height="40" rx="15" stroke="currentColor" strokeWidth="2" />
+                    <circle cx="16" cy="12" r="3" fill="currentColor" className="vf-scroll-anim" />
+                  </svg>
+                </div>
+                <span className="vf-control-label">Scroll to Zoom</span>
               </div>
             </div>
             <p className="vf-click-prompt">Click anywhere to start</p>
@@ -155,15 +182,9 @@ const VirtualFarm = () => {
         </div>
       )}
 
-      {/* Crosshair when pointer is locked */}
-      {isLocked && (
-        <div className="vf-crosshair">
-          <div className="vf-crosshair-dot" />
-        </div>
-      )}
 
       {/* Hover Tooltip */}
-      {hoveredInfo && !isLocked && (
+      {hoveredInfo && (
         <div className="vf-hover-tooltip">
           <div className="vf-tooltip-icon">🌿</div>
           <div className="vf-tooltip-content">
@@ -209,12 +230,6 @@ const VirtualFarm = () => {
         </div>
       )}
 
-      {/* ESC hint */}
-      {isLocked && (
-        <div className="vf-esc-hint">
-          Press <span className="vf-key-inline">ESC</span> to release cursor
-        </div>
-      )}
 
       {/* Mini-map legend */}
       <div className="vf-legend">

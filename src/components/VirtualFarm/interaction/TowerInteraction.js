@@ -45,15 +45,30 @@ export class TowerInteraction {
   }
 
   _onClick() {
-    if (!this.hoveredTower) return;
-
-    // Deselect previous
-    if (this.selectedTower && this.selectedTower !== this.hoveredTower) {
-      this._removeHighlight(this.selectedTower);
+    // If clicking the background, deselect current
+    if (!this.hoveredTower) {
+      if (this.selectedTower) {
+        this._removeHighlight(this.selectedTower);
+        this.selectedTower = null;
+      }
+      return;
     }
 
-    this.selectedTower = this.hoveredTower;
-    this._applyHighlight(this.selectedTower, this.selectColor, this.selectIntensity);
+    // Toggle logic: if clicking the already selected tower, deselect it
+    if (this.selectedTower === this.hoveredTower) {
+      this._removeHighlight(this.selectedTower);
+      this.selectedTower = null;
+      // Re-apply hover highlight since it's still being hovered
+      this._applyHighlight(this.hoveredTower, this.highlightColor, this.highlightIntensity);
+    } else {
+      // Deselect previous if any
+      if (this.selectedTower) {
+        this._removeHighlight(this.selectedTower);
+      }
+      // Select new
+      this.selectedTower = this.hoveredTower;
+      this._applyHighlight(this.selectedTower, this.selectColor, this.selectIntensity);
+    }
   }
 
   /**

@@ -45,53 +45,149 @@ const PLANT_SPECIES = [
 ];
 
 /**
- * Creates a single leaf geometry cluster
+ * Creates a single flat leaf shape
+ */
+function createFlatLeaf(species) {
+  const shape = new THREE.Shape();
+  const s = species.leafSize * 1.2;
+  shape.moveTo(0, 0);
+  shape.quadraticCurveTo(s * 0.5, s * 0.6, 0, s * 1.4);
+  shape.quadraticCurveTo(-s * 0.5, s * 0.6, 0, 0);
+
+  const geo = new THREE.ShapeGeometry(shape, 4);
+  const isAlt = Math.random() > 0.5;
+  const mat = new THREE.MeshStandardMaterial({
+    color: isAlt ? species.leafColorAlt : species.leafColor,
+    roughness: 0.65,
+    metalness: 0.0,
+    side: THREE.DoubleSide,
+  });
+  return new THREE.Mesh(geo, mat);
+}
+
+/**
+ * Creates a single leaf geometry cluster — mix of sphere and flat leaves
  */
 function createLeafCluster(species, yPos, angle) {
   const group = new THREE.Group();
+  const stemMat = new THREE.MeshStandardMaterial({
+    color: 0x3d6b35,
+    roughness: 0.7,
+    metalness: 0.0,
+  });
 
   for (let i = 0; i < species.density; i++) {
     const leafAngle = angle + (i / species.density) * Math.PI * 2;
-    const leafGeo = new THREE.SphereGeometry(
-      species.leafSize,
-      6,
-      4,
-      0,
-      Math.PI * 2,
-      0,
-      Math.PI / 2
-    );
+    const radius = species.spread + Math.random() * 0.06;
+    const yOff = yPos + (Math.random() - 0.5) * 0.05;
 
-    const isAlt = Math.random() > 0.5;
-    const leafMat = new THREE.MeshStandardMaterial({
-      color: isAlt ? species.leafColorAlt : species.leafColor,
-      roughness: 0.7,
-      metalness: 0.0,
-      side: THREE.DoubleSide,
-    });
+    // Thin stem
+    const stem = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.005, 0.005, radius * 0.8, 3),
+      stemMat
+    );
+    stem.position.set(
+      Math.cos(leafAngle) * radius * 0.4,
+      yOff,
+      Math.sin(leafAngle) * radius * 0.4
+    );
+    stem.rotation.z = leafAngle + Math.PI / 2;
+    stem.rotation.x = -0.3;
+    group.add(stem);
 
-    const leaf = new THREE.Mesh(leafGeo, leafMat);
-    const radius = species.spread + Math.random() * 0.05;
-    leaf.position.set(
-      Math.cos(leafAngle) * radius,
-      yPos + (Math.random() - 0.5) * 0.04,
-      Math.sin(leafAngle) * radius
-    );
-    leaf.rotation.set(
-      Math.random() * 0.5 - 0.8,
-      leafAngle,
-      Math.random() * 0.3
-    );
-    leaf.scale.set(
-      0.8 + Math.random() * 0.4,
-      0.5 + Math.random() * 0.3,
-      0.8 + Math.random() * 0.4
-    );
-    leaf.castShadow = true;
-    group.add(leaf);
+    // Alternate between sphere leaves and flat leaves
+    if (i % 3 === 0) {
+      const flat = createFlatLeaf(species);
+      flat.position.set(
+        Math.cos(leafAngle) * radius,
+        yOff,
+        Math.sin(leafAngle) * radius
+      );
+      flat.rotation.set(
+        -0.4 + Math.random() * 0.3,
+        leafAngle,
+        Math.random() * 0.4 - 0.2
+      );
+      flat.scale.setScalar(0.8 + Math.random() * 0.5);
+      flat.castShadow = true;
+      group.add(flat);
+    } else {
+      const leafGeo = new THREE.SphereGeometry(
+        species.leafSize,
+        6, 4, 0, Math.PI * 2, 0, Math.PI / 2
+      );
+      const isAlt = Math.random() > 0.5;
+      const leafMat = new THREE.MeshStandardMaterial({
+        color: isAlt ? species.leafColorAlt : species.leafColor,
+        roughness: 0.7,
+        metalness: 0.0,
+        side: THREE.DoubleSide,
+      });
+      const leaf = new THREE.Mesh(leafGeo, leafMat);
+      leaf.position.set(
+        Math.cos(leafAngle) * radius,
+        yOff,
+        Math.sin(leafAngle) * radius
+      );
+      leaf.rotation.set(
+        Math.random() * 0.5 - 0.8,
+        leafAngle,
+        Math.random() * 0.3
+      );
+      leaf.scale.set(
+        0.8 + Math.random() * 0.4,
+        0.5 + Math.random() * 0.3,
+        0.8 + Math.random() * 0.4
+      );
+      leaf.castShadow = true;
+      group.add(leaf);
+    }
   }
 
   return group;
+}
+
+/**
+ * Creates dangling vine tendrils on some towers
+ */
+function createVines(tower, species) {
+  const vineMat = new THREE.MeshStandardMaterial({
+    color: species.leafColor,
+    roughness: 0.7,
+    metalness: 0.0,
+  });
+
+  const vineCount = 2 + Math.floor(Math.random() * 3);
+  for (let i = 0; i < vineCount; i++) {
+    const angle = Math.random() * Math.PI * 2;
+    const startY = 1.5 + Math.random() * 2.0;
+    const length = 0.4 + Math.random() * 0.8;
+
+    // Vine strand
+    const vine = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.006, 0.004, length, 4),
+      vineMat
+    );
+    vine.position.set(
+      Math.cos(angle) * 0.2,
+      startY - length / 2,
+      Math.sin(angle) * 0.2
+    );
+    vine.rotation.z = (Math.random() - 0.5) * 0.3;
+    tower.add(vine);
+
+    // Tiny leaf at vine tip
+    const tipLeaf = new THREE.Mesh(
+      new THREE.SphereGeometry(0.025, 4, 3),
+      vineMat
+    );
+    tipLeaf.position.set(
+      Math.cos(angle) * 0.2,
+      startY - length,
+      Math.sin(angle) * 0.2
+    );
+    tower.add(tipLeaf);
+  }
 }
 
 /**
@@ -118,7 +214,13 @@ function createTower(x, z, speciesIndex) {
   column.castShadow = true;
   tower.add(column);
 
-  // Growing pockets with plants at intervals
+  // Top cap
+  const capGeo = new THREE.CylinderGeometry(0.06, 0.14, 0.1, 12);
+  const cap = new THREE.Mesh(capGeo, colMat);
+  cap.position.y = 3.85;
+  tower.add(cap);
+
+  // Growing pockets with plants at intervals — more pockets for density
   const pocketGeo = new THREE.CylinderGeometry(0.18, 0.14, 0.08, 10, 1, true);
   const pocketMat = new THREE.MeshStandardMaterial({
     color: 0xe8e8e0,
@@ -128,10 +230,10 @@ function createTower(x, z, speciesIndex) {
   });
 
   const species = PLANT_SPECIES[speciesIndex];
-  const pocketCount = 8;
+  const pocketCount = 10;
 
   for (let i = 0; i < pocketCount; i++) {
-    const y = 0.6 + i * 0.4;
+    const y = 0.5 + i * 0.34;
     const angle = (i * 137.5 * Math.PI) / 180; // golden angle for natural spiral
 
     // Pocket ring
@@ -146,6 +248,11 @@ function createTower(x, z, speciesIndex) {
     // Leaf cluster growing from pocket
     const leaves = createLeafCluster(species, y, angle);
     tower.add(leaves);
+  }
+
+  // Dangling vines on ~60% of towers
+  if (Math.random() > 0.4) {
+    createVines(tower, species);
   }
 
   tower.position.set(x, 0, z);
