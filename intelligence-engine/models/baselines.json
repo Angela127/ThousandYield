@@ -1,0 +1,32 @@
+{
+  "ph": {
+    "mean": 5.73,
+    "std": 0.16,
+    "normal_min": 5.42,
+    "normal_max": 6.05
+  },
+  "ec_level": {
+    "mean": 1184.38,
+    "std": 239.12,
+    "normal_min": 706.13,
+    "normal_max": 1662.63
+  },
+  "temp_c": {
+    "mean": 23.96,
+    "std": 0.7,
+    "normal_min": 22.56,
+    "normal_max": 25.37
+  },
+  "humidity_pct": {
+    "mean": 77.14,
+    "std": 3.73,
+    "normal_min": 69.68,
+    "normal_max": 84.6
+  },
+  "water_temp_c": {
+    "mean": 21.53,
+    "std": 2.01,
+    "normal_min": 17.51,
+    "normal_max": 25.54
+  }
+}

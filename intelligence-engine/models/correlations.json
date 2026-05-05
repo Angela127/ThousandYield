@@ -1,0 +1,17 @@
+{
+  "add_water \u2192 ph": -0.1246,
+  "add_water \u2192 ec_level": -0.1102,
+  "add_water \u2192 temp_c": 0.0616,
+  "add_water \u2192 humidity_pct": -0.2357,
+  "add_water \u2192 water_temp_c": -0.001,
+  "nutrients_adder \u2192 ph": -0.1363,
+  "nutrients_adder \u2192 ec_level": -0.1222,
+  "nutrients_adder \u2192 temp_c": 0.0666,
+  "nutrients_adder \u2192 humidity_pct": -0.2576,
+  "nutrients_adder \u2192 water_temp_c": -0.0008,
+  "humidifier \u2192 ph": -0.0358,
+  "humidifier \u2192 ec_level": -0.0236,
+  "humidifier \u2192 temp_c": 0.014,
+  "humidifier \u2192 humidity_pct": -0.0712,
+  "humidifier \u2192 water_temp_c": -0.0034
+}
