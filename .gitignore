@@ -26,9 +26,16 @@ dist-ssr
 # FarmBrain Datasets
 intelligence-engine/*.csv
 IoTData_25K_without_interpolation.csv
+
 # Local env files
 .env
 .env.local
 .env.development.local
 .env.test.local
 .env.production.local
+
+# ML model files
+ml/plant_model.h5
+ml/__pycache__/
+api/__pycache__/
+
