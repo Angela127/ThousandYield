@@ -22,3 +22,7 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# FarmBrain Datasets
+intelligence-engine/*.csv
+IoTData_25K_without_interpolation.csv
