@@ -334,3 +334,157 @@
   80% { opacity: 1; }
   100% { transform: translateY(4px); opacity: 0; }
 }
+
+/* =========================================================
+   New UI Overlays (Settings, Flags, Temp, Pumps)
+   ========================================================= */
+
+.vf-settings-btn {
+  position: absolute;
+  top: 24px;
+  right: 24px;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: rgba(20, 25, 20, 0.6);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #fff;
+  font-size: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  z-index: 10;
+}
+
+.vf-settings-btn:hover {
+  background: rgba(20, 25, 20, 0.8);
+  transform: rotate(15deg) scale(1.05);
+  border-color: rgba(68, 255, 136, 0.5);
+}
+
+.vf-temp-hud {
+  position: absolute;
+  top: 24px;
+  right: 88px; /* Next to settings btn */
+  height: 48px;
+  padding: 0 20px;
+  border-radius: 24px;
+  background: rgba(20, 25, 20, 0.6);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #fff;
+  z-index: 10;
+}
+
+.vf-temp-icon {
+  font-size: 18px;
+}
+
+.vf-temp-value {
+  font-weight: 600;
+  font-size: 16px;
+  letter-spacing: 0.5px;
+}
+
+.vf-modal-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  backdrop-filter: blur(2px);
+}
+
+.vf-flag-badge {
+  background: rgba(255, 51, 51, 0.2);
+  color: #ff4444;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  border: 1px solid rgba(255, 51, 51, 0.3);
+}
+
+.vf-flag-reason-box {
+  background: rgba(255, 51, 51, 0.1);
+  border-left: 3px solid #ff4444;
+  padding: 10px 12px;
+  margin-top: 12px;
+  border-radius: 0 6px 6px 0;
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.9);
+  line-height: 1.4;
+}
+
+.vf-flag-reason-box strong {
+  color: #ff4444;
+}
+
+.vf-panel-actions {
+  margin-top: 20px;
+  display: flex;
+  justify-content: center;
+}
+
+.vf-btn-flag, .vf-btn-unflag {
+  width: 100%;
+  padding: 10px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.vf-btn-flag {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #fff;
+}
+
+.vf-btn-flag:hover {
+  background: rgba(255, 51, 51, 0.2);
+  border-color: rgba(255, 51, 51, 0.4);
+  color: #ff4444;
+}
+
+.vf-btn-unflag {
+  background: rgba(255, 51, 51, 0.2);
+  border: 1px solid rgba(255, 51, 51, 0.4);
+  color: #ff4444;
+}
+
+.vf-btn-unflag:hover {
+  background: rgba(255, 51, 51, 0.3);
+}
+
+.vf-pump-panel {
+  border-color: rgba(68, 170, 255, 0.3);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5), inset 0 0 20px rgba(68, 170, 255, 0.05);
+}
+
+.vf-pump-badge {
+  background: rgba(68, 170, 255, 0.2);
+  color: #44aaff;
+}
+
+.vf-stat-text {
+  font-weight: 600;
+  color: #fff;
+}

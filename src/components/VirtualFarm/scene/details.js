@@ -70,6 +70,8 @@ export function createIrrigationPipes(scene, towerPositions) {
     metalness: 0.7,
   });
 
+  const pipeRefs = []; // Store references for water flow animation
+
   // Main horizontal header pipes along each row
   const rowXs = [...new Set(towerPositions.map(p => p[0]))];
   const allZ = towerPositions.map(p => p[1]);
@@ -81,41 +83,50 @@ export function createIrrigationPipes(scene, towerPositions) {
     // Header pipe at top
     const header = new THREE.Mesh(
       new THREE.CylinderGeometry(0.035, 0.035, pipeLen, 8),
-      pipeMat
+      pipeMat.clone()
     );
     header.rotation.x = Math.PI / 2;
     header.position.set(x, 3.9, (minZ + maxZ) / 2);
+    header.userData.pipeType = 'header';
     group.add(header);
+    pipeRefs.push(header);
 
     // Drip line at bottom
     const drip = new THREE.Mesh(
       new THREE.CylinderGeometry(0.02, 0.02, pipeLen, 6),
-      pipeMat
+      pipeMat.clone()
     );
     drip.rotation.x = Math.PI / 2;
     drip.position.set(x + 0.15, 0.3, (minZ + maxZ) / 2);
+    drip.userData.pipeType = 'drip';
     group.add(drip);
+    pipeRefs.push(drip);
   });
 
   // Vertical drop pipes at each tower
   towerPositions.forEach(([x, z]) => {
     const drop = new THREE.Mesh(
       new THREE.CylinderGeometry(0.02, 0.02, 3.6, 6),
-      pipeMat
+      pipeMat.clone()
     );
     drop.position.set(x + 0.18, 2.1, z);
+    drop.userData.pipeType = 'drop';
     group.add(drop);
+    pipeRefs.push(drop);
 
     // Joint/elbow at top
     const joint = new THREE.Mesh(
       new THREE.SphereGeometry(0.04, 8, 6),
-      jointMat
+      jointMat.clone()
     );
     joint.position.set(x + 0.18, 3.9, z);
+    joint.userData.pipeType = 'joint';
     group.add(joint);
+    pipeRefs.push(joint);
   });
 
   scene.add(group);
+  return pipeRefs;
 }
 
 /**
@@ -123,6 +134,7 @@ export function createIrrigationPipes(scene, towerPositions) {
  */
 export function createNutrientTanks(scene) {
   const group = new THREE.Group();
+  const tankMeshes = []; // Return references for click interaction
 
   const tankMat = new THREE.MeshStandardMaterial({
     color: 0x2a6e4e,
@@ -141,37 +153,48 @@ export function createNutrientTanks(scene) {
   });
 
   const tankData = [
-    { x: -7, z: -22, label: 'N' },
-    { x: -4, z: -22, label: 'P' },
-    { x: 4, z: -22, label: 'K' },
-    { x: 7, z: -22, label: 'pH' },
+    { x: -7, z: -22, label: 'N', waterLevel: 82, ph: 6.2, flowRate: 1.4 },
+    { x: -4, z: -22, label: 'P', waterLevel: 67, ph: 5.8, flowRate: 0.9 },
+    { x: 4, z: -22, label: 'K', waterLevel: 91, ph: 6.5, flowRate: 1.1 },
+    { x: 7, z: -22, label: 'pH', waterLevel: 55, ph: 7.0, flowRate: 0.5 },
   ];
 
-  tankData.forEach(({ x, z }) => {
+  tankData.forEach(({ x, z, label, waterLevel, ph, flowRate }) => {
+    // Tank group for interaction
+    const tankGroup = new THREE.Group();
+    tankGroup.userData = {
+      isTank: true,
+      type: label,
+      waterLevel,
+      ph,
+      flowRate,
+      position: { x, z },
+    };
+
     // Tank body
     const tank = new THREE.Mesh(
       new THREE.CylinderGeometry(0.55, 0.55, 1.4, 16),
-      tankMat
+      tankMat.clone()
     );
     tank.position.set(x, 0.7, z);
     tank.castShadow = true;
-    group.add(tank);
+    tankGroup.add(tank);
 
     // Lid
     const lid = new THREE.Mesh(
       new THREE.CylinderGeometry(0.58, 0.55, 0.08, 16),
-      lidMat
+      lidMat.clone()
     );
     lid.position.set(x, 1.44, z);
-    group.add(lid);
+    tankGroup.add(lid);
 
     // Label stripe
     const stripe = new THREE.Mesh(
       new THREE.CylinderGeometry(0.56, 0.56, 0.15, 16, 1, true),
-      labelMat
+      labelMat.clone()
     );
     stripe.position.set(x, 0.8, z);
-    group.add(stripe);
+    tankGroup.add(stripe);
 
     // Outlet pipe going to main line
     const outlet = new THREE.Mesh(
@@ -180,10 +203,14 @@ export function createNutrientTanks(scene) {
     );
     outlet.rotation.x = Math.PI / 2;
     outlet.position.set(x, 0.35, z + 0.8);
-    group.add(outlet);
+    tankGroup.add(outlet);
+
+    group.add(tankGroup);
+    tankMeshes.push(tankGroup);
   });
 
   scene.add(group);
+  return tankMeshes;
 }
 
 /**
@@ -312,10 +339,10 @@ export function createVentilationFans(scene) {
   return fans;
 }
 
-/** Spin fan blades each frame */
-export function updateFans(fans, delta) {
+/** Spin fan blades each frame. speedMultiplier comes from settings (default 1.0) */
+export function updateFans(fans, delta, speedMultiplier = 1.0) {
   fans.forEach((fan, i) => {
-    const speed = 1.5 + (i % 3) * 0.5;
+    const speed = (1.5 + (i % 3) * 0.5) * speedMultiplier;
     fan.rotation.z += speed * delta;
   });
 }
@@ -553,4 +580,327 @@ export function createToolCart(scene) {
   }
 
   scene.add(group);
+}
+
+/**
+ * Main water reservoir — large tank with animated water level
+ */
+export function createWaterReservoir(scene) {
+  const group = new THREE.Group();
+  group.userData = {
+    isPump: true,
+    type: 'Reservoir',
+    waterLevel: 74,
+    ph: 6.8,
+    flowRate: 2.1,
+    pumpStatus: 'Running',
+    position: { x: 0, z: -23.5 },
+  };
+
+  // Outer shell (translucent)
+  const shellMat = new THREE.MeshPhysicalMaterial({
+    color: 0x4488aa,
+    transparent: true,
+    opacity: 0.25,
+    roughness: 0.1,
+    metalness: 0.3,
+    transmission: 0.5,
+    side: THREE.DoubleSide,
+  });
+  const shell = new THREE.Mesh(
+    new THREE.CylinderGeometry(1.0, 1.0, 2.0, 20),
+    shellMat
+  );
+  shell.position.set(0, 1.0, -23.5);
+  group.add(shell);
+
+  // Water inside (animated level)
+  const waterMat = new THREE.MeshStandardMaterial({
+    color: 0x2299cc,
+    transparent: true,
+    opacity: 0.6,
+    roughness: 0.05,
+    metalness: 0.2,
+    emissive: 0x115577,
+    emissiveIntensity: 0.2,
+  });
+  const waterLevel = 0.74; // 74% full
+  const waterHeight = 2.0 * waterLevel;
+  const water = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.95, 0.95, waterHeight, 20),
+    waterMat
+  );
+  water.position.set(0, waterHeight / 2, -23.5);
+  group.add(water);
+
+  // Metal bands
+  const bandMat = new THREE.MeshStandardMaterial({ color: 0x555555, roughness: 0.3, metalness: 0.8 });
+  [0.1, 1.0, 1.9].forEach(y => {
+    const band = new THREE.Mesh(
+      new THREE.TorusGeometry(1.02, 0.03, 6, 20),
+      bandMat
+    );
+    band.rotation.x = Math.PI / 2;
+    band.position.set(0, y, -23.5);
+    group.add(band);
+  });
+
+  // Lid
+  const lid = new THREE.Mesh(
+    new THREE.CylinderGeometry(1.05, 1.0, 0.08, 20),
+    bandMat
+  );
+  lid.position.set(0, 2.04, -23.5);
+  group.add(lid);
+
+  // Outlet pipe to main system
+  const outPipe = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.04, 0.04, 3, 8),
+    new THREE.MeshStandardMaterial({ color: 0x5588aa, roughness: 0.3, metalness: 0.6 })
+  );
+  outPipe.rotation.x = Math.PI / 2;
+  outPipe.position.set(0, 0.4, -22);
+  group.add(outPipe);
+
+  scene.add(group);
+  return group;
+}
+
+/**
+ * Water pump unit beside reservoir
+ */
+export function createWaterPump(scene) {
+  const group = new THREE.Group();
+  group.userData = {
+    isPump: true,
+    type: 'Pump',
+    waterLevel: 100,
+    ph: null,
+    flowRate: 3.2,
+    pumpStatus: 'Active',
+    pressure: '2.4 bar',
+    position: { x: 2, z: -23.5 },
+  };
+
+  const bodyMat = new THREE.MeshStandardMaterial({
+    color: 0x3a6b4f,
+    roughness: 0.4,
+    metalness: 0.5,
+  });
+  const metalMat = new THREE.MeshStandardMaterial({
+    color: 0x555555,
+    roughness: 0.3,
+    metalness: 0.8,
+  });
+
+  // Pump housing
+  const housing = new THREE.Mesh(
+    new THREE.BoxGeometry(0.8, 0.6, 0.5),
+    bodyMat
+  );
+  housing.position.set(2, 0.5, -23.5);
+  housing.castShadow = true;
+  group.add(housing);
+
+  // Motor cylinder on top
+  const motor = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.18, 0.18, 0.4, 12),
+    metalMat
+  );
+  motor.rotation.z = Math.PI / 2;
+  motor.position.set(2, 0.9, -23.5);
+  group.add(motor);
+
+  // Inlet pipe
+  const inlet = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.03, 0.03, 1.2, 6),
+    new THREE.MeshStandardMaterial({ color: 0x5588aa, roughness: 0.3, metalness: 0.6 })
+  );
+  inlet.rotation.z = Math.PI / 2;
+  inlet.position.set(1.2, 0.4, -23.5);
+  group.add(inlet);
+
+  // Status light (green LED)
+  const led = new THREE.Mesh(
+    new THREE.SphereGeometry(0.04, 8, 6),
+    new THREE.MeshStandardMaterial({
+      color: 0x00ff44,
+      emissive: 0x00ff44,
+      emissiveIntensity: 1.0,
+    })
+  );
+  led.position.set(2.35, 0.7, -23.25);
+  group.add(led);
+
+  // Green glow
+  const glow = new THREE.PointLight(0x00ff44, 0.2, 1);
+  glow.position.set(2.35, 0.7, -23.25);
+  group.add(glow);
+
+  scene.add(group);
+  return group;
+}
+
+/**
+ * Sprayer nozzles on top of each tower
+ */
+export function createSprayers(scene, towerPositions) {
+  const group = new THREE.Group();
+  const nozzleMat = new THREE.MeshStandardMaterial({
+    color: 0x777777,
+    roughness: 0.3,
+    metalness: 0.7,
+  });
+
+  towerPositions.forEach(([x, z]) => {
+    // Nozzle body
+    const nozzle = new THREE.Mesh(
+      new THREE.ConeGeometry(0.04, 0.1, 8),
+      nozzleMat
+    );
+    nozzle.position.set(x, 4.05, z);
+    nozzle.rotation.x = Math.PI; // Point downward
+    group.add(nozzle);
+
+    // Nozzle base ring
+    const ring = new THREE.Mesh(
+      new THREE.TorusGeometry(0.035, 0.008, 6, 8),
+      nozzleMat
+    );
+    ring.rotation.x = Math.PI / 2;
+    ring.position.set(x, 3.95, z);
+    group.add(ring);
+  });
+
+  scene.add(group);
+  return group;
+}
+
+/**
+ * Spray mist particle system
+ */
+export function createSprayParticles(scene, towerPositions) {
+  const particlesPerTower = 15;
+  const totalCount = towerPositions.length * particlesPerTower;
+  const geo = new THREE.BufferGeometry();
+  const positions = new Float32Array(totalCount * 3);
+  const opacities = new Float32Array(totalCount);
+  const velocities = new Float32Array(totalCount * 3);
+  const startPositions = new Float32Array(totalCount * 3);
+
+  let idx = 0;
+  towerPositions.forEach(([tx, tz]) => {
+    for (let i = 0; i < particlesPerTower; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      const radius = Math.random() * 0.3;
+      const x = tx + Math.cos(angle) * radius;
+      const y = 3.9 + Math.random() * 0.3;
+      const z = tz + Math.sin(angle) * radius;
+
+      positions[idx * 3] = x;
+      positions[idx * 3 + 1] = y;
+      positions[idx * 3 + 2] = z;
+
+      startPositions[idx * 3] = x;
+      startPositions[idx * 3 + 1] = y;
+      startPositions[idx * 3 + 2] = z;
+
+      velocities[idx * 3] = (Math.random() - 0.5) * 0.3;
+      velocities[idx * 3 + 1] = -(0.5 + Math.random() * 0.5);
+      velocities[idx * 3 + 2] = (Math.random() - 0.5) * 0.3;
+
+      opacities[idx] = 0;
+      idx++;
+    }
+  });
+
+  geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+
+  const mat = new THREE.PointsMaterial({
+    color: 0xaaddff,
+    size: 0.04,
+    transparent: true,
+    opacity: 0,
+    depthWrite: false,
+    blending: THREE.AdditiveBlending,
+  });
+
+  const points = new THREE.Points(geo, mat);
+  points.userData.velocities = velocities;
+  points.userData.startPositions = startPositions;
+  points.userData.towerPositions = towerPositions;
+  points.userData.particlesPerTower = particlesPerTower;
+  scene.add(points);
+  return points;
+}
+
+/**
+ * Animate spray mist particles
+ */
+export function updateSprayParticles(sprayParticles, delta, isActive) {
+  const targetOpacity = isActive ? 0.5 : 0;
+  const mat = sprayParticles.material;
+  mat.opacity += (targetOpacity - mat.opacity) * 0.05;
+
+  if (mat.opacity < 0.01) return;
+
+  const pos = sprayParticles.geometry.attributes.position;
+  const vel = sprayParticles.userData.velocities;
+  const startPos = sprayParticles.userData.startPositions;
+
+  for (let i = 0; i < pos.count; i++) {
+    pos.array[i * 3] += vel[i * 3] * delta;
+    pos.array[i * 3 + 1] += vel[i * 3 + 1] * delta;
+    pos.array[i * 3 + 2] += vel[i * 3 + 2] * delta;
+
+    // Reset particle when it falls too low
+    if (pos.array[i * 3 + 1] < 1.0) {
+      pos.array[i * 3] = startPos[i * 3] + (Math.random() - 0.5) * 0.2;
+      pos.array[i * 3 + 1] = startPos[i * 3 + 1];
+      pos.array[i * 3 + 2] = startPos[i * 3 + 2] + (Math.random() - 0.5) * 0.2;
+    }
+  }
+  pos.needsUpdate = true;
+}
+
+/**
+ * Animate water flow glow pulse through pipes
+ */
+export function updateWaterFlow(pipeRefs, delta, isFlowing) {
+  if (!isFlowing || !pipeRefs || pipeRefs.length === 0) return;
+
+  const time = performance.now() * 0.001;
+  const glowColor = new THREE.Color(0x00bbff);
+  const baseColor = new THREE.Color(0x5588aa);
+
+  pipeRefs.forEach((pipe, i) => {
+    if (!pipe.material || !pipe.material.emissive) return;
+    // Stagger the pulse by index for a traveling wave effect
+    const phase = (time * 1.5 + i * 0.15) % (Math.PI * 2);
+    const intensity = Math.max(0, Math.sin(phase)) * 0.6;
+
+    pipe.material.emissive.copy(glowColor);
+    pipe.material.emissiveIntensity = intensity;
+
+    // Also slightly tint the color toward blue when glowing
+    const t = intensity * 0.3;
+    pipe.material.color.copy(baseColor).lerp(glowColor, t);
+  });
+}
+
+/**
+ * Update grow light intensity based on settings
+ */
+export function updateGrowLights(scene, intensity) {
+  scene.traverse(child => {
+    if (child.isPointLight && child.color.getHex() === 0xdd88ff) {
+      child.intensity = 0.3 * intensity;
+    }
+    if (child.isMesh && child.material && child.material.emissive) {
+      const hex = child.material.emissive.getHex();
+      if (hex === 0xdd88ff) {
+        child.material.emissiveIntensity = 0.6 * intensity;
+      }
+    }
+  });
 }

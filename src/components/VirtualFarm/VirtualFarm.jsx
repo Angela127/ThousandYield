@@ -8,10 +8,15 @@ import {
   createVentilationFans, updateFans,
   createFloorDrains, createSupportCables, createFloorPuddles,
   createRowLabels, createWaterDrips, updateWaterDrips, createToolCart,
+  createWaterReservoir, createWaterPump, createSprayers, createSprayParticles,
+  updateSprayParticles, updateWaterFlow, updateGrowLights
 } from './scene/details';
 import { createTowers } from './scene/towers';
+import { createFlagMarker, removeFlagMarker, updateFlagMarkers } from './scene/flag-markers';
 import { SmoothControls } from './controls/SmoothControls';
 import { TowerInteraction } from './interaction/TowerInteraction';
+import { FarmSettings } from './ui/FarmSettings';
+import { FlagSystemModal } from './ui/FlagSystem';
 import './VirtualFarm.css';
 
 const VirtualFarm = () => {
@@ -23,7 +28,31 @@ const VirtualFarm = () => {
 
   const [hoveredInfo, setHoveredInfo] = useState(null);
   const [selectedInfo, setSelectedInfo] = useState(null);
+  const [selectedPumpInfo, setSelectedPumpInfo] = useState(null);
   const [showInstructions, setShowInstructions] = useState(true);
+  
+  // New State
+  const [showSettings, setShowSettings] = useState(false);
+  const [showFlagModal, setShowFlagModal] = useState(false);
+  const [flaggedTowers, setFlaggedTowers] = useState(new Map()); // UUID -> { reason, marker }
+  const flaggedTowersRef = useRef(flaggedTowers);
+  
+  const [farmSettings, setFarmSettings] = useState({
+    lightIntensity: 0.8,
+    fanSpeed: 1.0,
+    sprayInterval: 5,
+    temperature: 22,
+    pumpInterval: 2,
+  });
+  const settingsRef = useRef(farmSettings);
+
+  useEffect(() => {
+    settingsRef.current = farmSettings;
+  }, [farmSettings]);
+
+  useEffect(() => {
+    flaggedTowersRef.current = flaggedTowers;
+  }, [flaggedTowers]);
 
   const handleResize = useCallback((camera, renderer) => {
     const container = containerRef.current;
@@ -60,8 +89,10 @@ const VirtualFarm = () => {
 
     // === Details ===
     const particles = createParticles(scene);
-    createIrrigationPipes(scene, towerPositions);
-    createNutrientTanks(scene);
+    const pipeRefs = createIrrigationPipes(scene, towerPositions);
+    const tankMeshes = createNutrientTanks(scene);
+    const reservoir = createWaterReservoir(scene);
+    const pump = createWaterPump(scene);
     createControlPanel(scene);
     const fans = createVentilationFans(scene);
     createFloorDrains(scene);
@@ -71,12 +102,18 @@ const VirtualFarm = () => {
     const drips = createWaterDrips(scene);
     createToolCart(scene);
 
+    const sprayers = createSprayers(scene, towerPositions);
+    const sprayParticles = createSprayParticles(scene, towerPositions);
+
+    // Collect pump meshes
+    const pumpMeshes = [reservoir, pump];
+
     // === Controls ===
     const controls = new SmoothControls(camera, canvas);
     controlsRef.current = controls;
 
     // === Interaction ===
-    const interaction = new TowerInteraction(camera, canvas, towerMeshes);
+    const interaction = new TowerInteraction(camera, canvas, towerMeshes, tankMeshes, pumpMeshes);
     interactionRef.current = interaction;
 
     // === Interaction ===
@@ -92,21 +129,56 @@ const VirtualFarm = () => {
 
     // === Animation Loop ===
     const clock = new THREE.Clock();
+    let sprayTimer = 0;
+    let pumpTimer = 0;
+    
+    // Base fog color
+    const baseFogColor = new THREE.Color(0xd4e6d4);
+
     const animate = () => {
       animFrameRef.current = requestAnimationFrame(animate);
       const delta = clock.getDelta();
+      const currentSettings = settingsRef.current;
 
       controls.update(delta);
 
+      // System timers
+      sprayTimer += delta;
+      pumpTimer += delta;
+      
+      const sprayIntervalSec = currentSettings.sprayInterval * 60;
+      const sprayActive = sprayTimer % sprayIntervalSec < 10; // Spray for 10s
+      
+      const pumpIntervalSec = currentSettings.pumpInterval * 60;
+      const pumpActive = pumpTimer % pumpIntervalSec < 15; // Pump runs for 15s
+
       // Animate details
       updateParticles(particles);
-      updateFans(fans, delta);
+      updateFans(fans, delta, currentSettings.fanSpeed);
       updateWaterDrips(drips, delta);
+      updateSprayParticles(sprayParticles, delta, sprayActive);
+      updateWaterFlow(pipeRefs, delta, pumpActive);
+      updateGrowLights(scene, currentSettings.lightIntensity);
+      updateFlagMarkers(flaggedTowersRef.current, delta);
+
+      // Temperature effects (adjust fog color)
+      // 15C -> more blue/cool, 35C -> more warm/yellow
+      const tempLerp = (currentSettings.temperature - 15) / 20; 
+      const targetFogColor = new THREE.Color().lerpColors(
+        new THREE.Color(0xc0e0ff), // Cool 15C
+        new THREE.Color(0xffe6b0), // Warm 35C
+        tempLerp
+      );
+      // Blend with base greenhouse color
+      scene.fog.color.lerpColors(baseFogColor, targetFogColor, 0.4);
 
       // Perform hover interaction
       const hovered = interaction.update();
+      
+      // Update info panels
       setHoveredInfo(hovered);
       setSelectedInfo(interaction.getSelectedData());
+      setSelectedPumpInfo(interaction.getSelectedPumpData());
 
       renderer.render(scene, camera);
     };
@@ -120,12 +192,18 @@ const VirtualFarm = () => {
       controls.dispose();
       interaction.dispose();
       renderer.dispose();
+      
+      // Cleanup flags
+      flaggedTowersRef.current.forEach((data) => {
+        removeFlagMarker(scene, data.marker);
+      });
+      
       scene.traverse(child => {
         if (child.isMesh) {
           child.geometry.dispose();
           if (Array.isArray(child.material)) {
             child.material.forEach(m => m.dispose());
-          } else {
+          } else if (child.material) {
             child.material.dispose();
           }
         }
@@ -136,6 +214,47 @@ const VirtualFarm = () => {
   return (
     <div className="virtual-farm-container" ref={containerRef}>
       <canvas ref={canvasRef} className="virtual-farm-canvas" />
+
+      {/* Settings Button */}
+      <button className="vf-settings-btn" onClick={() => setShowSettings(true)}>
+        ⚙️
+      </button>
+
+      {/* Temperature HUD */}
+      <div className="vf-temp-hud">
+        <span className="vf-temp-icon">🌡️</span>
+        <span className="vf-temp-value">{farmSettings.temperature}°C</span>
+      </div>
+
+      <FarmSettings 
+        isOpen={showSettings} 
+        onClose={() => setShowSettings(false)} 
+        settings={farmSettings} 
+        onSettingsChange={setFarmSettings} 
+      />
+
+      <FlagSystemModal 
+        isOpen={showFlagModal} 
+        onClose={() => setShowFlagModal(false)}
+        tower={interactionRef.current?.getSelectedTowerObject()}
+        onFlagSubmit={(uuid, reason) => {
+          const tower = interactionRef.current?.getSelectedTowerObject();
+          if (tower) {
+            // Create marker in scene
+            const scene = tower.parent;
+            const marker = createFlagMarker(scene, tower.position);
+            
+            setFlaggedTowers(prev => {
+              const next = new Map(prev);
+              next.set(uuid, { reason, marker });
+              return next;
+            });
+            
+            // Tell interaction to apply red highlight
+            interactionRef.current.applyFlagHighlight(tower);
+          }
+        }}
+      />
 
       {/* Instructions Overlay */}
       {showInstructions && (
@@ -199,8 +318,17 @@ const VirtualFarm = () => {
         <div className="vf-info-panel">
           <div className="vf-info-header">
             <span className="vf-info-badge">SELECTED</span>
+            {flaggedTowers.has(interactionRef.current?.getSelectedTowerObject()?.uuid) && (
+              <span className="vf-flag-badge">⚠ FLAGGED</span>
+            )}
             <h3>{selectedInfo.species}</h3>
           </div>
+          
+          {flaggedTowers.has(interactionRef.current?.getSelectedTowerObject()?.uuid) && (
+            <div className="vf-flag-reason-box">
+              <strong>Issue:</strong> {flaggedTowers.get(interactionRef.current.getSelectedTowerObject().uuid).reason}
+            </div>
+          )}
           <div className="vf-info-stats">
             <div className="vf-stat">
               <span className="vf-stat-label">Growth Stage</span>
@@ -227,9 +355,80 @@ const VirtualFarm = () => {
           <div className="vf-info-meta">
             <span>Tower Position: ({selectedInfo.position.x.toFixed(1)}, {selectedInfo.position.z.toFixed(1)})</span>
           </div>
+          
+          <div className="vf-panel-actions">
+            {flaggedTowers.has(interactionRef.current?.getSelectedTowerObject()?.uuid) ? (
+              <button 
+                className="vf-btn-unflag"
+                onClick={() => {
+                  const tower = interactionRef.current.getSelectedTowerObject();
+                  const data = flaggedTowers.get(tower.uuid);
+                  removeFlagMarker(tower.parent, data.marker);
+                  
+                  setFlaggedTowers(prev => {
+                    const next = new Map(prev);
+                    next.delete(tower.uuid);
+                    return next;
+                  });
+                  
+                  interactionRef.current.removeFlagHighlight(tower);
+                }}
+              >
+                ⚑ Unflag
+              </button>
+            ) : (
+              <button 
+                className="vf-btn-flag"
+                onClick={() => setShowFlagModal(true)}
+              >
+                🚩 Flag for Review
+              </button>
+            )}
+          </div>
         </div>
       )}
 
+      {/* Selected Pump/Tank Info Panel */}
+      {selectedPumpInfo && (
+        <div className="vf-info-panel vf-pump-panel">
+          <div className="vf-info-header">
+            <span className="vf-info-badge vf-pump-badge">SYSTEM</span>
+            <h3>{selectedPumpInfo.type} {selectedPumpInfo.isTank ? 'Tank' : ''}</h3>
+          </div>
+          <div className="vf-info-stats">
+            {selectedPumpInfo.waterLevel !== undefined && (
+              <div className="vf-stat">
+                <span className="vf-stat-label">Level</span>
+                <div className="vf-stat-bar">
+                  <div className="vf-stat-fill vf-fill-blue" style={{ width: `${selectedPumpInfo.waterLevel}%` }} />
+                </div>
+                <span className="vf-stat-value">{selectedPumpInfo.waterLevel}%</span>
+              </div>
+            )}
+            {selectedPumpInfo.ph !== undefined && selectedPumpInfo.ph !== null && (
+              <div className="vf-stat">
+                <span className="vf-stat-label">pH Level</span>
+                <div className="vf-stat-bar">
+                  <div className="vf-stat-fill vf-fill-amber" style={{ width: `${(selectedPumpInfo.ph / 14) * 100}%` }} />
+                </div>
+                <span className="vf-stat-value">{selectedPumpInfo.ph}</span>
+              </div>
+            )}
+            {selectedPumpInfo.flowRate !== undefined && (
+              <div className="vf-stat">
+                <span className="vf-stat-label">Flow Rate</span>
+                <span className="vf-stat-text">{selectedPumpInfo.flowRate} L/min</span>
+              </div>
+            )}
+            {selectedPumpInfo.pressure && (
+              <div className="vf-stat">
+                <span className="vf-stat-label">Pressure</span>
+                <span className="vf-stat-text">{selectedPumpInfo.pressure}</span>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Mini-map legend */}
       <div className="vf-legend">

@@ -1,0 +1,108 @@
+/* FlagSystem.css */
+.vf-flag-modal {
+  background: rgba(30, 20, 20, 0.9);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 51, 51, 0.3);
+  border-radius: 16px;
+  width: 450px;
+  max-width: 90vw;
+  padding: 24px;
+  color: #fff;
+  box-shadow: 0 10px 40px rgba(255, 51, 51, 0.2);
+  animation: modalFadeIn 0.3s ease;
+}
+
+.vf-flag-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding-bottom: 12px;
+}
+
+.vf-flag-icon {
+  font-size: 1.5rem;
+  margin-right: 12px;
+}
+
+.vf-flag-header h2 {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 500;
+  color: #ff4444;
+  flex: 1;
+}
+
+.vf-flag-desc {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.8);
+  margin-bottom: 20px;
+  line-height: 1.4;
+}
+
+.vf-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+
+.vf-form-group label {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.vf-form-group textarea {
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  padding: 12px;
+  color: #fff;
+  font-family: inherit;
+  font-size: 0.9rem;
+  resize: vertical;
+  min-height: 80px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.vf-form-group textarea:focus {
+  border-color: #ff4444;
+}
+
+.vf-flag-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.vf-btn-secondary {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: #fff;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background 0.2s;
+}
+
+.vf-btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.vf-btn-danger {
+  background: #ff3333;
+  border: none;
+  color: #fff;
+  padding: 8px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: background 0.2s;
+}
+
+.vf-btn-danger:hover {
+  background: #ff5555;
+}
