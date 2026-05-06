@@ -39,3 +39,13 @@ ml/plant_model.h5
 ml/__pycache__/
 api/__pycache__/
 
+# Credentials
+credentials/
+
+# Firebase config
+src/firebase.js
+
+# python compile cache
+*.pyc
+__pycache__
+.venv  
