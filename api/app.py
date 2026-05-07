@@ -14,6 +14,8 @@ import json
 from fastapi import FastAPI, File, UploadFile, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
+import cv2
+import numpy as np
 
 import vertexai
 from vertexai.generative_models import GenerativeModel, Part
@@ -132,6 +134,82 @@ async def predict(file: UploadFile = File(...)):
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Analysis failed: {str(e)}")
+
+@app.post("/cv-analysis")
+async def cv_analysis(file: UploadFile = File(...)):
+    """Fast OpenCV-based analysis for color detection and anomaly spotting."""
+    try:
+        contents = await file.read()
+        nparr = np.frombuffer(contents, np.uint8)
+        img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+        
+        if img is None:
+            raise HTTPException(status_code=400, detail="Invalid image data")
+
+        # Resize for faster processing
+        img = cv2.resize(img, (640, 480))
+        hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+
+        # 1. Color Masking for Health Analysis
+        # Green (Healthy)
+        lower_green = np.array([35, 40, 40])
+        upper_green = np.array([85, 255, 255])
+        green_mask = cv2.inRange(hsv, lower_green, upper_green)
+        green_pct = (cv2.countNonZero(green_mask) / (img.shape[0] * img.shape[1])) * 100
+
+        # Yellow (Nitrogen deficiency / Yellowing)
+        lower_yellow = np.array([20, 100, 100])
+        upper_yellow = np.array([34, 255, 255])
+        yellow_mask = cv2.inRange(hsv, lower_yellow, upper_yellow)
+        yellow_pct = (cv2.countNonZero(yellow_mask) / (img.shape[0] * img.shape[1])) * 100
+
+        # Brown (Drying / Disease spots)
+        lower_brown = np.array([10, 50, 20])
+        upper_brown = np.array([20, 255, 200])
+        brown_mask = cv2.inRange(hsv, lower_brown, upper_brown)
+        brown_pct = (cv2.countNonZero(brown_mask) / (img.shape[0] * img.shape[1])) * 100
+
+        # 2. Pest / Spot Detection (Contour Analysis)
+        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        blurred = cv2.GaussianBlur(gray, (5, 5), 0)
+        edged = cv2.Canny(blurred, 50, 150)
+        contours, _ = cv2.findContours(edged.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        
+        pest_count = 0
+        for cnt in contours:
+            area = cv2.contourArea(cnt)
+            if 10 < area < 200:  # Potential pests or small spots
+                pest_count += 1
+
+        # 3. Formulate Results
+        status = "Healthy"
+        anomalies = []
+        
+        if yellow_pct > 5:
+            status = "Yellowing Detected"
+            anomalies.append("Potential Nitrogen Deficiency")
+        if brown_pct > 2:
+            status = "Disease Spots Detected"
+            anomalies.append("Fungal/Brown Spots")
+        if pest_count > 15:
+            anomalies.append("Potential Pest Activity")
+
+        health_score = max(0, 100 - (yellow_pct * 5) - (brown_pct * 10))
+
+        return {
+            "health_score": round(health_score, 1),
+            "status": status,
+            "anomalies": anomalies,
+            "metrics": {
+                "green_pct": round(green_pct, 2),
+                "yellow_pct": round(yellow_pct, 2),
+                "brown_pct": round(brown_pct, 2),
+                "pest_indicators": pest_count
+            }
+        }
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"CV Analysis failed: {str(e)}")
 
 # ─── Run ──────────────────────────────────────────────────────────────────────
 if __name__ == "__main__":

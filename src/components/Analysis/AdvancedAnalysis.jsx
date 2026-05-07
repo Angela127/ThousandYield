@@ -13,8 +13,13 @@ import {
   Loader,
   CheckCircle,
   XCircle,
-  ImagePlus
+  ImagePlus,
+  Activity,
+  ShieldAlert,
+  Zap
 } from 'lucide-react';
+import CameraFeed from './CameraFeed';
+import TimeLapse from './TimeLapse';
 
 const API_URL = 'http://localhost:8000';
 
@@ -24,6 +29,7 @@ const AdvancedAnalysis = () => {
   const [prediction, setPrediction] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [cvPrediction, setCvPrediction] = useState(null);
   const [isDragOver, setIsDragOver] = useState(false);
   const fileInputRef = useRef(null);
 
@@ -47,18 +53,24 @@ const AdvancedAnalysis = () => {
       const formData = new FormData();
       formData.append('file', file);
 
-      const response = await fetch(`${API_URL}/predict`, {
-        method: 'POST',
-        body: formData,
-      });
+      // Run BOTH Deep AI and Fast CV in parallel
+      const [aiRes, cvRes] = await Promise.all([
+        fetch(`${API_URL}/predict`, { method: 'POST', body: formData }),
+        fetch(`${API_URL}/cv-analysis`, { method: 'POST', body: formData })
+      ]);
 
-      if (!response.ok) {
-        const errData = await response.json().catch(() => ({}));
-        throw new Error(errData.detail || `Server error (${response.status})`);
+      if (!aiRes.ok) {
+        const errData = await aiRes.json().catch(() => ({}));
+        throw new Error(errData.detail || `AI Server error (${aiRes.status})`);
       }
 
-      const data = await response.json();
-      setPrediction(data);
+      const aiData = await aiRes.json();
+      setPrediction(aiData);
+
+      if (cvRes.ok) {
+        const cvData = await cvRes.json();
+        setCvPrediction(cvData);
+      }
     } catch (err) {
       if (err.message.includes('Failed to fetch') || err.message.includes('NetworkError')) {
         setError('Cannot connect to the API server. Make sure to run: python api/app.py');
@@ -92,10 +104,16 @@ const AdvancedAnalysis = () => {
     if (file) handleFile(file);
   }, [handleFile]);
 
+  const handleSnapshot = useCallback((file, previewUrl) => {
+    setImagePreview(previewUrl);
+    handleFile(file);
+  }, [handleFile]);
+
   const handleReset = useCallback(() => {
     setUploadedImage(null);
     setImagePreview(null);
     setPrediction(null);
+    setCvPrediction(null);
     setError(null);
     setIsLoading(false);
     if (fileInputRef.current) fileInputRef.current.value = '';
@@ -115,112 +133,99 @@ const AdvancedAnalysis = () => {
       </header>
 
       <div className="analysis-grid">
-        {/* ── Camera / Upload Section ───────────────────────────── */}
-        <div className="camera-section">
-          <div className="card-header">
-            <div className="live-badge">
-              <span className="dot"></span> {imagePreview ? 'UPLOADED' : 'UPLOAD'}
-            </div>
-            <div className="camera-controls">
-              {imagePreview && (
-                <button className="icon-btn" onClick={handleReset} title="Reset">
-                  <RefreshCcw size={16} />
-                </button>
-              )}
-              <button className="icon-btn" onClick={() => fileInputRef.current?.click()} title="Upload image">
-                <Upload size={16} />
-              </button>
-            </div>
-          </div>
+        {/* ── Camera & Field Feed Section ────────────────────────── */}
+        <div className="main-analysis-area">
+          <CameraFeed onSnapshot={handleSnapshot} />
           
-          <div className="video-container">
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/*"
-              onChange={handleFileSelect}
-              className="file-input-hidden"
-            />
-
-            {imagePreview ? (
-              <>
-                <img 
-                  src={imagePreview}
-                  alt="Uploaded leaf" 
-                  className="main-feed"
-                />
-                
-                {/* AI overlay based on prediction */}
-                {prediction && (
-                  <div 
-                    className={`ai-overlay detection-box ${prediction.is_healthy ? '' : 'warning'}`}
-                    style={{ top: '15%', left: '25%', width: '180px', height: '180px' }}
-                  >
-                    <div className="box-label">
-                      {prediction.is_healthy ? 'Healthy' : 'Disease Detected'} • {Math.round(prediction.confidence * 100)}%
-                    </div>
-                  </div>
-                )}
-
-                {/* Loading overlay */}
-                {isLoading && (
-                  <div className="analysis-loading-overlay">
-                    <div className="scan-animation">
-                      <Scan size={48} />
-                    </div>
-                    <span>Analyzing leaf...</span>
-                  </div>
-                )}
-
-                <div className="vision-stats">
-                  {prediction && (
-                    <>
-                      <div className="v-stat">
-                        <span className="v-label">Status</span>
-                        <span className={`v-value ${prediction.is_healthy ? 'success' : 'danger'}`}>
-                          {prediction.is_healthy ? 'Healthy' : 'Diseased'}
-                        </span>
-                      </div>
-                      <div className="v-stat">
-                        <span className="v-label">Growth Stage</span>
-                        <span className="v-value">{prediction.growth_stage || 'Unknown'}</span>
-                      </div>
-                      <div className="v-stat">
-                        <span className="v-label">Anomaly</span>
-                        <span className="v-value">{prediction.anomaly || 'Normal'}</span>
-                      </div>
-                    </>
-                  )}
-                </div>
-              </>
-            ) : (
+          <div className="secondary-views">
+            <TimeLapse />
+            
+            <div className="upload-fallback-card">
+              <div className="card-header">
+                <h3>Manual Upload</h3>
+                <p>For high-res static images</p>
+              </div>
               <div 
-                className={`upload-dropzone ${isDragOver ? 'drag-over' : ''}`}
+                className={`mini-dropzone ${isDragOver ? 'drag-over' : ''}`}
                 onDrop={handleDrop}
                 onDragOver={handleDragOver}
                 onDragLeave={handleDragLeave}
                 onClick={() => fileInputRef.current?.click()}
               >
-                <div className="dropzone-content">
-                  <div className="dropzone-icon">
-                    <ImagePlus size={48} />
-                  </div>
-                  <h3>Upload Plant Image</h3>
-                  <p>Drag & drop a photo of a plant, or click to browse</p>
-                  <p className="dropzone-hint">Supports JPG, PNG • Powered by Gemini AI</p>
-                </div>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleFileSelect}
+                  className="file-input-hidden"
+                />
+                <ImagePlus size={32} />
+                <span>Upload Leaf</span>
               </div>
-            )}
+            </div>
           </div>
         </div>
 
         {/* ── Intelligence Sidebar ────────────────────────────── */}
         <div className="intelligence-sidebar">
-          {/* Prediction Results Card */}
+          {/* Fast CV Analysis Card */}
+          <div className="intelligence-card cv">
+            <div className="card-top">
+              <Activity size={24} color={cvPrediction ? 'var(--primary-green)' : '#94a3b8'} />
+              <h3>Computer Vision (Fast)</h3>
+            </div>
+            
+            {cvPrediction ? (
+              <div className="cv-metrics">
+                <div className="cv-status">
+                  <span className={`s-main ${cvPrediction.health_score > 80 ? 'success' : 'warning'}`}>
+                    Health: {cvPrediction.health_score}%
+                  </span>
+                  <span className="s-sub">{cvPrediction.status}</span>
+                </div>
+                
+                <div className="metric-bars">
+                  <div className="m-row">
+                    <span className="m-label">Green (Health)</span>
+                    <div className="m-bar-container">
+                      <div className="m-bar green" style={{ width: `${cvPrediction.metrics.green_pct}%` }}></div>
+                    </div>
+                  </div>
+                  <div className="m-row">
+                    <span className="m-label">Yellow (Nitrogen)</span>
+                    <div className="m-bar-container">
+                      <div className="m-bar yellow" style={{ width: `${cvPrediction.metrics.yellow_pct}%` }}></div>
+                    </div>
+                  </div>
+                  <div className="m-row">
+                    <span className="m-label">Pest Indicators</span>
+                    <span className="m-val">{cvPrediction.metrics.pest_indicators}</span>
+                  </div>
+                </div>
+
+                {cvPrediction.anomalies.length > 0 && (
+                  <div className="cv-anomalies">
+                    {cvPrediction.anomalies.map((a, i) => (
+                      <div key={i} className="anomaly-tag">
+                        <ShieldAlert size={12} />
+                        {a}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="empty-cv">
+                <p>Run scan for real-time metrics</p>
+              </div>
+            )}
+          </div>
+
+          {/* Deep AI Prediction Card */}
           <div className="intelligence-card disease">
             <div className="card-top">
-              <Scan size={24} color={prediction ? (prediction.is_healthy ? '#4CAF50' : '#F44336') : '#F44336'} />
-              <h3>Disease Detection</h3>
+              <Zap size={24} color={prediction ? '#FFB300' : '#94a3b8'} />
+              <h3>Expert AI Diagnosis</h3>
             </div>
 
             {isLoading ? (

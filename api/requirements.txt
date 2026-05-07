@@ -4,4 +4,7 @@ python-multipart
 pillow
 kagglehub
 google-cloud-aiplatform
+opencv-python-headless
+numpy<2.0.0
+protobuf<5.0.0
 
