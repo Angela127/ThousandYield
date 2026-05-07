@@ -8,7 +8,8 @@ import {
   Zap, 
   ShieldAlert,
   Activity,
-  Download
+  Download,
+  Upload
 } from 'lucide-react';
 import './CameraFeed.css';
 
@@ -22,6 +23,18 @@ const CameraFeed = ({ onSnapshot }) => {
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
   const containerRef = useRef(null);
+  const fileInputRef = useRef(null);
+
+  const handleManualUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        onSnapshot(file, event.target.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   const startCamera = async () => {
     try {
@@ -122,6 +135,13 @@ const CameraFeed = ({ onSnapshot }) => {
           <span className="status-text">{isActive ? 'LIVE FEED' : 'CAMERA OFF'}</span>
         </div>
         <div className="camera-actions">
+          <button 
+            className="control-btn" 
+            onClick={() => fileInputRef.current?.click()} 
+            title="Manual Upload"
+          >
+            <Upload size={18} />
+          </button>
           <button className="control-btn" onClick={toggleFullscreen} title="Fullscreen">
             {isFullscreen ? <Minimize2 size={18} /> : <Maximize2 size={18} />}
           </button>
@@ -137,7 +157,7 @@ const CameraFeed = ({ onSnapshot }) => {
           </div>
         ) : !isActive ? (
           <div className="camera-placeholder">
-            <div className="placeholder-content">
+          <div className="camera-placeholder-content">
               <Camera size={64} className="pulse-icon" />
               <h3>Initialize Monitoring</h3>
               <p>Connect to field camera for real-time analysis</p>
@@ -194,6 +214,13 @@ const CameraFeed = ({ onSnapshot }) => {
       </div>
 
       <canvas ref={canvasRef} style={{ display: 'none' }} />
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/*"
+        onChange={handleManualUpload}
+        style={{ display: 'none' }}
+      />
     </div>
   );
 };

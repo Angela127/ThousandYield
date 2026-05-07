@@ -1,12 +1,13 @@
 .timelapse-panel {
-  background: rgba(15, 23, 42, 0.6);
-  backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 1.25rem;
-  padding: 1.25rem;
+  background: var(--card-bg);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 24px;
+  padding: 2rem;
   display: flex;
   flex-direction: column;
-  gap: 1.25rem;
+  gap: 1.5rem;
+  box-shadow: var(--shadow-soft);
 }
 
 .timelapse-header {
@@ -22,38 +23,40 @@
 }
 
 .t-title h3 {
-  font-family: 'Outfit', sans-serif;
-  font-size: 1rem;
-  font-weight: 600;
-  color: #fff;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text-primary);
   margin: 0;
 }
 
 .t-btn {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: #fff;
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
+  background: rgba(58, 90, 64, 0.05);
+  border: 1px solid rgba(58, 90, 64, 0.1);
+  color: var(--primary-green);
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.3s ease;
 }
 
 .t-btn:hover {
   background: var(--primary-green);
+  color: #fff;
   border-color: var(--primary-green);
+  transform: rotate(90deg);
 }
 
 .timelapse-display {
   position: relative;
-  border-radius: 1rem;
+  border-radius: 16px;
   overflow: hidden;
   aspect-ratio: 16 / 10;
-  background: #000;
+  background: #090c10;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
 }
 
 .history-img {
@@ -69,7 +72,7 @@
   left: 0;
   right: 0;
   padding: 1.5rem;
-  background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
   color: #fff;
 }
 
@@ -91,7 +94,7 @@
 .h-info .dot {
   width: 3px;
   height: 3px;
-  background: rgba(255,255,255,0.5);
+  background: rgba(255, 255, 255, 0.5);
   border-radius: 50%;
 }
 
@@ -99,7 +102,7 @@
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  background: rgba(0,0,0,0.4);
+  background: rgba(0, 0, 0, 0.4);
   border: none;
   color: #fff;
   width: 40px;
@@ -118,8 +121,13 @@
   opacity: 1;
 }
 
-.nav-btn.prev { left: 1rem; }
-.nav-btn.next { right: 1rem; }
+.nav-btn.prev {
+  left: 1rem;
+}
+
+.nav-btn.next {
+  right: 1rem;
+}
 
 .nav-btn:hover {
   background: var(--primary-green);
@@ -139,7 +147,7 @@
   left: 0.5rem;
   right: 0.5rem;
   height: 2px;
-  background: rgba(255,255,255,0.1);
+  background: rgba(58, 90, 64, 0.1);
   z-index: 1;
 }
 
@@ -156,10 +164,10 @@
 .node-dot {
   width: 14px;
   height: 14px;
-  background: #1e293b;
-  border: 2px solid rgba(255,255,255,0.2);
+  background: #fff;
+  border: 2px solid rgba(58, 90, 64, 0.2);
   border-radius: 50%;
-  transition: all 0.2s;
+  transition: all 0.3s ease;
 }
 
 .timeline-node:hover .node-dot {
@@ -173,12 +181,12 @@
 }
 
 .node-label {
-  font-size: 0.6rem;
-  font-weight: 600;
-  color: #94a3b8;
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: var(--text-muted);
   white-space: nowrap;
 }
 
 .timeline-node.active .node-label {
-  color: #fff;
+  color: var(--primary-green);
 }

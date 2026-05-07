@@ -1,11 +1,11 @@
 import React, { useState, useRef, useCallback } from 'react';
 import './AdvancedAnalysis.css';
-import { 
-  Camera, 
-  Scan, 
-  TrendingUp, 
-  AlertCircle, 
-  Maximize2, 
+import {
+  Camera,
+  Scan,
+  TrendingUp,
+  AlertCircle,
+  Maximize2,
   RefreshCcw,
   Target,
   ChevronRight,
@@ -13,7 +13,7 @@ import {
   Loader,
   CheckCircle,
   XCircle,
-  ImagePlus,
+
   Activity,
   ShieldAlert,
   Zap
@@ -82,22 +82,7 @@ const AdvancedAnalysis = () => {
     }
   }, []);
 
-  const handleDrop = useCallback((e) => {
-    e.preventDefault();
-    setIsDragOver(false);
-    const file = e.dataTransfer.files[0];
-    if (file) handleFile(file);
-  }, [handleFile]);
 
-  const handleDragOver = useCallback((e) => {
-    e.preventDefault();
-    setIsDragOver(true);
-  }, []);
-
-  const handleDragLeave = useCallback((e) => {
-    e.preventDefault();
-    setIsDragOver(false);
-  }, []);
 
   const handleFileSelect = useCallback((e) => {
     const file = e.target.files[0];
@@ -136,45 +121,21 @@ const AdvancedAnalysis = () => {
         {/* ── Camera & Field Feed Section ────────────────────────── */}
         <div className="main-analysis-area">
           <CameraFeed onSnapshot={handleSnapshot} />
-          
+
           <div className="secondary-views">
             <TimeLapse />
-            
-            <div className="upload-fallback-card">
-              <div className="card-header">
-                <h3>Manual Upload</h3>
-                <p>For high-res static images</p>
-              </div>
-              <div 
-                className={`mini-dropzone ${isDragOver ? 'drag-over' : ''}`}
-                onDrop={handleDrop}
-                onDragOver={handleDragOver}
-                onDragLeave={handleDragLeave}
-                onClick={() => fileInputRef.current?.click()}
-              >
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/*"
-                  onChange={handleFileSelect}
-                  className="file-input-hidden"
-                />
-                <ImagePlus size={32} />
-                <span>Upload Leaf</span>
-              </div>
-            </div>
           </div>
         </div>
 
         {/* ── Intelligence Sidebar ────────────────────────────── */}
         <div className="intelligence-sidebar">
           {/* Fast CV Analysis Card */}
-          <div className="intelligence-card cv">
+          <div className="analysis-card intelligence-card cv">
             <div className="card-top">
               <Activity size={24} color={cvPrediction ? 'var(--primary-green)' : '#94a3b8'} />
-              <h3>Computer Vision (Fast)</h3>
+              <h3>Computer Vision</h3>
             </div>
-            
+
             {cvPrediction ? (
               <div className="cv-metrics">
                 <div className="cv-status">
@@ -183,7 +144,7 @@ const AdvancedAnalysis = () => {
                   </span>
                   <span className="s-sub">{cvPrediction.status}</span>
                 </div>
-                
+
                 <div className="metric-bars">
                   <div className="m-row">
                     <span className="m-label">Green (Health)</span>
@@ -222,22 +183,22 @@ const AdvancedAnalysis = () => {
           </div>
 
           {/* Deep AI Prediction Card */}
-          <div className="intelligence-card disease">
+          <div className="analysis-card intelligence-card disease">
             <div className="card-top">
               <Zap size={24} color={prediction ? '#FFB300' : '#94a3b8'} />
-              <h3>Expert AI Diagnosis</h3>
+              <h3>AI Diagnosis</h3>
             </div>
 
             {isLoading ? (
               <div className="prediction-loading">
-                <Loader size={24} className="spinner" />
-                <span>Analyzing image...</span>
+                <Loader size={32} className="spinner" />
+                <span>Analyzing patterns...</span>
               </div>
             ) : prediction ? (
               <>
                 <div className="disease-status">
                   <div className={`status-icon ${prediction.is_healthy ? 'success' : 'danger'}`}>
-                    {prediction.is_healthy ? '✓' : '!'}
+                    {prediction.is_healthy ? <CheckCircle size={24} /> : <AlertCircle size={24} />}
                   </div>
                   <div className="status-text">
                     <span className="s-main">{prediction.prediction}</span>
@@ -250,18 +211,19 @@ const AdvancedAnalysis = () => {
                 {/* AI Reasoning */}
                 {prediction.reasoning && (
                   <div className="ai-reasoning">
-                    <h4>AI Reasoning</h4>
+                    <h4>Analysis Logic</h4>
                     <p>{prediction.reasoning}</p>
                   </div>
                 )}
 
                 <button className="scan-btn" onClick={handleReset}>
-                  Scan Another Plant
+                  <RefreshCcw size={16} />
+                  Scan Another
                 </button>
               </>
             ) : error ? (
               <div className="prediction-error">
-                <XCircle size={20} color="#F44336" />
+                <XCircle size={32} color="#ef4444" />
                 <span>{error}</span>
                 <button className="scan-btn" onClick={handleReset}>Try Again</button>
               </div>
@@ -270,11 +232,12 @@ const AdvancedAnalysis = () => {
                 <div className="disease-status">
                   <div className="status-icon neutral">?</div>
                   <div className="status-text">
-                    <span className="s-main">No scan performed</span>
-                    <span className="s-sub">Upload a leaf image to start</span>
+                    <span className="s-main">Awaiting Scan</span>
+                    <span className="s-sub">Capture or upload image</span>
                   </div>
                 </div>
                 <button className="scan-btn" onClick={() => fileInputRef.current?.click()}>
+                  <Upload size={16} />
                   Upload & Scan
                 </button>
               </>
@@ -282,50 +245,52 @@ const AdvancedAnalysis = () => {
           </div>
 
           {/* Growth & Anomaly Card */}
-          <div className="intelligence-card yield">
+          <div className="analysis-card intelligence-card yield">
             <div className="card-top">
               <Target size={24} color="var(--primary-green)" />
-              <h3>Growth & Anomaly</h3>
+              <h3>Growth Tracking</h3>
             </div>
-            
+
             {prediction ? (
               <div className="yield-data">
                 <div className="growth-stage-display">
                   <span className="y-sub">Current Stage</span>
                   <div className="y-main">{prediction.growth_stage}</div>
                 </div>
-                
-                <div className="anomaly-display" style={{ marginTop: '1rem' }}>
+
+                <div className="anomaly-display" style={{ marginTop: '1.5rem' }}>
                   <span className="y-sub">Detected Anomalies</span>
-                  <div className="y-main" style={{ color: prediction.anomaly === 'Normal' ? 'var(--primary-green)' : '#F44336', fontSize: '1.2rem' }}>
+                  <div className="y-main" style={{ color: prediction.anomaly === 'Normal' ? 'var(--primary-green)' : '#ef4444' }}>
                     {prediction.anomaly}
                   </div>
                 </div>
               </div>
             ) : (
-              <div className="disease-status" style={{ marginTop: '1rem' }}>
+              <div className="disease-status" style={{ background: 'transparent', padding: 0 }}>
                 <div className="status-icon neutral">?</div>
                 <div className="status-text">
-                  <span className="s-main">Awaiting scan</span>
-                  <span className="s-sub">Data will appear here</span>
+                  <span className="s-main">No data available</span>
+                  <span className="s-sub">Run AI Diagnosis first</span>
                 </div>
               </div>
             )}
           </div>
 
           {/* Logs Card */}
-          <div className="intelligence-card logs">
-            <h3>Automation Logs</h3>
+          <div className="analysis-card intelligence-card logs">
+            <div className="card-top">
+              <h3>Automation Logs</h3>
+            </div>
             <div className="log-list">
               {[
-                { action: 'Nutrient Injection', time: '10:15 AM', res: 'Success' },
-                { action: 'Light Spectrum Shift', time: '09:00 AM', res: 'Success' },
-                { action: 'Water Filter Flush', time: 'Yesterday', res: 'Manual' },
+                { action: 'Nutrient Injection', time: '10:15 AM' },
+                { action: 'Spectrum Shift', time: '09:00 AM' },
+                { action: 'Filter Flush', time: 'Yesterday' },
               ].map((log, i) => (
                 <div key={i} className="log-item">
                   <span className="l-time">{log.time}</span>
                   <span className="l-action">{log.action}</span>
-                  <ChevronRight size={14} color="#ccc" />
+                  <ChevronRight size={16} color="var(--text-muted)" />
                 </div>
               ))}
             </div>
