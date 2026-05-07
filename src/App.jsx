@@ -4,6 +4,7 @@ import Sidebar from './components/Sidebar/Sidebar';
 import Dashboard from './components/Dashboard/Dashboard';
 import Irrigation from './components/Irrigation/Irrigation';
 import Climate from './components/Climate/Climate';
+import Automation from './components/Automation/Automation';
 import AdvancedAnalysis from './components/Analysis/AdvancedAnalysis';
 import Settings from './components/Settings/Settings';
 import Placeholder from './components/Placeholder/Placeholder';
@@ -58,6 +59,7 @@ function App() {
         <Route path="/fields" element={<AdvancedAnalysis />} />
         <Route path="/irrigation" element={<Irrigation />} />
         <Route path="/climate" element={<Climate />} />
+        <Route path="/automation" element={<Automation />} />
         <Route path="/settings" element={<Settings />} />
         {/* Unimplemented pages use the Placeholder component */}
         <Route path="/reports" element={<Placeholder />} />
