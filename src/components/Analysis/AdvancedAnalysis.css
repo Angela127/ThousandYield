@@ -4,108 +4,145 @@
   display: flex;
   flex-direction: column;
   height: 100vh;
-  overflow: hidden;
+  overflow-y: auto;
   gap: 2rem;
   background-color: var(--bg-color);
 }
 
 .analysis-grid {
   display: grid;
-  grid-template-columns: 1fr 340px;
+  grid-template-columns: 1fr 350px;
   gap: 2rem;
-  flex: 1;
-  min-height: 0;
-  padding-bottom: 1rem;
+  align-items: start;
 }
 
-.camera-section {
-  background: #0a0a0a;
-  border-radius: 20px;
-  overflow: hidden;
-  position: relative;
-  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.3);
-  aspect-ratio: 16 / 10;
-  min-height: 500px;
+.main-analysis-area {
   display: flex;
   flex-direction: column;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  gap: 2rem;
 }
 
-.camera-section .card-header {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 10;
-  padding: 1.25rem;
-  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.8), transparent);
+.secondary-views {
+  display: grid;
+  grid-template-columns: 1fr 280px;
+  gap: 2rem;
+}
+
+.upload-fallback-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px dashed rgba(255, 255, 255, 0.1);
+  border-radius: 1.25rem;
+  padding: 1.5rem;
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  flex-direction: column;
+  gap: 1rem;
 }
 
-.live-badge {
-  background: rgba(220, 38, 38, 0.9);
-  color: white;
-  padding: 3px 10px;
-  border-radius: 2px;
-  font-size: 0.65rem;
-  font-weight: 900;
+.mini-dropzone {
+  flex: 1;
+  border: 2px dashed rgba(255, 255, 255, 0.1);
+  border-radius: 1rem;
   display: flex;
-  align-items: center;
-  gap: 5px;
-  letter-spacing: 0.05em;
-}
-
-.live-badge .dot {
-  width: 6px;
-  height: 6px;
-  background: white;
-  border-radius: 50%;
-  animation: pulse 1.5s infinite;
-}
-
-@keyframes pulse {
-  0% {
-    opacity: 1;
-  }
-
-  50% {
-    opacity: 0.3;
-  }
-
-  100% {
-    opacity: 1;
-  }
-}
-
-.camera-controls {
-  display: flex;
-  gap: 0.5rem;
-}
-
-.icon-btn {
-  background: rgba(255, 255, 255, 0.2);
-  border: none;
-  color: white;
-  width: 32px;
-  height: 32px;
-  border-radius: 4px;
-  cursor: pointer;
-  display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  transition: background 0.2s;
+  gap: 0.5rem;
+  padding: 1rem;
+  cursor: pointer;
+  color: #94a3b8;
+  transition: all 0.2s;
 }
 
-.icon-btn:hover {
-  background: rgba(255, 255, 255, 0.35);
+.mini-dropzone:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: var(--primary-green);
+  color: #fff;
 }
 
-.video-container {
-  flex-grow: 1;
-  position: relative;
-  background: #111;
+.mini-dropzone span {
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+/* CV Metrics Styling */
+.cv-metrics {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.cv-status {
+  display: flex;
+  flex-direction: column;
+}
+
+.metric-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.m-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.m-label {
+  font-size: 0.7rem;
+  color: #94a3b8;
+  font-weight: 600;
+}
+
+.m-bar-container {
+  height: 6px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.m-bar {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.m-bar.green { background: var(--primary-green); }
+.m-bar.yellow { background: #FFB300; }
+
+.m-val {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #fff;
+}
+
+.cv-anomalies {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.anomaly-tag {
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  color: #f87171;
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.empty-cv {
+  padding: 2rem 0;
+  text-align: center;
+  color: #64748b;
+  font-size: 0.85rem;
+  border: 1px dashed rgba(255, 255, 255, 0.05);
+  border-radius: 1rem;
 }
 
 .file-input-hidden {
