@@ -181,7 +181,76 @@ async def cv_analysis(file: UploadFile = File(...)):
             if 10 < area < 200:  # Potential pests or small spots
                 pest_count += 1
 
-        # 3. Formulate Results
+        # 3. Plant Detection — bounding boxes around PLANT regions only
+        # Use green as the primary plant indicator (plants are green)
+        # Yellow/brown are secondary — only valid if near green regions
+        kernel_lg = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (21, 21))
+        kernel_sm = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (9, 9))
+
+        # Build plant mask: start with green, then include yellow/brown ONLY
+        # where they overlap with dilated green (i.e., near a plant)
+        green_dilated = cv2.dilate(green_mask, kernel_lg, iterations=2)
+        plant_yellow = cv2.bitwise_and(yellow_mask, green_dilated)
+        plant_brown = cv2.bitwise_and(brown_mask, green_dilated)
+
+        plant_mask = green_mask | plant_yellow | plant_brown
+        plant_mask = cv2.morphologyEx(plant_mask, cv2.MORPH_CLOSE, kernel_lg)
+        plant_mask = cv2.morphologyEx(plant_mask, cv2.MORPH_OPEN, kernel_sm)
+
+        plant_contours, _ = cv2.findContours(plant_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
+        h, w = img.shape[:2]
+        total_pixels = h * w
+        detections = []
+        for cnt in plant_contours:
+            area = cv2.contourArea(cnt)
+
+            # Skip if too small (noise) or too large (entire frame)
+            if area < 2000 or area > total_pixels * 0.85:
+                continue
+
+            x, y, bw, bh = cv2.boundingRect(cnt)
+
+            # Skip very thin or very wide boxes (unlikely to be a plant)
+            aspect = bw / bh if bh > 0 else 0
+            if aspect > 5 or aspect < 0.15:
+                continue
+
+            # Measure how much GREEN is in this specific bounding box
+            roi_green = green_mask[y:y+bh, x:x+bw]
+            roi_yellow = yellow_mask[y:y+bh, x:x+bw]
+            roi_brown = brown_mask[y:y+bh, x:x+bw]
+            roi_area = bw * bh
+            local_green = (cv2.countNonZero(roi_green) / roi_area) * 100 if roi_area else 0
+            local_yellow = (cv2.countNonZero(roi_yellow) / roi_area) * 100 if roi_area else 0
+            local_brown = (cv2.countNonZero(roi_brown) / roi_area) * 100 if roi_area else 0
+
+            # Must have at least 15% green to be considered a plant
+            if local_green < 15:
+                continue
+
+            label = "Healthy"
+            if local_brown > 5:
+                label = "Disease Spotted"
+            elif local_yellow > 10:
+                label = "Nitrogen Deficiency"
+
+            detections.append({
+                "x": round(x / w, 4),
+                "y": round(y / h, 4),
+                "w": round(bw / w, 4),
+                "h": round(bh / h, 4),
+                "label": label,
+                "green_pct": round(local_green, 1),
+                "yellow_pct": round(local_yellow, 1),
+                "brown_pct": round(local_brown, 1),
+            })
+
+        # Sort by area (largest first) and cap at 8
+        detections.sort(key=lambda d: d["w"] * d["h"], reverse=True)
+        detections = detections[:8]
+
+        # 4. Formulate Results
         status = "Healthy"
         anomalies = []
         
@@ -200,6 +269,7 @@ async def cv_analysis(file: UploadFile = File(...)):
             "health_score": round(health_score, 1),
             "status": status,
             "anomalies": anomalies,
+            "detections": detections,
             "metrics": {
                 "green_pct": round(green_pct, 2),
                 "yellow_pct": round(yellow_pct, 2),

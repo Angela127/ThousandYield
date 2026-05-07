@@ -9,13 +9,16 @@ import {
   ShieldAlert,
   Activity,
   Download,
-  Upload
+  Upload,
+  RotateCcw
 } from 'lucide-react';
 import './CameraFeed.css';
 
-const CameraFeed = ({ onSnapshot }) => {
+const CameraFeed = ({ onSnapshot, detections = [] }) => {
   const [isActive, setIsActive] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [devices, setDevices] = useState([]);
+  const [selectedDeviceId, setSelectedDeviceId] = useState(null);
   const [stream, setStream] = useState(null);
   const [error, setError] = useState(null);
   const [scanning, setScanning] = useState(false);
@@ -39,20 +42,39 @@ const CameraFeed = ({ onSnapshot }) => {
   const startCamera = async () => {
     try {
       setError(null);
-      const mediaStream = await navigator.mediaDevices.getUserMedia({ 
-        video: { 
-          width: { ideal: 1280 },
-          height: { ideal: 720 }
-        } 
-      });
+      
+      let currentDevices = devices;
+      if (devices.length === 0) {
+        const allDevices = await navigator.mediaDevices.enumerateDevices();
+        currentDevices = allDevices.filter(d => 
+          d.kind === 'videoinput' && 
+          !d.label.toLowerCase().includes('obs')
+        );
+        setDevices(currentDevices);
+      }
+
+      let deviceToUse = selectedDeviceId;
+      if (!deviceToUse && currentDevices.length > 0) {
+        const external = currentDevices.find(d => 
+          !d.label.toLowerCase().includes('integrated') && 
+          !d.label.toLowerCase().includes('facetime')
+        );
+        deviceToUse = external ? external.deviceId : currentDevices[currentDevices.length - 1].deviceId;
+        setSelectedDeviceId(deviceToUse);
+      }
+
+      const constraints = {
+        video: deviceToUse ? { deviceId: { exact: deviceToUse } } : true
+      };
+
+      const mediaStream = await navigator.mediaDevices.getUserMedia(constraints);
       setStream(mediaStream);
       setIsActive(true);
     } catch (err) {
-      console.warn("High-res camera failed, trying default:", err);
+      console.warn("Camera failed, trying default:", err);
       try {
         const mediaStream = await navigator.mediaDevices.getUserMedia({ video: true });
         setStream(mediaStream);
-        if (videoRef.current) videoRef.current.srcObject = mediaStream;
         setIsActive(true);
       } catch (retryErr) {
         console.error("Camera access error:", retryErr);
@@ -76,20 +98,15 @@ const CameraFeed = ({ onSnapshot }) => {
     const canvas = canvasRef.current;
     const context = canvas.getContext('2d');
 
-    // Set canvas dimensions to match video
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
-
-    // Draw frame to canvas
     context.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-    // Get blob and pass to parent
     canvas.toBlob((blob) => {
       if (blob) {
         const file = new File([blob], `snapshot-${Date.now()}.jpg`, { type: 'image/jpeg' });
         onSnapshot(file, canvas.toDataURL('image/jpeg'));
         
-        // Visual feedback
         setScanning(true);
         setTimeout(() => setScanning(false), 1500);
       }
@@ -98,13 +115,9 @@ const CameraFeed = ({ onSnapshot }) => {
 
   const toggleFullscreen = () => {
     if (!isFullscreen) {
-      if (containerRef.current.requestFullscreen) {
-        containerRef.current.requestFullscreen();
-      }
+      containerRef.current?.requestFullscreen?.();
     } else {
-      if (document.exitFullscreen) {
-        document.exitFullscreen();
-      }
+      document.exitFullscreen?.();
     }
     setIsFullscreen(!isFullscreen);
   };
@@ -117,15 +130,22 @@ const CameraFeed = ({ onSnapshot }) => {
   }, [stream, isActive]);
 
   useEffect(() => {
-    const handleFsChange = () => {
-      setIsFullscreen(!!document.fullscreenElement);
-    };
+    const handleFsChange = () => setIsFullscreen(!!document.fullscreenElement);
     document.addEventListener('fullscreenchange', handleFsChange);
     return () => {
       document.removeEventListener('fullscreenchange', handleFsChange);
       stopCamera();
     };
   }, []);
+
+  const toggleCamera = async () => {
+    if (devices.length < 2) return;
+    const currentIndex = devices.findIndex(d => d.deviceId === selectedDeviceId);
+    const nextIndex = (currentIndex + 1) % devices.length;
+    setSelectedDeviceId(devices[nextIndex].deviceId);
+    stopCamera();
+    setTimeout(() => startCamera(), 100);
+  };
 
   return (
     <div className={`camera-panel ${isFullscreen ? 'fullscreen' : ''}`} ref={containerRef}>
@@ -188,13 +208,37 @@ const CameraFeed = ({ onSnapshot }) => {
               <div className="hud-stats">
                 <div className="h-stat">
                   <Activity size={12} />
-                  <span>60 FPS</span>
+                  <span>LIVE</span>
                 </div>
                 <div className="h-stat">
                   <Zap size={12} />
-                  <span>CV ACTIVE</span>
+                  <span>CV READY</span>
                 </div>
+                {detections.length > 0 && (
+                  <div className="h-stat">
+                    <ShieldAlert size={12} />
+                    <span>{detections.length} DETECTED</span>
+                  </div>
+                )}
               </div>
+
+              {/* Detection Bounding Boxes (shown after capture) */}
+              {detections.map((det, i) => (
+                <div
+                  key={i}
+                  className={`detection-box ${det.label === 'Healthy' ? 'healthy' : 'unhealthy'}`}
+                  style={{
+                    left: `${det.x * 100}%`,
+                    top: `${det.y * 100}%`,
+                    width: `${det.w * 100}%`,
+                    height: `${det.h * 100}%`,
+                  }}
+                >
+                  <span className="detection-label">
+                    {det.label}
+                  </span>
+                </div>
+              ))}
             </div>
 
             <div className="camera-controls-overlay">
@@ -205,9 +249,17 @@ const CameraFeed = ({ onSnapshot }) => {
                 <span className="btn-label">CAPTURE ANALYSIS</span>
               </button>
               
-              <button className="power-btn" onClick={stopCamera} title="Turn Off">
-                <RefreshCcw size={18} />
-              </button>
+              <div className="side-controls">
+                {devices.length > 1 && (
+                  <button className="power-btn" onClick={toggleCamera} title="Switch Camera">
+                    <RotateCcw size={18} />
+                  </button>
+                )}
+                
+                <button className="power-btn" onClick={stopCamera} title="Turn Off">
+                  <RefreshCcw size={18} />
+                </button>
+              </div>
             </div>
           </>
         )}

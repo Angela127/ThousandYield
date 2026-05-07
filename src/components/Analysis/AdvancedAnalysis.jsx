@@ -16,12 +16,53 @@ import {
 
   Activity,
   ShieldAlert,
-  Zap
+  Zap,
+  History,
+  X
 } from 'lucide-react';
 import CameraFeed from './CameraFeed';
 import TimeLapse from './TimeLapse';
 
 const API_URL = 'http://localhost:8000';
+
+const CAPTURE_HISTORY = [
+  {
+    id: 1,
+    image: 'https://images.unsplash.com/photo-1628352081506-83c43123ed6d?auto=format&fit=crop&q=80&w=400',
+    timestamp: '2024-05-07 14:20',
+    prediction: 'Healthy Tomato',
+    confidence: 0.98,
+    health_score: 96,
+    anomaly: 'None'
+  },
+  {
+    id: 2,
+    image: 'https://images.unsplash.com/photo-1592419044706-39796d40f98c?auto=format&fit=crop&q=80&w=400',
+    timestamp: '2024-05-07 12:45',
+    prediction: 'Bacterial Spot',
+    confidence: 0.89,
+    health_score: 42,
+    anomaly: 'Disease Detected'
+  },
+  {
+    id: 3,
+    image: 'https://images.unsplash.com/photo-1591857177580-dc82b9ac4e17?auto=format&fit=crop&q=80&w=400',
+    timestamp: '2024-05-06 16:10',
+    prediction: 'Late Blight',
+    confidence: 0.76,
+    health_score: 28,
+    anomaly: 'Critical Alert'
+  },
+  {
+    id: 4,
+    image: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&q=80&w=400',
+    timestamp: '2024-05-06 09:30',
+    prediction: 'Early Blight',
+    confidence: 0.92,
+    health_score: 55,
+    anomaly: 'Stress Detected'
+  }
+];
 
 const AdvancedAnalysis = () => {
   const [uploadedImage, setUploadedImage] = useState(null);
@@ -31,6 +72,7 @@ const AdvancedAnalysis = () => {
   const [error, setError] = useState(null);
   const [cvPrediction, setCvPrediction] = useState(null);
   const [isDragOver, setIsDragOver] = useState(false);
+  const [showHistory, setShowHistory] = useState(false);
   const fileInputRef = useRef(null);
 
   const handleFile = useCallback(async (file) => {
@@ -50,13 +92,15 @@ const AdvancedAnalysis = () => {
     setIsLoading(true);
 
     try {
-      const formData = new FormData();
-      formData.append('file', file);
+      const formData1 = new FormData();
+      formData1.append('file', file);
+      const formData2 = new FormData();
+      formData2.append('file', file);
 
       // Run BOTH Deep AI and Fast CV in parallel
       const [aiRes, cvRes] = await Promise.all([
-        fetch(`${API_URL}/predict`, { method: 'POST', body: formData }),
-        fetch(`${API_URL}/cv-analysis`, { method: 'POST', body: formData })
+        fetch(`${API_URL}/predict`, { method: 'POST', body: formData1 }),
+        fetch(`${API_URL}/cv-analysis`, { method: 'POST', body: formData2 })
       ]);
 
       if (!aiRes.ok) {
@@ -113,15 +157,21 @@ const AdvancedAnalysis = () => {
   return (
     <div className="advanced-view">
       <header className="view-header">
-        <h1>Advanced Field Analysis</h1>
-        <p>AI-powered computer vision and predictive yield modeling.</p>
+        <div className="header-main">
+          <h1>Advanced Field Analysis</h1>
+          <p>AI-powered computer vision and predictive yield modeling.</p>
+        </div>
+        <button className="history-toggle-btn" onClick={() => setShowHistory(true)}>
+          <History size={20} />
+          <span>History</span>
+        </button>
       </header>
 
       <div className="analysis-grid">
         {/* ── Camera & Field Feed Section ────────────────────────── */}
         <div className="main-analysis-area">
-          <CameraFeed onSnapshot={handleSnapshot} />
-
+          <CameraFeed onSnapshot={handleSnapshot} detections={cvPrediction?.detections || []} />
+          
           <div className="secondary-views">
             <TimeLapse />
           </div>
@@ -297,6 +347,51 @@ const AdvancedAnalysis = () => {
           </div>
         </div>
       </div>
+
+      {/* ── Technical History Overlay ───────────────────────── */}
+      {showHistory && (
+        <div className="history-overlay" onClick={() => setShowHistory(false)}>
+          <div className="history-modal" onClick={e => e.stopPropagation()}>
+            <header className="modal-header">
+              <div className="header-title">
+                <History size={20} />
+                <h3>Analysis Archive</h3>
+              </div>
+              <button className="close-modal" onClick={() => setShowHistory(false)}>
+                <X size={24} />
+              </button>
+            </header>
+            
+            <div className="history-content">
+              <div className="archive-grid">
+                {CAPTURE_HISTORY.map((item) => (
+                  <div key={item.id} className="archive-item">
+                    <div className="archive-media">
+                      <img src={item.image} alt={item.prediction} />
+                      <div className="archive-status-tag" style={{ 
+                        background: item.health_score > 80 ? 'var(--primary-green)' : 
+                                    item.health_score > 50 ? '#FFB300' : '#F44336' 
+                      }}>
+                        {item.health_score}%
+                      </div>
+                    </div>
+                    <div className="archive-info">
+                      <span className="a-date">{item.timestamp}</span>
+                      <h4 className="a-title">{item.prediction}</h4>
+                      <div className="a-metrics">
+                        <span>Conf: {Math.round(item.confidence * 100)}%</span>
+                        <span className={`a-anomaly ${item.anomaly === 'None' ? 'normal' : 'alert'}`}>
+                          {item.anomaly}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
