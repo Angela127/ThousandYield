@@ -13,7 +13,8 @@ import {
   HelpCircle,
   Bell,
   Settings,
-  User
+  User,
+  Zap
 } from 'lucide-react';
 
 const Sidebar = () => {
@@ -25,6 +26,7 @@ const Sidebar = () => {
     { path: '/fields', icon: Sprout, label: 'Fields' },
     { path: '/irrigation', icon: Droplets, label: 'Irrigation' },
     { path: '/climate', icon: CloudSun, label: 'Climate' },
+    { path: '/electricity', icon: Zap, label: 'Electricity' },
     { path: '/reports', icon: FileText, label: 'Reports' },
     { path: '/help', icon: HelpCircle, label: 'Help' },
   ];
