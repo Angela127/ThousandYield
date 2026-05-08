@@ -28,39 +28,39 @@ const API_URL = 'http://localhost:8000';
 const CAPTURE_HISTORY = [
   {
     id: 1,
-    image: 'https://images.unsplash.com/photo-1628352081506-83c43123ed6d?auto=format&fit=crop&q=80&w=400',
-    timestamp: '2024-05-07 14:20',
-    prediction: 'Healthy Tomato',
-    confidence: 0.98,
-    health_score: 96,
+    image: '/images/history/img1.jpg',
+    timestamp: '2024-05-08 10:15',
+    prediction: 'Healthy Strawberry',
+    confidence: 0.95,
+    health_score: 92,
     anomaly: 'None'
   },
   {
     id: 2,
-    image: 'https://images.unsplash.com/photo-1592419044706-39796d40f98c?auto=format&fit=crop&q=80&w=400',
-    timestamp: '2024-05-07 12:45',
-    prediction: 'Bacterial Spot',
-    confidence: 0.89,
-    health_score: 42,
-    anomaly: 'Disease Detected'
+    image: '/images/history/img2.jpg',
+    timestamp: '2024-05-08 09:30',
+    prediction: 'Healthy Cherry Tomatoes',
+    confidence: 0.97,
+    health_score: 95,
+    anomaly: 'None'
   },
   {
     id: 3,
-    image: 'https://images.unsplash.com/photo-1591857177580-dc82b9ac4e17?auto=format&fit=crop&q=80&w=400',
-    timestamp: '2024-05-06 16:10',
-    prediction: 'Late Blight',
-    confidence: 0.76,
-    health_score: 28,
-    anomaly: 'Critical Alert'
+    image: '/images/history/img3.jpg',
+    timestamp: '2024-05-07 16:45',
+    prediction: 'Optimal Growth (Hydroponic)',
+    confidence: 0.99,
+    health_score: 98,
+    anomaly: 'None'
   },
   {
     id: 4,
-    image: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&q=80&w=400',
-    timestamp: '2024-05-06 09:30',
-    prediction: 'Early Blight',
+    image: '/images/history/img4.jpg',
+    timestamp: '2024-05-07 14:20',
+    prediction: 'Downy Mildew Detected',
     confidence: 0.92,
-    health_score: 55,
-    anomaly: 'Stress Detected'
+    health_score: 35,
+    anomaly: 'Fungal Infection'
   }
 ];
 
