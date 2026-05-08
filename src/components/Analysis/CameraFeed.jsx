@@ -206,14 +206,6 @@ const CameraFeed = ({ onSnapshot, detections = [] }) => {
               {scanning && <div className="scan-line"></div>}
               
               <div className="hud-stats">
-                <div className="h-stat">
-                  <Activity size={12} />
-                  <span>LIVE</span>
-                </div>
-                <div className="h-stat">
-                  <Zap size={12} />
-                  <span>CV READY</span>
-                </div>
                 {detections.length > 0 && (
                   <div className="h-stat">
                     <ShieldAlert size={12} />

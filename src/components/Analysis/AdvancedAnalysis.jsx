@@ -13,7 +13,7 @@ import {
   Loader,
   CheckCircle,
   XCircle,
-
+  ImagePlus,
   Activity,
   ShieldAlert,
   Zap,
@@ -126,7 +126,22 @@ const AdvancedAnalysis = () => {
     }
   }, []);
 
+  const handleDrop = useCallback((e) => {
+    e.preventDefault();
+    setIsDragOver(false);
+    const file = e.dataTransfer.files[0];
+    if (file) handleFile(file);
+  }, [handleFile]);
 
+  const handleDragOver = useCallback((e) => {
+    e.preventDefault();
+    setIsDragOver(true);
+  }, []);
+
+  const handleDragLeave = useCallback((e) => {
+    e.preventDefault();
+    setIsDragOver(false);
+  }, []);
 
   const handleFileSelect = useCallback((e) => {
     const file = e.target.files[0];
@@ -171,178 +186,168 @@ const AdvancedAnalysis = () => {
         {/* ── Camera & Field Feed Section ────────────────────────── */}
         <div className="main-analysis-area">
           <CameraFeed onSnapshot={handleSnapshot} detections={cvPrediction?.detections || []} />
-          
-          <div className="secondary-views">
-            <TimeLapse />
-          </div>
         </div>
 
         {/* ── Intelligence Sidebar ────────────────────────────── */}
         <div className="intelligence-sidebar">
           {/* Fast CV Analysis Card */}
-          <div className="analysis-card intelligence-card cv">
-            <div className="card-top">
-              <Activity size={24} color={cvPrediction ? 'var(--primary-green)' : '#94a3b8'} />
-              <h3>Computer Vision</h3>
+          <div className="intelligence-card cv analysis-card">
+            <div className="card-header">
+              <div className="card-top" style={{ marginBottom: 0 }}>
+                <Activity size={20} color="#3A5A40" />
+                <h3>Computer Vision</h3>
+              </div>
             </div>
 
-            {cvPrediction ? (
-              <div className="cv-metrics">
-                <div className="cv-status">
-                  <span className={`s-main ${cvPrediction.health_score > 80 ? 'success' : 'warning'}`}>
-                    Health: {cvPrediction.health_score}%
-                  </span>
-                  <span className="s-sub">{cvPrediction.status}</span>
-                </div>
+            <div className={`cv-metrics ${!cvPrediction ? 'empty' : ''}`}>
+              {cvPrediction ? (
+                <>
+                  <div className="cv-status">
+                    <span className={`s-main ${cvPrediction.health_score > 80 ? 'success' : 'warning'}`}>
+                      Health: {cvPrediction.health_score}%
+                    </span>
+                    <span className="s-sub">{cvPrediction.status}</span>
+                  </div>
 
-                <div className="metric-bars">
-                  <div className="m-row">
-                    <span className="m-label">Green (Health)</span>
-                    <div className="m-bar-container">
-                      <div className="m-bar green" style={{ width: `${cvPrediction.metrics.green_pct}%` }}></div>
-                    </div>
-                  </div>
-                  <div className="m-row">
-                    <span className="m-label">Yellow (Nitrogen)</span>
-                    <div className="m-bar-container">
-                      <div className="m-bar yellow" style={{ width: `${cvPrediction.metrics.yellow_pct}%` }}></div>
-                    </div>
-                  </div>
-                  <div className="m-row">
-                    <span className="m-label">Pest Indicators</span>
-                    <span className="m-val">{cvPrediction.metrics.pest_indicators}</span>
-                  </div>
-                </div>
-
-                {cvPrediction.anomalies.length > 0 && (
-                  <div className="cv-anomalies">
-                    {cvPrediction.anomalies.map((a, i) => (
-                      <div key={i} className="anomaly-tag">
-                        <ShieldAlert size={12} />
-                        {a}
+                  <div className="metric-bars">
+                    <div className="m-row">
+                      <span className="m-label">GREEN (HEALTH)</span>
+                      <div className="m-bar-container">
+                        <div className="m-bar green" style={{ width: `${cvPrediction.metrics.green_pct}%` }}></div>
                       </div>
-                    ))}
+                    </div>
+                    <div className="m-row">
+                      <span className="m-label">YELLOW (NITROGEN)</span>
+                      <div className="m-bar-container">
+                        <div className="m-bar yellow" style={{ width: `${cvPrediction.metrics.yellow_pct}%` }}></div>
+                      </div>
+                    </div>
+                    <div className="m-row">
+                      <span className="m-label">PEST INDICATORS</span>
+                      <span className="m-val">{cvPrediction.metrics.pest_indicators}</span>
+                    </div>
                   </div>
-                )}
-              </div>
-            ) : (
-              <div className="empty-cv">
-                <p>Run scan for real-time metrics</p>
-              </div>
-            )}
+
+                  {cvPrediction.anomalies.length > 0 && (
+                    <div className="cv-anomalies">
+                      {cvPrediction.anomalies.map((a, i) => (
+                        <div key={i} className="anomaly-pill">
+                          <AlertCircle size={14} />
+                          {a}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </>
+              ) : (
+                <div className="empty-cv">
+                  <p>Run scan for real-time metrics</p>
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Deep AI Prediction Card */}
-          <div className="analysis-card intelligence-card disease">
-            <div className="card-top">
-              <Zap size={24} color={prediction ? '#FFB300' : '#94a3b8'} />
-              <h3>AI Diagnosis</h3>
+          <div className="intelligence-card disease analysis-card">
+            <div className="card-header">
+              <div className="card-top" style={{ marginBottom: 0 }}>
+                <Zap size={20} color="#F59E0B" />
+                <h3>AI Diagnosis</h3>
+              </div>
             </div>
 
-            {isLoading ? (
-              <div className="prediction-loading">
-                <Loader size={32} className="spinner" />
-                <span>Analyzing patterns...</span>
-              </div>
-            ) : prediction ? (
-              <>
-                <div className="disease-status">
-                  <div className={`status-icon ${prediction.is_healthy ? 'success' : 'danger'}`}>
-                    {prediction.is_healthy ? <CheckCircle size={24} /> : <AlertCircle size={24} />}
+            <div className={`card-body ${!prediction ? 'empty' : ''}`}>
+
+              {isLoading ? (
+                <div className="prediction-loading">
+                  <Loader size={24} className="spinner" />
+                  <span>Analyzing image...</span>
+                </div>
+              ) : prediction ? (
+                <>
+                  <div className="disease-status">
+                    <div className={`status-icon ${prediction.is_healthy ? 'success' : 'danger'}`}>
+                      {prediction.is_healthy ? '✓' : '!'}
+                    </div>
+                    <div className="status-text">
+                      <span className="s-main">{prediction.prediction}</span>
+                      <span className="s-sub">
+                        Confidence: {Math.round(prediction.confidence * 100)}%
+                      </span>
+                    </div>
                   </div>
-                  <div className="status-text">
-                    <span className="s-main">{prediction.prediction}</span>
-                    <span className="s-sub">
-                      Confidence: {Math.round(prediction.confidence * 100)}%
-                    </span>
+
+                  {/* AI Reasoning */}
+                  {prediction.reasoning && (
+                    <div className="ai-reasoning">
+                      <h4>ANALYSIS LOGIC</h4>
+                      <p>{prediction.reasoning}</p>
+                    </div>
+                  )}
+
+                  <button className="scan-btn" onClick={handleReset}>
+                    <RefreshCcw size={16} />
+                    Scan Another
+                  </button>
+                </>
+              ) : error ? (
+                <div className="prediction-error">
+                  <XCircle size={20} color="#F44336" />
+                  <span>{error}</span>
+                  <button className="scan-btn" onClick={handleReset}>Try Again</button>
+                </div>
+              ) : (
+                <>
+                  <div className="disease-status">
+                    <div className="status-icon neutral">?</div>
+                    <div className="status-text">
+                      <span className="s-main">Awaiting Scan</span>
+                      <span className="s-sub">Capture or upload image</span>
+                    </div>
+                  </div>
+                  <button className="scan-btn" onClick={() => fileInputRef.current?.click()}>
+                    <ImagePlus size={18} />
+                    Upload & Scan
+                  </button>
+                </>
+              )}
+            </div>
+          </div>
+
+          {/* Growth Tracking Card */}
+          <div className="intelligence-card yield analysis-card">
+            <div className="card-header">
+              <div className="card-top" style={{ marginBottom: 0 }}>
+                <Target size={20} color="#3A5A40" />
+                <h3>Growth Tracking</h3>
+              </div>
+            </div>
+
+            <div className={`card-body ${!prediction ? 'empty' : ''}`}>
+
+              {prediction ? (
+                <div className="yield-data">
+                  <div className="growth-stage-display">
+                    <span className="y-sub">CURRENT STAGE</span>
+                    <div className="y-main">{prediction.growth_stage}</div>
+                  </div>
+
+                  <div className="anomaly-display" style={{ marginTop: '1rem' }}>
+                    <span className="y-sub">DETECTED ANOMALIES</span>
+                    <div className="y-main" style={{ color: prediction.anomaly === 'Normal' ? 'var(--primary-green)' : '#F44336', fontSize: '1.2rem' }}>
+                      {prediction.anomaly}
+                    </div>
                   </div>
                 </div>
-
-                {/* AI Reasoning */}
-                {prediction.reasoning && (
-                  <div className="ai-reasoning">
-                    <h4>Analysis Logic</h4>
-                    <p>{prediction.reasoning}</p>
-                  </div>
-                )}
-
-                <button className="scan-btn" onClick={handleReset}>
-                  <RefreshCcw size={16} />
-                  Scan Another
-                </button>
-              </>
-            ) : error ? (
-              <div className="prediction-error">
-                <XCircle size={32} color="#ef4444" />
-                <span>{error}</span>
-                <button className="scan-btn" onClick={handleReset}>Try Again</button>
-              </div>
-            ) : (
-              <>
-                <div className="disease-status">
+              ) : (
+                <div className="disease-status" style={{ marginTop: '1rem' }}>
                   <div className="status-icon neutral">?</div>
                   <div className="status-text">
-                    <span className="s-main">Awaiting Scan</span>
-                    <span className="s-sub">Capture or upload image</span>
+                    <span className="s-main">No data available</span>
+                    <span className="s-sub">Run AI Diagnosis first</span>
                   </div>
                 </div>
-                <button className="scan-btn" onClick={() => fileInputRef.current?.click()}>
-                  <Upload size={16} />
-                  Upload & Scan
-                </button>
-              </>
-            )}
-          </div>
-
-          {/* Growth & Anomaly Card */}
-          <div className="analysis-card intelligence-card yield">
-            <div className="card-top">
-              <Target size={24} color="var(--primary-green)" />
-              <h3>Growth Tracking</h3>
-            </div>
-
-            {prediction ? (
-              <div className="yield-data">
-                <div className="growth-stage-display">
-                  <span className="y-sub">Current Stage</span>
-                  <div className="y-main">{prediction.growth_stage}</div>
-                </div>
-
-                <div className="anomaly-display" style={{ marginTop: '1.5rem' }}>
-                  <span className="y-sub">Detected Anomalies</span>
-                  <div className="y-main" style={{ color: prediction.anomaly === 'Normal' ? 'var(--primary-green)' : '#ef4444' }}>
-                    {prediction.anomaly}
-                  </div>
-                </div>
-              </div>
-            ) : (
-              <div className="disease-status" style={{ background: 'transparent', padding: 0 }}>
-                <div className="status-icon neutral">?</div>
-                <div className="status-text">
-                  <span className="s-main">No data available</span>
-                  <span className="s-sub">Run AI Diagnosis first</span>
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Logs Card */}
-          <div className="analysis-card intelligence-card logs">
-            <div className="card-top">
-              <h3>Automation Logs</h3>
-            </div>
-            <div className="log-list">
-              {[
-                { action: 'Nutrient Injection', time: '10:15 AM' },
-                { action: 'Spectrum Shift', time: '09:00 AM' },
-                { action: 'Filter Flush', time: 'Yesterday' },
-              ].map((log, i) => (
-                <div key={i} className="log-item">
-                  <span className="l-time">{log.time}</span>
-                  <span className="l-action">{log.action}</span>
-                  <ChevronRight size={16} color="var(--text-muted)" />
-                </div>
-              ))}
+              )}
             </div>
           </div>
         </div>
@@ -361,16 +366,16 @@ const AdvancedAnalysis = () => {
                 <X size={24} />
               </button>
             </header>
-            
+
             <div className="history-content">
               <div className="archive-grid">
                 {CAPTURE_HISTORY.map((item) => (
                   <div key={item.id} className="archive-item">
                     <div className="archive-media">
                       <img src={item.image} alt={item.prediction} />
-                      <div className="archive-status-tag" style={{ 
-                        background: item.health_score > 80 ? 'var(--primary-green)' : 
-                                    item.health_score > 50 ? '#FFB300' : '#F44336' 
+                      <div className="archive-status-tag" style={{
+                        background: item.health_score > 80 ? 'var(--primary-green)' :
+                          item.health_score > 50 ? '#FFB300' : '#F44336'
                       }}>
                         {item.health_score}%
                       </div>
