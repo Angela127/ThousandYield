@@ -22,6 +22,8 @@ const CameraFeed = ({ onSnapshot, detections = [] }) => {
   const [stream, setStream] = useState(null);
   const [error, setError] = useState(null);
   const [scanning, setScanning] = useState(false);
+  const [countdown, setCountdown] = useState(0);
+  const [period, setPeriod] = useState(10); // Default 10s for demo
   
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
@@ -138,6 +140,29 @@ const CameraFeed = ({ onSnapshot, detections = [] }) => {
     };
   }, []);
 
+  useEffect(() => {
+    startCamera();
+  }, []);
+
+  useEffect(() => {
+    let timer;
+    if (isActive) {
+      setCountdown(period);
+      timer = setInterval(() => {
+        setCountdown(prev => {
+          if (prev <= 1) {
+            takeSnapshot();
+            return period;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+      return () => clearInterval(timer);
+    } else {
+      setCountdown(0);
+    }
+  }, [isActive, takeSnapshot, period]);
+
   const toggleCamera = async () => {
     if (devices.length < 2) return;
     const currentIndex = devices.findIndex(d => d.deviceId === selectedDeviceId);
@@ -154,6 +179,23 @@ const CameraFeed = ({ onSnapshot, detections = [] }) => {
           <span className={`status-dot ${isActive ? 'active' : ''}`}></span>
           <span className="status-text">{isActive ? 'LIVE FEED' : 'CAMERA OFF'}</span>
         </div>
+
+        <div className="period-selector">
+          <label htmlFor="period-select">Interval:</label>
+          <select 
+            id="period-select" 
+            value={period} 
+            onChange={(e) => setPeriod(Number(e.target.value))}
+            className="period-dropdown"
+          >
+            <option value={10}>10s (Demo)</option>
+            <option value={3600}>1 hour</option>
+            <option value={21600}>6 hours</option>
+            <option value={43200}>12 hours</option>
+            <option value={86400}>24 hours</option>
+          </select>
+        </div>
+
         <div className="camera-actions">
           <button 
             className="control-btn" 
@@ -198,39 +240,15 @@ const CameraFeed = ({ onSnapshot, detections = [] }) => {
             
             {/* HUD Overlays */}
             <div className="camera-hud">
-              <div className="hud-corner top-left"></div>
-              <div className="hud-corner top-right"></div>
-              <div className="hud-corner bottom-left"></div>
-              <div className="hud-corner bottom-right"></div>
-              
               {scanning && <div className="scan-line"></div>}
               
               <div className="hud-stats">
-                {detections.length > 0 && (
-                  <div className="h-stat">
-                    <ShieldAlert size={12} />
-                    <span>{detections.length} DETECTED</span>
-                  </div>
-                )}
+                <div className="h-stat" style={{ background: '#F59E0B' }}>
+                  <RotateCcw size={12} />
+                  <span>NEXT: {countdown}s</span>
+                </div>
               </div>
 
-              {/* Detection Bounding Boxes (shown after capture) */}
-              {detections.map((det, i) => (
-                <div
-                  key={i}
-                  className={`detection-box ${det.label === 'Healthy' ? 'healthy' : 'unhealthy'}`}
-                  style={{
-                    left: `${det.x * 100}%`,
-                    top: `${det.y * 100}%`,
-                    width: `${det.w * 100}%`,
-                    height: `${det.h * 100}%`,
-                  }}
-                >
-                  <span className="detection-label">
-                    {det.label}
-                  </span>
-                </div>
-              ))}
             </div>
 
             <div className="camera-controls-overlay">

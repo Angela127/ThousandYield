@@ -397,6 +397,16 @@ const AdvancedAnalysis = () => {
           </div>
         </div>
       )}
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/*"
+        onChange={(e) => {
+          const file = e.target.files[0];
+          if (file) handleFile(file);
+        }}
+        style={{ display: 'none' }}
+      />
     </div>
   );
 };
