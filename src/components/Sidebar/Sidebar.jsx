@@ -1,79 +1,59 @@
 import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import './Sidebar.css';
+import { NavLink } from 'react-router-dom';
 import {
-  LayoutDashboard,
-  Sprout,
-  Droplets,
-  CloudSun,
-  Bug,
-  Box,
-  Warehouse,
-  FileText,
-  HelpCircle,
-  Bell,
-  Settings,
-  User
+	LayoutDashboard,
+	Leaf,
+	Waves,
+	CloudSun,
+	FileText,
+	Settings,
+	CircleHelp,
+	Bell,
+	Sprout,
 } from 'lucide-react';
+import './Sidebar.css';
+
+const navItems = [
+	{ to: '/', label: 'Intelligence', icon: LayoutDashboard },
+	{ to: '/virtual-farm', label: 'Virtual Farm', icon: Sprout, badge: 'Live' },
+	{ to: '/fields', label: 'Analysis', icon: Leaf },
+	{ to: '/irrigation', label: 'Irrigation', icon: Waves },
+	{ to: '/environment', label: 'Environment', icon: CloudSun },
+	{ to: '/reports', label: 'Reports', icon: FileText },
+	{ to: '/notifications', label: 'Notifications', icon: Bell },
+	{ to: '/help', label: 'Help', icon: CircleHelp },
+	{ to: '/settings', label: 'Settings', icon: Settings },
+];
 
 const Sidebar = () => {
-  const location = useLocation();
+	return (
+		<aside className="sidebar">
+			<div className="sidebar-logo">
+				<Sprout size={22} />
+				<span>ThousandYield</span>
+			</div>
 
-  const menuItems = [
-    { path: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
-    { path: '/virtual-farm', icon: Warehouse, label: 'Virtual Farm' },
-    { path: '/fields', icon: Sprout, label: 'Fields' },
-    { path: '/irrigation', icon: Droplets, label: 'Irrigation' },
-    { path: '/climate', icon: CloudSun, label: 'Climate' },
-    { path: '/reports', icon: FileText, label: 'Reports' },
-    { path: '/help', icon: HelpCircle, label: 'Help' },
-  ];
+			<nav className="sidebar-nav">
+				{navItems.map(({ to, label, icon: Icon, badge }) => (
+					<NavLink key={to} to={to} className={({ isActive }) => `nav-item${isActive ? ' active' : ''}`}>
+						<Icon size={18} />
+						<span>{label}</span>
+						{badge ? <span className="badge">{badge}</span> : null}
+					</NavLink>
+				))}
+			</nav>
 
-  return (
-    <aside className="sidebar">
-      <div className="sidebar-logo">
-        <Sprout size={35} color="var(--primary-green)" />
-        <span>ThousandYield</span>
-      </div>
-
-      <nav className="sidebar-nav">
-        {menuItems.map((item) => (
-          <Link
-            key={item.path}
-            to={item.path}
-            className={`nav-item ${location.pathname === item.path ? 'active' : ''}`}
-          >
-            <item.icon size={20} />
-            <span>{item.label}</span>
-          </Link>
-        ))}
-      </nav>
-
-      <div className="sidebar-footer">
-        <Link
-          to="/notifications"
-          className={`nav-item ${location.pathname === '/notifications' ? 'active' : ''}`}
-        >
-          <Bell size={20} />
-          <span>Notification</span>
-          <span className="badge">2</span>
-        </Link>
-        <Link
-          to="/settings"
-          className={`nav-item ${location.pathname === '/settings' ? 'active' : ''}`}
-        >
-          <Settings size={20} />
-          <span>Setting</span>
-        </Link>
-        <div className="user-profile">
-          <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" alt="User" />
-          <div className="user-info">
-            <span className="user-name">Alex Jackson</span>
-          </div>
-        </div>
-      </div>
-    </aside>
-  );
+			<div className="sidebar-footer">
+				<div className="user-profile">
+					<img src="https://api.dicebear.com/9.x/bottts/svg?seed=ThousandYield" alt="User avatar" />
+					<div>
+						<div className="user-name">Farm Operator</div>
+						<div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>System Online</div>
+					</div>
+				</div>
+			</div>
+		</aside>
+	);
 };
 
 export default Sidebar;

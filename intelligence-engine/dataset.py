@@ -55,48 +55,43 @@ ACTUATOR_COLS = ["pH_reducer", "add_water", "nutrients_adder", "humidifier", "ex
 # ---------------------------------------------------------------------------
 def load_and_clean(csv_path=None):
     """
-    Load the CSV file and prepare it for analysis.
-
-    Steps:
-      1. Find the CSV file (default: same directory as this script).
-      2. Rename columns to standard names.
-      3. Parse the 'timestamp' column into datetime objects.
-      4. Sort by timestamp so time-series analysis works correctly.
-
-    Returns:
-      pandas DataFrame with cleaned data, or None if file not found.
+    Load data from the team's historical_24h.json and prepare it for analysis.
     """
-    # Use custom path if provided, otherwise look for default file in script dir
-    if csv_path is None:
-        if CUSTOM_CSV_PATH:
-            csv_path = CUSTOM_CSV_PATH
-        else:
-            script_dir = os.path.dirname(os.path.abspath(__file__))
-            csv_path = os.path.join(script_dir, "IoTData_25K_without_interpolation.csv")
+    # Path to the team's JSON file
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    json_path = os.path.join(script_dir, "..", "src", "data", "historical_24h.json")
 
     # Safety check: does the file exist?
-    if not os.path.exists(csv_path):
-        print(f"⚠️  Dataset not found at: {csv_path}")
-        print("   The system will use demo baselines instead.")
+    if not os.path.exists(json_path):
+        print(f"⚠️  Team dataset not found at: {json_path}")
         return None
 
-    # Load the CSV
-    df = pd.read_csv(csv_path)
-    print(f"✅ Loaded dataset: {len(df)} rows, {len(df.columns)} columns")
+    # Load the JSON
+    with open(json_path, "r") as f:
+        raw_data = json.load(f)
+    
+    # Flatten the JSON structure
+    rows = []
+    for entry in raw_data:
+        room = entry.get("room_data", {})
+        ambient = room.get("ambient_sensors", {})
+        # Use first rack for global metrics
+        rack = room.get("racks", [{}])[0]
+        rack_sensors = rack.get("rack_sensors", {})
+        
+        rows.append({
+            "timestamp": pd.to_datetime(room.get("timestamp")),
+            "temp_c": ambient.get("temp"),
+            "humidity_pct": ambient.get("humidity"),
+            "ph": rack_sensors.get("ph"),
+            "ec_level": (rack_sensors.get("ec_mscmn") or 0) * 1000, # Convert mS to TDS-like scale
+            "water_temp_c": ambient.get("temp", 0) - 2 # Approximation
+        })
 
-    # Rename columns to our standard names
-    df = df.rename(columns=RENAME_MAP)
+    df = pd.DataFrame(rows)
+    print(f"✅ Loaded {len(df)} records from team JSON")
 
-    # Convert actuator strings ('ON'/'OFF') to numbers (1/0)
-    for col in ACTUATOR_COLS:
-        if col in df.columns:
-            df[col] = df[col].map({'ON': 1, 'OFF': 0, 'TRUE': 1, 'FALSE': 0, 1: 1, 0: 0})
-            # Fill any missing values with 0
-            df[col] = df[col].fillna(0).astype(int)
-
-    # Parse timestamp into datetime (try multiple formats)
-    if "timestamp" in df.columns:
-        df["timestamp"] = pd.to_datetime(df["timestamp"], errors="coerce")
+    if not df.empty:
         df = df.sort_values("timestamp").reset_index(drop=True)
         print(f"   Time range: {df['timestamp'].min()} → {df['timestamp'].max()}")
 
@@ -250,6 +245,38 @@ def get_time_series(df, column, resample_freq="15min"):
     ts = ts.resample(resample_freq).mean().ffill().bfill()
 
     return ts
+
+
+# ---------------------------------------------------------------------------
+# 6. Get Chart Data (for Recharts)
+# ---------------------------------------------------------------------------
+def get_chart_data(df, limit=24):
+    """
+    Extract the last X hourly averages and format them for Recharts.
+    """
+    if df is None or "timestamp" not in df.columns:
+        return []
+
+    # 1. Set timestamp as index for resampling
+    df_ts = df.set_index("timestamp")
+    
+    # 2. Resample to hourly averages
+    # This combines minute-by-minute data into 1-hour chunks
+    hourly = df_ts.resample('1h').mean().ffill().tail(limit).reset_index()
+    
+    chart_data = []
+    for _, row in hourly.iterrows():
+        entry = {
+            "time": row["timestamp"].strftime("%H:00"), # Show hour only
+            "temp": round(float(row["temp_c"]), 1) if "temp_c" in row and not pd.isna(row["temp_c"]) else 0,
+            "humidity": round(float(row["humidity_pct"]), 1) if "humidity_pct" in row and not pd.isna(row["humidity_pct"]) else 0,
+            "ph": round(float(row["ph"]), 2) if "ph" in row and not pd.isna(row["ph"]) else 0,
+            "ec": round(float(row["ec_level"]), 0) if "ec_level" in row and not pd.isna(row["ec_level"]) else 0,
+            "water_temp": round(float(row["water_temp_c"]), 1) if "water_temp_c" in row and not pd.isna(row["water_temp_c"]) else 0,
+        }
+        chart_data.append(entry)
+        
+    return chart_data
 
 
 # ---------------------------------------------------------------------------

@@ -39,32 +39,53 @@ def predict_trend(recent_series, label: str):
 
     current = float(recent_series.iloc[-1])
     # Slope = (Current SMA - Starting SMA) / Number of steps
+    # Note: Each step is ~15 min in our resampled data, so slope * 4 = change per hour
     slope = (float(sma.iloc[-1]) - float(sma.iloc[0])) / len(sma)
     
+    # Calculate predicted value in 1 hour (4 steps of 15 mins)
+    predicted_1h = current + (slope * 4)
+
+    # Threshold for "significant" movement
+    # If the change per hour is less than 0.2% of the value, call it STABLE
+    is_stable = abs(slope * 4) < (current * 0.001)
+
     # Logic: Time until breach
-    if slope > 0: # Trending Up
+    if not is_stable and slope > 0: # Trending Up
         gap = limits["high"] - current
         minutes = int((gap / slope) * 15) if slope > 0.0001 else 999
         if current >= limits["high"]:
-            return {"status": "CRITICAL", "message": f"{label} EXCEEDED limit!"}
+            return {"status": "CRITICAL", "message": f"{label} EXCEEDED limit!", "predicted_1h": round(predicted_1h, 2)}
+        
+        status = "WARNING" if minutes < 60 else ("WATCH" if minutes < 1440 else "STABLE")
         return {
-            "status": "WARNING" if minutes < 60 else "WATCH",
-            "message": f"{label} trending up (+{round(slope*4, 2)}/hr) — will exceed {limits['high']} in ~{minutes} min",
-            "minutes": minutes, "slope": slope
+            "status": status,
+            "message": f"{label} trending up (+{round(slope*4, 2)}/hr)",
+            "minutes": minutes if minutes < 1440 else None, 
+            "predicted_1h": round(predicted_1h, 2),
+            "slope": slope
         }
     
-    elif slope < 0: # Trending Down
+    elif not is_stable and slope < 0: # Trending Down
         gap = current - limits["low"]
         minutes = int((gap / abs(slope)) * 15) if abs(slope) > 0.0001 else 999
         if current <= limits["low"]:
-            return {"status": "CRITICAL", "message": f"{label} DROPPED below limit!"}
+            return {"status": "CRITICAL", "message": f"{label} DROPPED below limit!", "predicted_1h": round(predicted_1h, 2)}
+        
+        status = "WARNING" if minutes < 60 else ("WATCH" if minutes < 1440 else "STABLE")
         return {
-            "status": "WARNING" if minutes < 60 else "WATCH",
-            "message": f"{label} trending down ({round(slope*4, 2)}/hr) — will drop below {limits['low']} in ~{minutes} min",
-            "minutes": minutes, "slope": slope
+            "status": status,
+            "message": f"{label} trending down ({round(slope*4, 2)}/hr)",
+            "minutes": minutes if minutes < 1440 else None, 
+            "predicted_1h": round(predicted_1h, 2),
+            "slope": slope
         }
 
-    return {"status": "STABLE", "message": f"{label} is stable at {round(current, 2)}"}
+    return {
+        "status": "STABLE", 
+        "message": f"{label} is stable", 
+        "predicted_1h": round(predicted_1h, 2),
+        "minutes": None
+    }
 
 # ---------------------------------------------------------------------------
 # Harvest Date Estimator (Health Score Formula)
