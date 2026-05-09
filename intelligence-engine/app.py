@@ -5,11 +5,11 @@ This is the main Flask application. It exposes 6 API endpoints that
 your teammates' modules will call:
 
   GET  /api/baseline   → ST (IoT Simulator): "What does normal look like?"
-  GET  /api/forecast    → Angela (Dashboard): Weather widget + farm actions
-  GET  /api/predict     → Angela (Dashboard): SARIMA sensor predictions
-  POST /api/anomaly     → Yaoting (Automation): "Is this reading safe?"
-  POST /api/simulate    → Dashboard: "What if I change X?"
-  GET  /api/insights    → Angela (Dashboard): Master intelligence card
+  GET  /api/forecast   → Angela (Dashboard): Weather widget + farm actions
+  GET  /api/predict    → Angela (Dashboard): Seasonal Rule-Based sensor predictions
+  POST /api/anomaly    → Yaoting (Automation): "Is this reading safe?"
+  POST /api/simulate   → Dashboard: "What if I change X?" (Note: Logic built, endpoint pending)
+  GET  /api/insights   → Angela (Dashboard): Master intelligence card (Combined Forecasts + Harvest)
 
 Run with: python app.py
 Server starts on: http://localhost:5001
@@ -125,7 +125,7 @@ def get_predict():
     """
     sensor_name = request.args.get("sensor", "temp_c")
     horizon = request.args.get("horizon", 6, type=int)
-    horizon = min(horizon, 24)  # Cap at 24 hours
+    horizon = min(horizon, 96)  # Cap at 96 points (24 hours if 15min frequency)
 
     # Get time-series data from the dataset
     ts = dataset.get_time_series(df, sensor_name) if df is not None else None
@@ -140,7 +140,25 @@ def get_predict():
 
 
 # ---------------------------------------------------------------------------
-# Endpoint 4: POST /api/anomaly
+# Endpoint 4: GET /api/history
+# Who calls this: Angela (Dashboard)
+# Purpose: Real historical data for the trend charts
+# ---------------------------------------------------------------------------
+@app.route("/api/history", methods=["GET"])
+def get_history():
+    """
+    Return recent historical data for the trend chart.
+    """
+    limit = request.args.get("limit", 24, type=int)
+    history = dataset.get_chart_data(df, limit=limit)
+    return jsonify({
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "history": history
+    })
+
+
+# ---------------------------------------------------------------------------
+# Endpoint 5: POST /api/anomaly
 # Who calls this: Yaoting (Automation Engine)
 # Purpose: Check if a live sensor reading is safe
 # ---------------------------------------------------------------------------
@@ -176,7 +194,7 @@ def check_anomaly():
 
 
 # ---------------------------------------------------------------------------
-# Endpoint 5: POST /api/simulate
+# Endpoint 6: POST /api/simulate
 # Who calls this: Dashboard (What-If tool)
 # Purpose: Predict the outcome of actuator changes
 # ---------------------------------------------------------------------------
@@ -222,86 +240,8 @@ def run_simulate():
 
 
 # ---------------------------------------------------------------------------
-# Endpoint 6: GET /api/insights (THE MASTER ENDPOINT)
-# Who calls this: Angela (Dashboard Smart Insights Card)
-# Purpose: Merge everything into one actionable intelligence payload
+# (Endpoint 6 removed — consolidated into Endpoint 7: get_merged_insights)
 # ---------------------------------------------------------------------------
-@app.route("/api/insights", methods=["GET"])
-def get_insights():
-    """
-    The "hero" endpoint. Combines:
-      1. Current state (anomaly check on latest data)
-      2. Weather forecast (external conditions)
-      3. SARIMA predictions (internal future state)
-      4. Agricultural impact (mold risk, growth rate, yield)
-      5. Risk score (composite farm health score)
-
-    Query params (optional):
-      lat — latitude for weather forecast
-      lon — longitude for weather forecast
-
-    This is the single endpoint Angela needs for the Smart Insights card.
-    """
-    lat = request.args.get("lat", type=float)
-    lon = request.args.get("lon", type=float)
-
-    # --- 1. Current State ---
-    current_reading = dataset.get_latest_reading(df)
-    anomaly_result = anomaly.check_anomalies(current_reading, baselines=baselines)
-
-    # --- 2. Weather Forecast ---
-    weather_result = weather.fetch_weather(lat=lat, lon=lon)
-
-    # --- 3. SARIMA Predictions ---
-    predictions = []
-    for sensor in ["temp_c", "humidity_pct"]:
-        ts = dataset.get_time_series(df, sensor) if df is not None else None
-        pred = forecast.predict_sensor(ts, column_name=sensor, horizon=6)
-        predictions.append(pred)
-
-    # --- 4. Agricultural Impact ---
-    current_temp = current_reading.get("temp_c", 25)
-    current_humidity = current_reading.get("humidity_pct", 65)
-    current_ph = current_reading.get("ph", 5.8)
-
-    mold_risk = agri_logic.calc_mold_risk(current_temp, current_humidity)
-    growth_impact = agri_logic.calc_growth_impact(current_temp, ph=current_ph)
-
-    # --- 5. Compound Insights (the magic) ---
-    compound_insights = _build_compound_insights(
-        anomaly_result, weather_result, predictions, mold_risk, growth_impact
-    )
-
-    # --- 6. Risk Score ---
-    risk_score = agri_logic.calc_risk_score(
-        anomaly_result.get("anomalies", []),
-        weather_result.get("alerts", []),
-        predictions,
-    )
-
-    return jsonify({
-        "timestamp": datetime.now(timezone.utc).isoformat(),
-        "risk_score": risk_score,
-        "current_state": {
-            "reading": current_reading,
-            "anomalies": anomaly_result,
-        },
-        "weather": {
-            "forecast_24h": weather_result.get("forecast_24h"),
-            "alerts": weather_result.get("alerts", []),
-            "insights": weather_result.get("insights", []),
-        },
-        "predictions": predictions,
-        "impact": {
-            "mold_risk": mold_risk,
-            "growth": growth_impact,
-        },
-        "compound_insights": compound_insights,
-        "recommended_actions": _collect_actions(
-            anomaly_result, weather_result, predictions, mold_risk
-        ),
-        "overall_status": risk_score["status"],
-    })
 
 
 # ---------------------------------------------------------------------------
@@ -458,47 +398,170 @@ def tester():
 # Start the server
 # ---------------------------------------------------------------------------
 # ---------------------------------------------------------------------------
-# 7. Integrated Insights Endpoint (Requirement: Merged JSON)
+# 7. Integrated Insights Endpoint (Unified — used by Climate.jsx)
 # ---------------------------------------------------------------------------
 @app.route('/api/insights', methods=['GET'])
 def get_merged_insights():
     """
-    Returns a merged JSON containing Forecast, Predictive Alerts, and Harvest Estimate.
+    Returns a unified JSON for the Climate dashboard.
+    Shape:
+    {
+      "overall_status": "WARNING" | "STABLE" | "CRITICAL",
+      "sensor_insights": ["pH trending up — may exceed 6.8 in ~45 min"],
+      "recommended_actions": ["increase_fan_speed", "monitor_ph"],
+      "sensor_trends": { "ph": { status, current, direction, minutes, unit, confidence, automation_response } },
+      "harvest": [ { crop, zone, days, health, progress } ],
+      "last_updated": "14:32:05"
+    }
     """
-    df = dataset.load_and_clean()
-    
-    # 1. Weather + Trend Combination Logic
+    df_live = dataset.load_and_clean()
+
+    # --- Automation response mapping (closed-loop logic) ---
+    AUTOMATION_RESPONSES = {
+        "temp_c":       "Cooling fans increased to 80%",
+        "humidity_pct": "Exhaust fans activated at 70%",
+        "ph":           "pH-down dosing pump activated",
+        "ec_level":     "Nutrient injection adjusted",
+        "water_temp_c": "Chiller compressor engaged",
+    }
+
+    # --- Confidence mapping based on data quality ---
+    def _calc_confidence(ts):
+        if ts is None or len(ts) < 20:
+            return 60
+        if len(ts) < 50:
+            return 75
+        return 87
+
+    # --- 1. Sensor Trends for ALL 5 sensors ---
+    sensor_trends = {}
+    sensor_insights_list = []
+    all_statuses = []
+
+    for sensor in ["ph", "ec_level", "temp_c", "humidity_pct", "water_temp_c"]:
+        ts = dataset.get_time_series(df_live, sensor) if df_live is not None else None
+        trend = forecast.predict_trend(ts, sensor)
+        limits = forecast.SENSOR_LIMITS.get(sensor, {})
+
+        current_val = float(ts.iloc[-1]) if ts is not None and len(ts) > 0 else 0
+        status = trend.get("status", "STABLE")
+        slope = trend.get("slope", 0)
+        minutes = trend.get("minutes", None)
+        confidence = _calc_confidence(ts)
+
+        # Direction
+        if slope > 0.0001:
+            direction = "rising"
+        elif slope < -0.0001:
+            direction = "falling"
+        else:
+            direction = "stable"
+
+        # Automation response (only if not STABLE)
+        auto_response = None
+        if status in ["WARNING", "CRITICAL"]:
+            auto_response = AUTOMATION_RESPONSES.get(sensor, "System monitoring active")
+            sensor_insights_list.append(trend["message"])
+
+        sensor_trends[sensor] = {
+            "status": status,
+            "current": round(current_val, 2),
+            "direction": direction,
+            "minutes": minutes,
+            "unit": limits.get("unit", ""),
+            "confidence": confidence,
+            "predicted_1h": trend.get("predicted_1h"),
+            "automation_response": auto_response,
+        }
+        all_statuses.append(status)
+
+    # --- 2. Overall Status ---
+    if "CRITICAL" in all_statuses:
+        overall_status = "CRITICAL"
+    elif "WARNING" in all_statuses:
+        overall_status = "WARNING"
+    else:
+        overall_status = "STABLE"
+
+    # --- 3. Recommended Actions ---
+    recommended_actions = []
+    if any(s["status"] != "STABLE" for s in sensor_trends.values()):
+        for sensor, data in sensor_trends.items():
+            if data["status"] in ["WARNING", "CRITICAL"]:
+                recommended_actions.append(f"monitor_{sensor}")
+        if sensor_trends.get("temp_c", {}).get("status") != "STABLE":
+            recommended_actions.append("increase_fan_speed")
+        if sensor_trends.get("humidity_pct", {}).get("status") != "STABLE":
+            recommended_actions.append("activate_exhaust")
+
+    # --- 4. Harvest Estimates (Dynamically from sample_record.json) ---
+    harvest_data = []
+    try:
+        # Resolve path to the React data file
+        json_path = os.path.join(os.path.dirname(__file__), "..", "src", "data", "sample_record.json")
+        with open(json_path, 'r') as f:
+            farm_state = json.load(f)
+            racks = farm_state.get("racks", [])
+            
+            for rack in racks:
+                crop_name = rack.get("crop_type", "Unknown")
+                zone = rack.get("rack_id", "Unknown")
+                
+                # Calculate aggregate health from the plants in this rack
+                plants = rack.get("plants", [])
+                if plants:
+                    avg_health = sum(p.get("health_score", 85) for p in plants) / len(plants)
+                else:
+                    avg_health = 85
+                
+                # Standard cycle lengths (for progress calculation)
+                std_days = 28 if "lettuce" in crop_name.lower() else 35
+                
+                # Use our agri-logic to get days remaining
+                h = forecast.estimate_harvest(df_live, crop_name.lower()) if df_live is not None else {
+                    "days_remaining": 10
+                }
+                
+                days = h.get("days_remaining", 10)
+                progress = max(0, min(100, round(((std_days - days) / std_days) * 100)))
+                
+                harvest_data.append({
+                    "crop": crop_name,
+                    "zone": f"Rack {zone}",
+                    "days": days,
+                    "health": round(avg_health, 1),
+                    "progress": progress,
+                })
+    except Exception as e:
+        print(f"⚠️ Could not load sample_record.json: {e}")
+        # Fallback to demo data if file is missing
+        harvest_data = [
+            {"crop": "Lettuce", "zone": "Zone A", "days": 12, "health": 92.5, "progress": 45}
+        ]
+
+    # --- 5. Weather combination insight ---
     weather_data = weather.fetch_weather()
-    ext_humidity_high = any(h['humidity_pct'] > 80 for h in weather_data['hourly'][:12])
-    
-    # Check internal humidity trend
-    internal_hum_ts = dataset.get_time_series(df, "humidity_pct")
+    ext_humidity_high = any(h['humidity_pct'] > 80 for h in weather_data.get('hourly', [])[:12])
+    internal_hum_ts = dataset.get_time_series(df_live, "humidity_pct")
     hum_trend = forecast.predict_trend(internal_hum_ts, "humidity_pct")
-    
-    weather_insight = "Conditions stable."
+
     if ext_humidity_high and hum_trend['status'] != "STABLE":
-        weather_insight = "Humidity likely to exceed 80% tonight — activate fans now"
-    elif "RAIN_FORECAST" in weather_data['alerts']:
-        weather_insight = "Rain predicted: Close external vents to maintain internal stability."
+        sensor_insights_list.insert(0, "Humidity likely to exceed 80% tonight — activate fans now")
+    elif "RAIN_FORECAST" in weather_data.get('alerts', []):
+        sensor_insights_list.insert(0, "Rain predicted: Close external vents to maintain internal stability.")
 
-    # 2. Predictive Alerts for all sensors
-    predictive_alerts = []
-    for s in ["ph", "ec_level", "temp_c"]:
-        ts = dataset.get_time_series(df, s)
-        predictive_alerts.append(forecast.predict_trend(ts, s))
-
-    # 3. Harvest Estimate
-    harvest = forecast.estimate_harvest(df, "lettuce")
+    if not sensor_insights_list:
+        sensor_insights_list.append("All sensors operating within normal parameters.")
 
     return jsonify({
+        "overall_status": overall_status,
+        "sensor_insights": sensor_insights_list,
+        "recommended_actions": recommended_actions,
+        "sensor_trends": sensor_trends,
+        "harvest": harvest_data,
+        "last_updated": datetime.now().strftime("%H:%M:%S"),
         "timestamp": datetime.now().isoformat(),
-        "weather_condition_forecast": {
-            "summary": weather_insight,
-            "external_data": weather_data['forecast_24h']
-        },
-        "predictive_alerts": predictive_alerts,
-        "harvest_estimate": harvest,
-        "status": "success"
+        "status": "success",
     })
 
 if __name__ == '__main__':

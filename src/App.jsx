@@ -58,7 +58,7 @@ function App() {
         />
         <Route path="/fields" element={<AdvancedAnalysis />} />
         <Route path="/irrigation" element={<Irrigation />} />
-        <Route path="/climate" element={<Climate />} />
+        <Route path="/environment" element={<Climate />} />
         <Route path="/automation" element={<Automation />} />
         <Route path="/settings" element={<Settings />} />
         {/* Unimplemented pages use the Placeholder component */}

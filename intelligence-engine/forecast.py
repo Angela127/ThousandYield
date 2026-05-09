@@ -39,32 +39,53 @@ def predict_trend(recent_series, label: str):
 
     current = float(recent_series.iloc[-1])
     # Slope = (Current SMA - Starting SMA) / Number of steps
+    # Note: Each step is ~15 min in our resampled data, so slope * 4 = change per hour
     slope = (float(sma.iloc[-1]) - float(sma.iloc[0])) / len(sma)
     
+    # Calculate predicted value in 1 hour (4 steps of 15 mins)
+    predicted_1h = current + (slope * 4)
+
+    # Threshold for "significant" movement
+    # If the change per hour is less than 0.2% of the value, call it STABLE
+    is_stable = abs(slope * 4) < (current * 0.001)
+
     # Logic: Time until breach
-    if slope > 0: # Trending Up
+    if not is_stable and slope > 0: # Trending Up
         gap = limits["high"] - current
         minutes = int((gap / slope) * 15) if slope > 0.0001 else 999
         if current >= limits["high"]:
-            return {"status": "CRITICAL", "message": f"{label} EXCEEDED limit!"}
+            return {"status": "CRITICAL", "message": f"{label} EXCEEDED limit!", "predicted_1h": round(predicted_1h, 2)}
+        
+        status = "WARNING" if minutes < 60 else ("WATCH" if minutes < 1440 else "STABLE")
         return {
-            "status": "WARNING" if minutes < 60 else "WATCH",
-            "message": f"{label} trending up (+{round(slope*4, 2)}/hr) — will exceed {limits['high']} in ~{minutes} min",
-            "minutes": minutes, "slope": slope
+            "status": status,
+            "message": f"{label} trending up (+{round(slope*4, 2)}/hr)",
+            "minutes": minutes if minutes < 1440 else None, 
+            "predicted_1h": round(predicted_1h, 2),
+            "slope": slope
         }
     
-    elif slope < 0: # Trending Down
+    elif not is_stable and slope < 0: # Trending Down
         gap = current - limits["low"]
         minutes = int((gap / abs(slope)) * 15) if abs(slope) > 0.0001 else 999
         if current <= limits["low"]:
-            return {"status": "CRITICAL", "message": f"{label} DROPPED below limit!"}
+            return {"status": "CRITICAL", "message": f"{label} DROPPED below limit!", "predicted_1h": round(predicted_1h, 2)}
+        
+        status = "WARNING" if minutes < 60 else ("WATCH" if minutes < 1440 else "STABLE")
         return {
-            "status": "WARNING" if minutes < 60 else "WATCH",
-            "message": f"{label} trending down ({round(slope*4, 2)}/hr) — will drop below {limits['low']} in ~{minutes} min",
-            "minutes": minutes, "slope": slope
+            "status": status,
+            "message": f"{label} trending down ({round(slope*4, 2)}/hr)",
+            "minutes": minutes if minutes < 1440 else None, 
+            "predicted_1h": round(predicted_1h, 2),
+            "slope": slope
         }
 
-    return {"status": "STABLE", "message": f"{label} is stable at {round(current, 2)}"}
+    return {
+        "status": "STABLE", 
+        "message": f"{label} is stable", 
+        "predicted_1h": round(predicted_1h, 2),
+        "minutes": None
+    }
 
 # ---------------------------------------------------------------------------
 # Harvest Date Estimator (Health Score Formula)
@@ -110,23 +131,29 @@ def predict_sensor(time_series, column_name="sensor", horizon=24):
         freq_mins = (time_series.index[1] - time_series.index[0]).total_seconds() / 60
         if freq_mins > 0:
             steps_in_24h = int((24 * 60) / freq_mins)
+    
+    step_hours = freq_mins / 60 if 'freq_mins' in locals() and freq_mins > 0 else 0.25
 
-    if time_series is not None and len(time_series) > steps_in_24h + horizon:
-        # Get the pattern starting from exactly 24 hours ago
-        start_idx = len(time_series) - steps_in_24h
-        past_pattern = time_series.iloc[start_idx : start_idx + horizon].values
+    if time_series is not None and len(time_series) >= steps_in_24h:
+        # Get the pattern starting from 24 hours ago
+        # Smooth the pattern with a Moving Average to remove "broken" jitter
+        smoothed_series = time_series.rolling(window=5, min_periods=1).mean()
+        
+        start_idx = max(0, len(time_series) - steps_in_24h)
+        available_pattern = smoothed_series.iloc[start_idx:].values
         
         # Calculate the offset to make the curve start at our current value
-        offset = current_val - past_pattern[0]
+        offset = current_val - available_pattern[0] if len(available_pattern) > 0 else 0
         
         for i in range(horizon):
-            val = past_pattern[i] + offset
-            predictions.append({"hour": round((i+1)*0.25, 2), "value": round(float(val), 2)})
+            # Use modulo to repeat the pattern if the horizon exceeds history
+            val = available_pattern[i % len(available_pattern)] + offset
+            predictions.append({"hour": round((i+1)*step_hours, 2), "value": round(float(val), 2)})
     else:
         # Fallback to straight slope if we don't have enough history
         slope = analysis.get("slope", 0)
         for i in range(horizon):
-            predictions.append({"hour": round((i+1)*0.25, 2), "value": round(current_val + (slope * i), 2)})
+            predictions.append({"hour": round((i+1)*step_hours, 2), "value": round(current_val + (slope * i), 2)})
             
     return {
         "sensor": column_name,

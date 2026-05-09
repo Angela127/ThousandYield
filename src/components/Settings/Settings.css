@@ -250,3 +250,88 @@
 
 .switch.on { background: var(--primary-green); }
 .switch.on::after { left: 23px; }
+
+/* --- Simulation Section --- */
+.simulation-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.sim-card {
+  display: flex;
+  gap: 1.25rem;
+  padding: 1.25rem;
+  background: #fcfcfc;
+  border: 1px solid #eee;
+  border-radius: 12px;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+.sim-card:hover {
+  border-color: #ddd;
+  background: white;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.sim-card.active {
+  border-color: var(--primary-green);
+  background: white;
+  box-shadow: 0 8px 16px rgba(0,0,0,0.08);
+}
+
+.sim-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.sim-info h4 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1rem;
+  color: #333;
+}
+
+.sim-info p {
+  margin: 0;
+  font-size: 0.85rem;
+  color: #777;
+  line-height: 1.4;
+}
+
+.active-dot {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 8px;
+  height: 8px;
+  background: var(--primary-green);
+  border-radius: 50%;
+}
+
+.sim-status-banner {
+  margin-top: 2rem;
+  padding: 1rem;
+  background: #fff8e1;
+  border: 1px solid #ffe082;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: #795548;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+@media (max-width: 1024px) {
+  .simulation-grid {
+    grid-template-columns: 1fr;
+  }
+}
