@@ -75,9 +75,9 @@ const generateHistoricalData = () => {
       }
     };
 
-    // Generate 11 Racks
-    for (let r = 1; r <= 11; r++) {
-      const rackId = `rack_01${r.toString().padStart(2, '0')}`;
+    // Generate 40 Racks
+    for (let r = 1; r <= 40; r++) {
+      const rackId = `rack_${r.toString().padStart(4, '0')}`;
       const cropType = CROPS[r % CROPS.length];
       const lightLux = isDay ? (lightLevel * 200) + (Math.random() * 50) : 0;
 
@@ -102,7 +102,7 @@ const generateHistoricalData = () => {
         const plantIdx = p.toString().padStart(2, '0');
         const growthFactor = (i / 288) * 0.05;
         const plant = {
-          "plant_id": `${rackId}_p${plantIdx}`,
+          "plant_id": `plant${rackId.replace('rack_', '')}${plantIdx}`,
           "lai_val": parseFloat((2.0 + growthFactor + (Math.random() * 0.1)).toFixed(2))
         };
         if (Math.random() > 0.05) {
@@ -128,7 +128,7 @@ const generateHistoricalData = () => {
 
 async function uploadHistoricalData() {
   try {
-    console.log("Generating 288 records with 11 RACKS EACH (Total 3,168 racks)...");
+    console.log("Generating 288 records with 40 RACKS EACH (Total 11,520 racks)...");
     const dataPoints = generateHistoricalData();
     
     console.log("Uploading to Firebase Firestore...");
@@ -149,7 +149,7 @@ async function uploadHistoricalData() {
       console.log(`Uploaded chunk ${Math.floor(i / chunkSize) + 1}...`);
     }
 
-    console.log("SUCCESS: Room expanded to 11 racks and uploaded!");
+    console.log("SUCCESS: Room expanded to 40 racks and uploaded!");
     process.exit(0);
   } catch (err) {
     console.error("FAILED to upload expanded room data:", err);

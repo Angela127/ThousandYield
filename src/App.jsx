@@ -5,6 +5,7 @@ import Irrigation from './components/Irrigation/Irrigation';
 import Climate from './components/Climate/Climate';
 import AdvancedAnalysis from './components/Analysis/AdvancedAnalysis';
 import Settings from './components/Settings/Settings';
+import RackDetail from './components/RackDetail/RackDetail';
 import './App.css';
 
 function App() {
@@ -16,6 +17,8 @@ function App() {
         return <Dashboard />;
       case 'fields':
         return <AdvancedAnalysis />;
+      case 'racks':
+        return <RackDetail />;
       case 'irrigation':
         return <Irrigation />;
       case 'climate':

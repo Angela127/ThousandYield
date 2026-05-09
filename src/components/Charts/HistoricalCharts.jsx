@@ -8,16 +8,26 @@ import {
   AreaChart,
   Area
 } from 'recharts';
+import historicalData from '../../data/historical_24h.json';
 import { db } from '../../firebase';
 import { collection, query, orderBy, limit, onSnapshot } from 'firebase/firestore';
 import './HistoricalCharts.css';
 
+const buildChartData = (records) => records.map((record) => {
+  const timestamp = new Date(record.room_data.timestamp);
+  return {
+    time: timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+    temp: record.room_data.ambient_sensors?.temp ?? null,
+    humidity: record.room_data.ambient_sensors?.humidity ?? null,
+    fullTime: timestamp.toLocaleString()
+  };
+});
+
 const HistoricalCharts = () => {
-  const [chartData, setChartData] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [chartData, setChartData] = useState(() => buildChartData(historicalData));
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    // Query the last 24 hours of data (288 points at 5-min intervals)
     const q = query(
       collection(db, "telemetry"),
       orderBy("room_data.timestamp", "asc"),
@@ -37,7 +47,13 @@ const HistoricalCharts = () => {
           fullTime: timestamp.toLocaleString()
         });
       });
-      setChartData(data);
+      if (data.length > 0) {
+        setChartData(data);
+      }
+      setLoading(false);
+    }, (error) => {
+      console.error('HistoricalCharts Firestore error:', error);
+      setChartData(buildChartData(historicalData));
       setLoading(false);
     });
 
@@ -53,7 +69,7 @@ const HistoricalCharts = () => {
         <div className="chart-header">
           <h3>Temperature Trends (°C)</h3>
           <div className="current-value">
-            Latest: {chartData[chartData.length - 1]?.temp}°C
+            Latest: {chartData[chartData.length - 1]?.temp != null ? chartData[chartData.length - 1].temp.toFixed(1) : '--'}°C
           </div>
         </div>
         <div className="chart-wrapper">
@@ -105,7 +121,7 @@ const HistoricalCharts = () => {
         <div className="chart-header">
           <h3>Ambient Humidity (%)</h3>
           <div className="current-value">
-            Latest: {chartData[chartData.length - 1]?.humidity}%
+            Latest: {chartData[chartData.length - 1]?.humidity != null ? chartData[chartData.length - 1].humidity.toFixed(1) : '--'}%
           </div>
         </div>
         <div className="chart-wrapper">

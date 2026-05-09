@@ -6,7 +6,7 @@ const generatePlants = (rackId, count) => {
   for (let i = 1; i <= count; i++) {
     const plantIndex = i.toString().padStart(2, '0');
     const plant = {
-      "plant_id": `${rackId.replace('rack_', 'plant_')}_${plantIndex}`,
+      "plant_id": `plant${rackId.replace('rack_', '')}${plantIndex}`,
       "lai_val": parseFloat((1.5 + Math.random() * 3).toFixed(2)), // Leaf Area Index
       "health_score": parseFloat((95 + Math.random() * 5).toFixed(1))
     };
@@ -61,7 +61,7 @@ const sampleRecord = {
           "pesticide_sprayer": "OFF",
           "concentration_controller_status": "Balanced"
         },
-        "plants": generatePlants("rack_0101", 10)
+        "plants": generatePlants("rack_0101", 40)
       }
     ]
   }
