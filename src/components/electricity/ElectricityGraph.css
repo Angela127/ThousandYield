@@ -1,0 +1,154 @@
+.electricity-graph-card {
+  background: white;
+  border-radius: 1.25rem;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 10px 25px -5px rgba(58, 90, 64, 0.1);
+  border: 1px solid rgba(163, 177, 138, 0.2);
+}
+
+.graph-header {
+  margin-bottom: 1.5rem;
+}
+
+.header-main {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.title-group {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.title-icon {
+  color: #3A5A40;
+  background: #DAD7CD;
+  padding: 8px;
+  border-radius: 10px;
+}
+
+.title-group h3 {
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #3A5A40;
+}
+
+.metrics-summary {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.total-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #588157;
+  background: #f0f2ed;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+}
+
+.forecast-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+}
+
+.forecast-badge.higher {
+  background-color: #fee2e2;
+  color: #b91c1c;
+}
+
+.forecast-badge.lower {
+  background-color: #dcfce7;
+  color: #15803d;
+}
+
+.chart-container {
+  width: 100%;
+  margin-top: 1rem;
+}
+
+/* Tooltip Styles */
+.electricity-tooltip {
+  background: white;
+  border: 1px solid #DAD7CD;
+  border-radius: 0.75rem;
+  padding: 1rem;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  min-width: 160px;
+}
+
+.tooltip-label {
+  font-weight: 700;
+  color: #3A5A40;
+  margin: 0 0 0.75rem 0;
+  font-size: 0.9rem;
+  border-bottom: 1px solid #f1f5f9;
+  padding-bottom: 0.5rem;
+}
+
+.tooltip-items {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.tooltip-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+}
+
+.tooltip-item .dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.tooltip-item.actual .dot {
+  background-color: #3A5A40;
+}
+
+.tooltip-item.forecast .dot {
+  background-color: #64748b;
+}
+
+.tooltip-item .name {
+  color: #64748b;
+  flex-grow: 1;
+}
+
+.tooltip-item .value {
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.tooltip-alert {
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid #f1f5f9;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.tooltip-alert.higher {
+  color: #ef4444;
+}
+
+.tooltip-alert.lower {
+  color: #10b981;
+}

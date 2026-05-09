@@ -2,6 +2,7 @@ import React from 'react';
 import { ElectricityProvider } from '../context/ElectricityContext';
 import SummaryMetrics from '../components/electricity/SummaryMetrics';
 import BudgetBar from '../components/electricity/BudgetBar';
+import ElectricityGraph from '../components/electricity/ElectricityGraph';
 import DeviceTable from '../components/electricity/DeviceTable';
 import TariffTimeline from '../components/electricity/TariffTimeline';
 import OptimisationPlan from '../components/electricity/OptimisationPlan';
@@ -23,6 +24,7 @@ const ElectricityTabContent = () => {
 
       <SummaryMetrics />
       <BudgetBar />
+      <ElectricityGraph />
       <DeviceTable />
       <TariffTimeline />
       <OptimisationPlan />
