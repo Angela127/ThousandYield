@@ -1,10 +1,12 @@
 import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
+import { getDatabase } from "firebase/database";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBTUsBQxuCBlrNxJhJPSOdkCo2h_WisdKc",
   authDomain: "thousandyield-2d787.firebaseapp.com",
+  databaseURL: "https://thousandyield-2d787-default-rtdb.firebaseio.com",
   projectId: "thousandyield-2d787",
   storageBucket: "thousandyield-2d787.firebasestorage.app",
   messagingSenderId: "989757604289",
@@ -18,5 +20,6 @@ const app = initializeApp(firebaseConfig);
 // Export services for use in other files
 export const db = getFirestore(app);
 export const auth = getAuth(app);
+export const rtdb = getDatabase(app);
 
 export default app;

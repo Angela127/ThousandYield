@@ -16,13 +16,14 @@ import {
   Bell,
   Settings,
   User,
-  Bot
+  Bot,
+  Zap
 } from 'lucide-react';
 import './Sidebar.css';
 
 const navItems = [
 	{ to: '/', label: 'Intelligence', icon: LayoutDashboard },
-	{ to: '/virtual-farm', label: 'Virtual Farm', icon: Sprout, badge: 'Live' },
+	{ to: '/virtual-farm', label: 'Virtual Farm', icon: Sprout},
 	{ to: '/fields', label: 'Analysis', icon: Leaf },
 	{ to: '/rack-detail', label: 'Rack Detail', icon: Layers },
 	{ to: '/irrigation', label: 'Irrigation', icon: Waves },
