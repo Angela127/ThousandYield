@@ -245,9 +245,159 @@
 /* --- Charts --- */
 .climate-grid {
   display: grid;
-  grid-template-columns: 1fr; /* Full width */
+  grid-template-columns: repeat(2, 1fr);
   gap: 1.5rem;
   margin-bottom: 3rem;
+}
+
+/* --- Header Actions & Notifications --- */
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.notification-hub {
+  position: relative;
+}
+
+.bell-btn {
+  background: white;
+  border: 1px solid rgba(0,0,0,0.05);
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #666;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.2s;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.bell-btn:hover {
+  background: #f5f5f5;
+  transform: translateY(-1px);
+}
+
+.unread-badge {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  background: #f44336;
+  color: white;
+  font-size: 0.65rem;
+  font-weight: 700;
+  min-width: 16px;
+  height: 16px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid white;
+}
+
+.notif-panel {
+  position: absolute;
+  top: calc(100% + 12px);
+  right: 0;
+  width: 320px;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+  border: 1px solid rgba(0,0,0,0.08);
+  z-index: 1000;
+  overflow: hidden;
+}
+
+.notif-panel-header {
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid #f0f0f0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.notif-panel-header h4 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.notif-count {
+  font-size: 0.75rem;
+  color: #888;
+  background: #f5f5f5;
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+
+.notif-list-container {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.notif-hub-item {
+  display: flex;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid #f9f9f9;
+  transition: background 0.2s;
+}
+
+.notif-hub-item:hover {
+  background: #fcfcfc;
+}
+
+.notif-hub-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.notif-type--critical .notif-hub-icon {
+  background: #ffebee;
+  color: #f44336;
+}
+
+.notif-type--warning .notif-hub-icon {
+  background: #fff3e0;
+  color: #ff9800;
+}
+
+.notif-hub-content p {
+  margin: 0 0 4px 0;
+  font-size: 0.85rem;
+  color: #333;
+  line-height: 1.4;
+}
+
+.notif-hub-time {
+  font-size: 0.7rem;
+  color: #999;
+}
+
+.notif-empty {
+  padding: 3rem 1rem;
+  text-align: center;
+  color: #aaa;
+}
+
+.notif-empty p {
+  margin-top: 1rem;
+  font-size: 0.9rem;
+}
+
+@media (max-width: 1024px) {
+  .climate-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 .main-chart-card {
@@ -259,8 +409,72 @@
   border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
-.chart-wrapper {
-  margin-top: 1.5rem;
+.chart-wrapper-animated {
+  display: flex;
+  width: 100%;
+  overflow: hidden;
+  margin-top: 1rem;
+}
+
+.history-chart-segment {
+  min-width: 0;
+}
+
+.forecast-chart-segment {
+  min-width: 0;
+  border-left: 1px dashed rgba(0,0,0,0.1);
+}
+
+.chart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.chart-header h3 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #444;
+}
+
+.toggle-forecast-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #666;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.toggle-forecast-btn:hover:not(:disabled) {
+  background: #f5f5f5;
+  border-color: #ccc;
+}
+
+.toggle-forecast-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.toggle-forecast-btn.active {
+  background: #e3f2fd;
+  border-color: #2196f3;
+  color: #1976d2;
+}
+
+.sensor-chart-card {
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.sensor-chart-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-medium);
 }
 
 /* --- HVAC Panel --- */

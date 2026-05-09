@@ -9,7 +9,10 @@ import {
   Thermometer, 
   Droplets, 
   FlaskConical,
-  Save
+  Save,
+  Zap,
+  Activity,
+  AlertTriangle
 } from 'lucide-react';
 
 const ThresholdItem = ({ label, icon: Icon, min, max, unit, onChange }) => (
@@ -35,6 +38,12 @@ const ThresholdItem = ({ label, icon: Icon, min, max, unit, onChange }) => (
 
 const Settings = () => {
   const [activeSection, setActiveSection] = useState('thresholds');
+  const [anomalyMode, setAnomalyMode] = useState(localStorage.getItem('simulation_anomaly') || 'none');
+
+  const saveAnomaly = (type) => {
+    setAnomalyMode(type);
+    localStorage.setItem('simulation_anomaly', type);
+  };
 
   const plantProfiles = [
     { name: 'Lettuce (Standard)', selected: true },
@@ -57,6 +66,12 @@ const Settings = () => {
             onClick={() => setActiveSection('thresholds')}
           >
             <Shield size={18} /> Thresholds
+          </button>
+          <button 
+            className={`settings-nav-item ${activeSection === 'simulation' ? 'active' : ''}`}
+            onClick={() => setActiveSection('simulation')}
+          >
+            <Activity size={18} /> Simulation
           </button>
           <button 
             className={`settings-nav-item ${activeSection === 'profiles' ? 'active' : ''}`}
@@ -94,6 +109,44 @@ const Settings = () => {
               <div className="settings-actions">
                 <button className="save-btn"><Save size={18} /> Save Changes</button>
               </div>
+            </div>
+          )}
+
+          {activeSection === 'simulation' && (
+            <div className="settings-section">
+              <h3>Anomaly Simulation</h3>
+              <p>Simulate sensor failures and environmental anomalies to test dashboard responses.</p>
+              
+              <div className="simulation-grid">
+                {[
+                  { id: 'none', name: 'Normal Operation', icon: Activity, desc: 'Live data stream with no active anomalies.', color: '#4caf50' },
+                  { id: 'heatwave', name: 'Heatwave Alert', icon: Thermometer, desc: 'Simulate high temperature and low humidity (Critical/Watch).', color: '#ff9800' },
+                  { id: 'ph_failure', name: 'pH Critical Failure', icon: FlaskConical, desc: 'Simulate pH levels rising beyond safe bounds (Critical).', color: '#f44336' },
+                  { id: 'sensor_malfunction', name: 'Sensor Malfunction', icon: AlertTriangle, desc: 'Simulate flat-line data or erratic readings (Watch).', color: '#9c27b0' },
+                ].map((scenario) => (
+                  <div 
+                    key={scenario.id} 
+                    className={`sim-card ${anomalyMode === scenario.id ? 'active' : ''}`}
+                    onClick={() => saveAnomaly(scenario.id)}
+                  >
+                    <div className="sim-icon" style={{ backgroundColor: scenario.color + '15', color: scenario.color }}>
+                      <scenario.icon size={24} />
+                    </div>
+                    <div className="sim-info">
+                      <h4>{scenario.name}</h4>
+                      <p>{scenario.desc}</p>
+                    </div>
+                    {anomalyMode === scenario.id && <div className="active-dot"></div>}
+                  </div>
+                ))}
+              </div>
+              
+              {anomalyMode !== 'none' && (
+                <div className="sim-status-banner">
+                  <Zap size={16} />
+                  <span>Simulation Active: {anomalyMode.replace('_', ' ')} mode is currently overriding live data.</span>
+                </div>
+              )}
             </div>
           )}
 

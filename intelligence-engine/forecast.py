@@ -131,23 +131,29 @@ def predict_sensor(time_series, column_name="sensor", horizon=24):
         freq_mins = (time_series.index[1] - time_series.index[0]).total_seconds() / 60
         if freq_mins > 0:
             steps_in_24h = int((24 * 60) / freq_mins)
+    
+    step_hours = freq_mins / 60 if 'freq_mins' in locals() and freq_mins > 0 else 0.25
 
-    if time_series is not None and len(time_series) > steps_in_24h + horizon:
-        # Get the pattern starting from exactly 24 hours ago
-        start_idx = len(time_series) - steps_in_24h
-        past_pattern = time_series.iloc[start_idx : start_idx + horizon].values
+    if time_series is not None and len(time_series) >= steps_in_24h:
+        # Get the pattern starting from 24 hours ago
+        # Smooth the pattern with a Moving Average to remove "broken" jitter
+        smoothed_series = time_series.rolling(window=5, min_periods=1).mean()
+        
+        start_idx = max(0, len(time_series) - steps_in_24h)
+        available_pattern = smoothed_series.iloc[start_idx:].values
         
         # Calculate the offset to make the curve start at our current value
-        offset = current_val - past_pattern[0]
+        offset = current_val - available_pattern[0] if len(available_pattern) > 0 else 0
         
         for i in range(horizon):
-            val = past_pattern[i] + offset
-            predictions.append({"hour": round((i+1)*0.25, 2), "value": round(float(val), 2)})
+            # Use modulo to repeat the pattern if the horizon exceeds history
+            val = available_pattern[i % len(available_pattern)] + offset
+            predictions.append({"hour": round((i+1)*step_hours, 2), "value": round(float(val), 2)})
     else:
         # Fallback to straight slope if we don't have enough history
         slope = analysis.get("slope", 0)
         for i in range(horizon):
-            predictions.append({"hour": round((i+1)*0.25, 2), "value": round(current_val + (slope * i), 2)})
+            predictions.append({"hour": round((i+1)*step_hours, 2), "value": round(current_val + (slope * i), 2)})
             
     return {
         "sensor": column_name,

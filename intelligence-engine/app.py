@@ -125,7 +125,7 @@ def get_predict():
     """
     sensor_name = request.args.get("sensor", "temp_c")
     horizon = request.args.get("horizon", 6, type=int)
-    horizon = min(horizon, 24)  # Cap at 24 hours
+    horizon = min(horizon, 96)  # Cap at 96 points (24 hours if 15min frequency)
 
     # Get time-series data from the dataset
     ts = dataset.get_time_series(df, sensor_name) if df is not None else None
