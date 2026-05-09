@@ -17,16 +17,19 @@ import {
   Settings,
   User,
   Bot,
+  Camera,
   Zap
 } from 'lucide-react';
 import './Sidebar.css';
 
 const navItems = [
-	{ to: '/', label: 'Intelligence', icon: LayoutDashboard },
+	{ to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
 	{ to: '/virtual-farm', label: 'Virtual Farm', icon: Sprout},
-	{ to: '/fields', label: 'Analysis', icon: Leaf },
+	{ to: '/fields', label: 'Camera', icon: Camera },
 	{ to: '/rack-detail', label: 'Rack Detail', icon: Layers },
 	{ to: '/irrigation', label: 'Irrigation', icon: Waves },
+	{ to: '/electricity', label: 'Electricity', icon: Zap },
+	{ to: '/automation', label: 'Automation', icon: Bot },
 	{ to: '/environment', label: 'Environment', icon: CloudSun },
 	{ to: '/reports', label: 'Reports', icon: FileText },
 	{ to: '/notifications', label: 'Notifications', icon: Bell },
@@ -37,8 +40,10 @@ const navItems = [
 const menuItems = [
 	{ path: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
 	{ path: '/virtual-farm', icon: Warehouse, label: 'Virtual Farm' },
-	{ path: '/fields', icon: Sprout, label: 'Fields' },
+	{ path: '/fields', icon: Camera, label: 'Camera' },
 	{ path: '/irrigation', icon: Droplets, label: 'Irrigation' },
+	{ path: '/rack-detail', icon: Layers, label: 'Rack Detail' },
+	{ path: '/electricity', icon: Zap, label: 'Electricity' },
 	{ path: '/environment', icon: CloudSun, label: 'Environment' },
 	{ path: '/automation', icon: Bot, label: 'Automation' },
 	{ path: '/reports', icon: FileText, label: 'Reports' },
