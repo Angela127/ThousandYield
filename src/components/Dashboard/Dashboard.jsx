@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import './Dashboard.css';
 import StatCard from '../StatCard/StatCard';
 import HistoricalCharts from '../Charts/HistoricalCharts';
+import sampleRecord from '../../data/sample_record.json';
 import { db } from '../../firebase';
 import { collection, query, orderBy, limit, onSnapshot, doc, updateDoc } from 'firebase/firestore';
 import { 
@@ -22,8 +23,12 @@ import {
 } from 'lucide-react';
 
 const Dashboard = () => {
-  const [latestData, setLatestData] = useState(null);
+  const [latestData, setLatestData] = useState(sampleRecord);
   const [latestDocId, setLatestDocId] = useState(null);
+
+  const formatNumber = (value, digits = 2, fallback = '--') => (
+    typeof value === 'number' ? value.toFixed(digits) : fallback
+  );
 
   useEffect(() => {
     const q = query(
@@ -33,10 +38,20 @@ const Dashboard = () => {
     );
 
     const unsubscribe = onSnapshot(q, (querySnapshot) => {
+      let found = false;
       querySnapshot.forEach((doc) => {
+        found = true;
         setLatestData(doc.data());
         setLatestDocId(doc.id);
       });
+      if (!found) {
+        setLatestData(sampleRecord);
+        setLatestDocId(null);
+      }
+    }, (error) => {
+      console.error('Dashboard Firestore error:', error);
+      setLatestData(sampleRecord);
+      setLatestDocId(null);
     });
 
     return () => unsubscribe();
@@ -101,42 +116,42 @@ const Dashboard = () => {
           <StatCard 
             icon={Thermometer} 
             label="Temperature" 
-            value={room?.ambient_sensors?.temp || '--'} 
+            value={room?.ambient_sensors?.temp != null ? room.ambient_sensors.temp.toFixed(1) : '--'} 
             unit="°C" 
             status={room?.ambient_sensors?.temp > 28 ? "warning" : "optimal"} 
           />
           <StatCard 
             icon={Droplets} 
             label="Ambient Humidity" 
-            value={room?.ambient_sensors?.humidity || '--'} 
+            value={room?.ambient_sensors?.humidity != null ? room.ambient_sensors.humidity.toFixed(1) : '--'} 
             unit="%" 
             status="optimal" 
           />
           <StatCard 
             icon={Zap} 
             label="Total Electricity" 
-            value={room?.resource_trackers?.total_electricity_kwh || '--'} 
+            value={formatNumber(room?.resource_trackers?.total_electricity_kwh, 2)} 
             unit="kWh" 
             status="optimal" 
           />
           <StatCard 
             icon={Waves} 
             label="Total Water" 
-            value={room?.resource_trackers?.total_water_litres || '--'} 
+            value={formatNumber(room?.resource_trackers?.total_water_litres, 2)} 
             unit="L" 
             status="optimal" 
           />
           <StatCard 
             icon={FlaskConical} 
             label="Total Fertilizer" 
-            value={room?.resource_trackers?.total_fertilizer_ml || '--'} 
+            value={formatNumber(room?.resource_trackers?.total_fertilizer_ml, 2)} 
             unit="ml" 
             status="optimal" 
           />
           <StatCard 
             icon={ShieldCheck} 
             label="Total Pesticide" 
-            value={room?.resource_trackers?.total_pesticide_ml || '0'} 
+            value={formatNumber(room?.resource_trackers?.total_pesticide_ml, 2)} 
             unit="ml" 
             status="optimal" 
           />
@@ -243,9 +258,9 @@ const Dashboard = () => {
                       <span className="crop-tag">{r.crop_type}</span>
                     </div>
                     <div className="rack-stats">
-                      <span>pH: <strong>{r.rack_sensors.ph}</strong></span>
-                      <span>EC: <strong>{r.rack_sensors.ec_mscmn}</strong></span>
-                      <span>Water: <strong>{r.rack_sensors.water_level_pct}%</strong></span>
+                      <span>pH: <strong>{typeof r.rack_sensors?.ph === 'number' ? r.rack_sensors.ph.toFixed(2) : '--'}</strong></span>
+                      <span>EC: <strong>{typeof r.rack_sensors?.ec_mscmn === 'number' ? r.rack_sensors.ec_mscmn.toFixed(2) : '--'}</strong></span>
+                      <span>Water: <strong>{typeof r.rack_sensors?.water_level_pct === 'number' ? `${r.rack_sensors.water_level_pct.toFixed(0)}%` : '--'}</strong></span>
                     </div>
                   </div>
                 </div>
@@ -259,9 +274,9 @@ const Dashboard = () => {
               <h4>AI Growth Insights</h4>
             </div>
             <ul className="advisor-tips">
-              <li>💡 {room?.ambient_sensors?.temp > 27 ? 'High temperature detected. Increasing fan speed for optimal cooling.' : 'Temperature is stable. Lighting cycle is at peak efficiency.'}</li>
-              <li>🧪 {racks[0]?.rack_sensors.ph < 5.5 ? 'pH level low in Rack 0101. Auto-adjusting nutrient mix.' : 'Nutrient levels are within optimal range.'}</li>
-              <li>💧 Water optimization: Current cycle is {racks[0]?.rack_sensors?.water_level_pct > 80 ? '98%' : '90%'} efficient.</li>
+              <li>💡 {room?.ambient_sensors?.temp != null && room.ambient_sensors.temp > 27 ? 'High temperature detected. Increasing fan speed for optimal cooling.' : 'Temperature is stable. Lighting cycle is at peak efficiency.'}</li>
+              <li>🧪 {typeof racks[0]?.rack_sensors?.ph === 'number' && racks[0].rack_sensors.ph < 5.5 ? 'pH level low in Rack 0101. Auto-adjusting nutrient mix.' : 'Nutrient levels are within optimal range.'}</li>
+              <li>💧 Water optimization: Current cycle is {typeof racks[0]?.rack_sensors?.water_level_pct === 'number' && racks[0].rack_sensors.water_level_pct > 80 ? '98%' : '90%'} efficient.</li>
             </ul>
           </div>
         </div>

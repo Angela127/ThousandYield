@@ -9,6 +9,7 @@ import AdvancedAnalysis from './components/Analysis/AdvancedAnalysis';
 import Settings from './components/Settings/Settings';
 import Placeholder from './components/Placeholder/Placeholder';
 const VirtualFarm = lazy(() => import('./components/VirtualFarm/VirtualFarm'));
+import RackDetail from './components/RackDetail/RackDetail';
 import './App.css';
 
 const LoadingScreen = () => (
@@ -57,6 +58,7 @@ function App() {
           } 
         />
         <Route path="/fields" element={<AdvancedAnalysis />} />
+        <Route path="/rack-detail" element={<RackDetail />} />
         <Route path="/irrigation" element={<Irrigation />} />
         <Route path="/environment" element={<Climate />} />
         <Route path="/automation" element={<Automation />} />
