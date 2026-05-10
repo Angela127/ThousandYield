@@ -31,6 +31,7 @@ const navItems = [
 	{ to: '/electricity', label: 'Electricity', icon: Zap },
 	{ to: '/automation', label: 'Automation', icon: Bot },
 	{ to: '/environment', label: 'Environment', icon: CloudSun },
+	{ to: '/harvest', label: 'Harvest', icon: Leaf },
 	{ to: '/reports', label: 'Reports', icon: FileText },
 	{ to: '/notifications', label: 'Notifications', icon: Bell },
 	{ to: '/help', label: 'Help', icon: HelpCircle },

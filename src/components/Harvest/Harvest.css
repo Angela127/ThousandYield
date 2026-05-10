@@ -1,0 +1,476 @@
+/* ============================================================
+   Harvest Intelligence — Page Styles
+   ============================================================ */
+
+.harvest-main {
+  margin-left: 240px;
+  padding: 2rem 2.5rem;
+  min-height: 100vh;
+  background-color: transparent;
+  width: calc(100vw - 240px);
+  box-sizing: border-box;
+}
+
+/* ── Header ─────────────────────────────────────────────────── */
+.harvest-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 2.5rem;
+}
+
+.harvest-header-left h1 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin-bottom: 0.35rem;
+}
+
+.harvest-header-left p {
+  color: #666;
+  font-size: 0.95rem;
+}
+
+.harvest-last-updated {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  color: #666;
+  white-space: nowrap;
+}
+
+/* ── Section Titles ─────────────────────────────────────────── */
+.harvest-section-title {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #6b7280;
+  margin-bottom: 1rem;
+}
+
+/* ── Section 1: Estimated Date Cards ────────────────────────── */
+.harvest-cards-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+  margin-bottom: 2.5rem;
+}
+
+.harvest-est-card {
+  background: white;
+  border-radius: 12px;
+  padding: 1rem 1.15rem;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+  border: 1px solid rgba(0, 0, 0, 0.02);
+  border-left: 3px solid #ccc;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.2s, box-shadow 0.2s;
+  cursor: default;
+}
+
+.harvest-est-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+}
+
+.harvest-est-card.health-good { border-left-color: #2d6a4f; }
+.harvest-est-card.health-moderate { border-left-color: #f59e0b; }
+.harvest-est-card.health-poor { border-left-color: #ef4444; }
+
+/* Top row: title + badge */
+.est-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.2rem;
+}
+
+.est-card-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.est-card-zone {
+  font-size: 0.75rem;
+  color: #9ca3af;
+  margin-bottom: 0.6rem;
+  display: block;
+}
+
+/* Health badge — small pill */
+.health-badge {
+  padding: 0.15rem 0.5rem;
+  border-radius: 20px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.health-badge.green  { background: #d1fae5; color: #065f46; }
+.health-badge.amber  { background: #fef3c7; color: #92400e; }
+.health-badge.red    { background: #fee2e2; color: #991b1b; }
+
+/* Stats row: days left + date */
+.est-card-stats {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 0.5rem;
+}
+
+.est-days {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+
+.est-days small {
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: #9ca3af;
+}
+
+.est-date {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #2d6a4f;
+}
+
+/* Compact progress bar */
+.est-progress-section {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.4rem;
+}
+
+.est-progress-track {
+  flex: 1;
+  height: 5px;
+  background: #e5e7eb;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.est-progress-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.6s ease;
+}
+
+.est-progress-fill.green  { background: #2d6a4f; }
+.est-progress-fill.amber  { background: #f59e0b; }
+.est-progress-fill.red    { background: #ef4444; }
+
+.est-progress-pct {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #6b7280;
+  min-width: 28px;
+  text-align: right;
+}
+
+/* Confidence */
+.est-conf {
+  font-size: 0.65rem;
+  font-weight: 600;
+}
+.est-conf.high     { color: #2d6a4f; }
+.est-conf.moderate { color: #d97706; }
+.est-conf.low      { color: #dc2626; }
+
+/* ── Section 2: Yield & Growing Stage ───────────────────────── */
+.harvest-forecast-row {
+  display: grid;
+  grid-template-columns: 2fr 3fr;
+  gap: 1.5rem;
+  margin-bottom: 2.5rem;
+}
+
+.harvest-card {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+  border: 1px solid rgba(0, 0, 0, 0.02);
+}
+
+.harvest-card-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 0.15rem;
+}
+
+.harvest-card-subtitle {
+  font-size: 0.75rem;
+  color: #9ca3af;
+  margin-bottom: 1rem;
+}
+
+/* Yield Table */
+.yield-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.yield-table th {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #9ca3af;
+  text-align: left;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.yield-table td {
+  font-size: 0.95rem;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid #f5f5f5;
+  color: var(--text-primary);
+  transition: background-color 0.2s;
+}
+
+.yield-table tr:hover td {
+  background-color: #fcfdfc;
+}
+
+.yield-table tr:last-child td {
+  border-bottom: none;
+  font-weight: 700;
+  padding-top: 1.25rem;
+}
+
+.yield-table .best-case { color: #2d6a4f; }
+.yield-table .worst-case { color: #ef4444; }
+
+.yield-note {
+  margin-top: 0.75rem;
+  font-size: 0.75rem;
+  color: #9ca3af;
+  font-style: italic;
+}
+
+/* ── Growing Stage Card (Table Style) ───────────────────────── */
+.stage-table {
+  display: grid;
+  grid-template-columns: 160px repeat(5, 1fr);
+  align-items: center;
+}
+
+.stage-header-cell {
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #6b7280;
+  text-align: center;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid #e8ede8;
+}
+
+.stage-header-cell.empty {
+  border-bottom: none;
+}
+
+.stage-crop-label-cell {
+  padding: 1rem 0;
+  border-bottom: 1px solid #f3f4f6;
+  height: 64px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.stage-crop-name-label {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.stage-crop-zone-label {
+  font-size: 11px;
+  color: #9ca3af;
+}
+
+.stage-cells-wrapper {
+  grid-column: span 5;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  position: relative;
+  height: 64px;
+}
+
+.stage-cell {
+  border-bottom: 1px solid #f3f4f6;
+  height: 100%;
+}
+
+.stage-sliding-icon {
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: left 0.8s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease;
+  pointer-events: none;
+  z-index: 5;
+}
+
+.stage-emoji {
+  font-size: 24px;
+}
+
+
+/* Remove bottom border for last row items */
+.stage-table div:nth-last-child(-n+6) {
+  border-bottom: none;
+}
+
+
+/* ── Section 3: Growth Curve ─────────────────────────────────── */
+.growth-curve-card {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+  border: 1px solid rgba(0, 0, 0, 0.02);
+  margin-bottom: 2.5rem;
+}
+
+.growth-curve-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.growth-curve-header h3 {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.growth-curve-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.crop-tabs {
+  display: flex;
+  gap: 0.25rem;
+  background: #f3f4f6;
+  border-radius: 8px;
+  padding: 0.2rem;
+}
+
+.crop-tab {
+  padding: 0.4rem 0.85rem;
+  border: none;
+  background: transparent;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #6b7280;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.crop-tab:hover {
+  color: #374151;
+}
+
+.crop-tab.active {
+  background: white;
+  color: #2d6a4f;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* Toggle — same as Climate page pattern */
+.harvest-toggle-forecast-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #666;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.harvest-toggle-forecast-btn:hover {
+  background: #f5f5f5;
+  border-color: #ccc;
+}
+
+.harvest-toggle-forecast-btn.active {
+  background: #e3f2fd;
+  border-color: #2196f3;
+  color: #1976d2;
+}
+
+/* ── Skeleton Loading ─────────────────────────────────────────── */
+.harvest-skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.skeleton-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+}
+
+.skeleton-box {
+  background: white;
+  border-radius: 12px;
+  height: 280px;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+.skeleton-box.wide {
+  grid-column: 1 / -1;
+  height: 350px;
+}
+
+.skeleton-row.two-col {
+  grid-template-columns: 1fr 1fr;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+/* ── Responsive ───────────────────────────────────────────────── */
+@media (max-width: 1200px) {
+  .harvest-cards-row {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 900px) {
+  .harvest-cards-row {
+    grid-template-columns: 1fr;
+  }
+  .harvest-forecast-row {
+    grid-template-columns: 1fr;
+  }
+}

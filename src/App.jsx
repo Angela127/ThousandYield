@@ -7,6 +7,7 @@ import Climate from './components/Climate/Climate';
 import Automation from './components/Automation/Automation';
 import AdvancedAnalysis from './components/Analysis/AdvancedAnalysis';
 import Settings from './components/Settings/Settings';
+import Harvest from './components/Harvest/Harvest';
 import Placeholder from './components/Placeholder/Placeholder';
 import ElectricityTab from './tabs/ElectricityTab';
 const VirtualFarm = lazy(() => import('./components/VirtualFarm/VirtualFarm'));
@@ -64,6 +65,7 @@ function App() {
         <Route path="/environment" element={<Climate />} />
         <Route path="/automation" element={<Automation />} />
         <Route path="/settings" element={<Settings />} />
+        <Route path="/harvest" element={<Harvest />} />
         <Route path="/electricity" element={<ElectricityTab />} />
         {/* Unimplemented pages use the Placeholder component */}
         <Route path="/reports" element={<Placeholder />} />

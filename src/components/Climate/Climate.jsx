@@ -737,40 +737,7 @@ const Climate = () => {
               </div>
             </div>
 
-          {/* ── Section 4: Harvest Predictions ──────────────────────── */}
-          <div className="harvest-section">
-              <h3 className="section-title">
-                <Sprout size={18} />
-                Harvest Date Predictions
-              </h3>
-              <div className="harvest-card">
-                {insightsData?.harvest?.map((crop, idx) => (
-                  <div key={idx} className="harvest-row">
-                    <div className="harvest-info">
-                      <span className="harvest-crop">{crop.crop}</span>
-                      <span className="harvest-zone">{crop.zone}</span>
-                    </div>
-                    <div className="harvest-health">
-                      <span className="harvest-health-label">Health: </span>
-                      <span className="harvest-health-value">{crop.health}/100</span>
-                    </div>
-                    <div className="harvest-days">
-                      <Clock size={14} />
-                      <span>{crop.days} days left</span>
-                    </div>
-                    <div className="harvest-progress-wrapper">
-                      <div className="harvest-progress-bar">
-                        <div 
-                          className="harvest-progress-fill" 
-                          style={{ width: `${crop.progress}%` }}
-                        />
-                      </div>
-                      <span className="harvest-progress-label">{crop.progress}%</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
+
       </div>
     </div>
   );

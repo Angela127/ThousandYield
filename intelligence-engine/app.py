@@ -494,50 +494,49 @@ def get_merged_insights():
         if sensor_trends.get("humidity_pct", {}).get("status") != "STABLE":
             recommended_actions.append("activate_exhaust")
 
-    # --- 4. Harvest Estimates (Dynamically from sample_record.json) ---
-    harvest_data = []
-    try:
-        # Resolve path to the React data file
-        json_path = os.path.join(os.path.dirname(__file__), "..", "src", "data", "sample_record.json")
-        with open(json_path, 'r') as f:
-            farm_state = json.load(f)
-            racks = farm_state.get("racks", [])
-            
-            for rack in racks:
-                crop_name = rack.get("crop_type", "Unknown")
-                zone = rack.get("rack_id", "Unknown")
-                
-                # Calculate aggregate health from the plants in this rack
-                plants = rack.get("plants", [])
-                if plants:
-                    avg_health = sum(p.get("health_score", 85) for p in plants) / len(plants)
-                else:
-                    avg_health = 85
-                
-                # Standard cycle lengths (for progress calculation)
-                std_days = 28 if "lettuce" in crop_name.lower() else 35
-                
-                # Use our agri-logic to get days remaining
-                h = forecast.estimate_harvest(df_live, crop_name.lower()) if df_live is not None else {
-                    "days_remaining": 10
-                }
-                
-                days = h.get("days_remaining", 10)
-                progress = max(0, min(100, round(((std_days - days) / std_days) * 100)))
-                
-                harvest_data.append({
-                    "crop": crop_name,
-                    "zone": f"Rack {zone}",
-                    "days": days,
-                    "health": round(avg_health, 1),
-                    "progress": progress,
-                })
-    except Exception as e:
-        print(f"⚠️ Could not load sample_record.json: {e}")
-        # Fallback to demo data if file is missing
-        harvest_data = [
-            {"crop": "Lettuce", "zone": "Zone A", "days": 12, "health": 92.5, "progress": 45}
-        ]
+    # --- 4. Harvest Estimates (Hardcoded for 4 crops) ---
+    harvest_data = [
+        {
+            "crop": "Lettuce",
+            "zone": "Zone A · Rack 1-3",
+            "days_elapsed": 22,
+            "days_remaining": 5,
+            "health_score": 88,
+            "health_history": [95, 92, 88, 91, 85, 78, 90, 88, 92, 89, 88, 87, 89, 88, 90, 88, 87, 89, 88, 89, 90, 88],
+            "base_yield_kg": 2.5,
+            "progress": 81
+        },
+        {
+            "crop": "Spinach",
+            "zone": "Zone B · Rack 4-5",
+            "days_elapsed": 18,
+            "days_remaining": 22,
+            "health_score": 71,
+            "health_history": [90, 85, 80, 75, 70, 68, 72, 71, 73, 70, 69, 71, 72, 71, 70, 72, 71, 70],
+            "base_yield_kg": 1.8,
+            "progress": 45
+        },
+        {
+            "crop": "Basil",
+            "zone": "Zone C · Rack 6",
+            "days_elapsed": 7,
+            "days_remaining": 27,
+            "health_score": 91,
+            "health_history": [95, 94, 96, 92, 93, 91, 91],
+            "base_yield_kg": 1.2,
+            "progress": 20
+        },
+        {
+            "crop": "Kangkung",
+            "zone": "Zone D · Rack 7-8",
+            "days_elapsed": 31,
+            "days_remaining": 2,
+            "health_score": 82,
+            "health_history": [82] * 31,
+            "base_yield_kg": 2.0,
+            "progress": 94
+        },
+    ]
 
     # --- 5. Weather combination insight ---
     weather_data = weather.fetch_weather()
