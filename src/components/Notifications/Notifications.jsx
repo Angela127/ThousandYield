@@ -111,7 +111,7 @@ const Notifications = () => {
 
   return (
     <div className="notifications-container">
-      <div className="notifications-header">
+      <div className="notifications-header header-text">
         <h1>Notifications</h1>
         <p>Unified alerts from all farm systems. Click a notification or filter to visit the tab.</p>
       </div>

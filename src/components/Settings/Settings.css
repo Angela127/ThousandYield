@@ -1,6 +1,6 @@
 .settings-view {
   margin-left: 240px;
-  padding: 2rem 3rem;
+  padding: 2rem;
   display: flex;
   flex-direction: column;
   gap: 2rem;
@@ -43,7 +43,7 @@
 }
 
 .settings-nav-item:hover {
-  background: rgba(0,0,0,0.02);
+  background: rgba(0, 0, 0, 0.02);
 }
 
 .settings-nav-item.active {
@@ -78,7 +78,7 @@
   justify-content: space-between;
   align-items: center;
   padding-bottom: 1.5rem;
-  border-bottom: 1px solid rgba(0,0,0,0.03);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.03);
 }
 
 .threshold-label {
@@ -112,7 +112,7 @@
   width: 80px;
   padding: 0.6rem;
   border-radius: 8px;
-  border: 1px solid rgba(0,0,0,0.1);
+  border: 1px solid rgba(0, 0, 0, 0.1);
   font-weight: 700;
   text-align: center;
   outline: none;
@@ -161,7 +161,7 @@
 .profile-card {
   padding: 1.5rem;
   background: white;
-  border: 1px solid rgba(0,0,0,0.05);
+  border: 1px solid rgba(0, 0, 0, 0.05);
   border-radius: var(--border-radius-md);
   display: flex;
   flex-direction: column;
@@ -186,7 +186,7 @@
 .select-btn {
   padding: 0.5rem;
   border-radius: 8px;
-  border: 1px solid rgba(0,0,0,0.1);
+  border: 1px solid rgba(0, 0, 0, 0.1);
   background: white;
   font-weight: 600;
   cursor: pointer;
@@ -245,11 +245,16 @@
   top: 3px;
   left: 3px;
   transition: 0.3s;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.switch.on { background: var(--primary-green); }
-.switch.on::after { left: 23px; }
+.switch.on {
+  background: var(--primary-green);
+}
+
+.switch.on::after {
+  left: 23px;
+}
 
 /* --- Simulation Section --- */
 .simulation-grid {
@@ -274,13 +279,13 @@
 .sim-card:hover {
   border-color: #ddd;
   background: white;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
 .sim-card.active {
   border-color: var(--primary-green);
   background: white;
-  box-shadow: 0 8px 16px rgba(0,0,0,0.08);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
 }
 
 .sim-icon {
@@ -334,4 +339,9 @@
   .simulation-grid {
     grid-template-columns: 1fr;
   }
+}
+
+.simulation-grid {
+  grid-template-columns: 1fr;
+}
 }

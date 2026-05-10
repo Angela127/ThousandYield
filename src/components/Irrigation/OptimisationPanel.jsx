@@ -7,7 +7,7 @@ const OptimisationPanel = () => {
 
   if (suggestions.length === 0) {
     return (
-      <div className="optimisation-container" style={{display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', padding: '2rem', color: '#64748b', textAlign: 'center'}}>
+      <div className="optimisation-container" style={{display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', padding: '2rem', color: '#64748b', textAlign: 'center', background: 'rgba(255, 255, 255, 0.5)', backdropFilter: 'blur(10px)', borderRadius: '16px'}}>
         <Lightbulb size={32} color="#cbd5e1" style={{marginBottom: '8px'}} />
         <p style={{margin: 0}}>System running optimally. No suggestions at this time.</p>
       </div>

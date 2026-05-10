@@ -69,7 +69,9 @@ const ElectricityGraph = () => {
       <div className="graph-header">
         <div className="header-main">
           <div className="title-group">
-            <Zap className="title-icon" size={20} />
+            <div className="title-icon-wrapper">
+              <Zap size={20} />
+            </div>
             <h3>Power Consumption Trend (W)</h3>
           </div>
           <div className="metrics-summary">
@@ -82,7 +84,7 @@ const ElectricityGraph = () => {
       </div>
 
       <div className="graph-body">
-        <div className="chart-container">
+        <div className="electricity-chart-container">
           <ResponsiveContainer width="100%" height={300}>
             <AreaChart data={data} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
               <defs>

@@ -384,9 +384,9 @@ const RackDetail = () => {
           {view !== 'overview' && (
             <div className="rack-back-btn" onClick={goBack}><ArrowLeft size={20}/></div>
           )}
-          <div className="rack-header-title">
+          <div className="rack-header-title header-text">
             <h1>{titles[view]}</h1>
-            <span className="rack-subtitle">{subtitles[view]}</span>
+            <p>{subtitles[view]}</p>
           </div>
         </div>
         <div className="rack-header-right">

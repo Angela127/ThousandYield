@@ -65,11 +65,8 @@ const Help = () => {
 
   return (
     <div className="help-container">
-      <div className="help-header">
-        <div className="help-title-area">
-          <HelpCircle size={32} color="#3A5A40" />
-          <h1>User Manual</h1>
-        </div>
+      <div className="help-header header-text">
+        <h1>User Manual</h1>
         <p>Learn how to use the ThousandYield farm management system. Click a section to see more details.</p>
       </div>
 

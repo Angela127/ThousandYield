@@ -337,73 +337,72 @@ const Climate = () => {
           </AnimatePresence>
 
           {/* ... (Header Section) */}
-          <header className="view-header">
-            <div className="header-title-row">
-              <div>
+          <header className="view-header" style={{ position: 'relative' }}>
+            <div className="header-text">
+              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                 <h1>Environment Intelligence</h1>
-                <p>Predictive analytics for atmospheric and hydroponic systems.</p>
-              </div>
-              <div className="header-actions">
                 {lastUpdated && (
-                  <div className="last-updated-badge">
+                  <div className="last-updated-badge" style={{ margin: 0 }}>
                     <Clock size={14} />
                     <span>Last updated: {lastUpdated}</span>
                   </div>
                 )}
-                
-                <div className="notification-hub" ref={notifRef}>
-                  <button 
-                    className={`header-bell-btn ${notifications.some(n => !n.read) ? 'has-unread' : ''}`}
-                    onClick={() => {
-                      setShowNotifPanel(!showNotifPanel);
-                      markAllAsRead();
-                    }}
-                  >
-                    <Bell size={20} />
-                    {notifications.some(n => !n.read) && (
-                      <span className="unread-badge">
-                        {notifications.filter(n => !n.read).length}
-                      </span>
-                    )}
-                  </button>
+              </div>
+              <p>Predictive analytics for atmospheric and hydroponic systems.</p>
+            </div>
+            <div className="header-actions" style={{ position: 'absolute', top: '0', right: '0' }}>
+              
+              <div className="notification-hub" ref={notifRef}>
+                <button 
+                  className={`header-bell-btn ${notifications.some(n => !n.read) ? 'has-unread' : ''}`}
+                  onClick={() => {
+                    setShowNotifPanel(!showNotifPanel);
+                    markAllAsRead();
+                  }}
+                >
+                  <Bell size={20} />
+                  {notifications.some(n => !n.read) && (
+                    <span className="unread-badge">
+                      {notifications.filter(n => !n.read).length}
+                    </span>
+                  )}
+                </button>
 
-                  <AnimatePresence>
-                    {showNotifPanel && (
-                      <motion.div 
-                        className="notif-panel"
-                        initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                        exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                      >
-                        <div className="notif-panel-header">
-                          <h4>Notifications</h4>
-                          <span className="notif-count">{notifications.length} alerts</span>
-                        </div>
-                        <div className="notif-list-container">
-                          {notifications.length === 0 ? (
-                            <div className="notif-empty">
-                              <BellOff size={32} opacity={0.2} />
-                              <p>No alerts recorded</p>
-                            </div>
-                          ) : (
-                            notifications.map(n => (
-                              <div key={n.id} className={`notif-hub-item notif-type--${n.type?.toLowerCase()}`}>
-                                <div className="notif-hub-icon">
-                                  {n.type === 'CRITICAL' ? <AlertTriangle size={16} /> : <Activity size={16} />}
-                                </div>
-                                <div className="notif-hub-content">
-                                  <p>{n.message}</p>
-                                  <span className="notif-hub-time">{n.time}</span>
-                                </div>
+                <AnimatePresence>
+                  {showNotifPanel && (
+                    <motion.div 
+                      className="notif-panel"
+                      initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                    >
+                      <div className="notif-panel-header">
+                        <h4>Notifications</h4>
+                        <span className="notif-count">{notifications.length} alerts</span>
+                      </div>
+                      <div className="notif-list-container">
+                        {notifications.length === 0 ? (
+                          <div className="notif-empty">
+                            <BellOff size={32} opacity={0.2} />
+                            <p>No alerts recorded</p>
+                          </div>
+                        ) : (
+                          notifications.map(n => (
+                            <div key={n.id} className={`notif-hub-item notif-type--${n.type?.toLowerCase()}`}>
+                              <div className="notif-hub-icon">
+                                {n.type === 'CRITICAL' ? <AlertTriangle size={16} /> : <Activity size={16} />}
                               </div>
-                            ))
-                          )}
-                        </div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </div>
-
+                              <div className="notif-hub-content">
+                                <p>{n.message}</p>
+                                <span className="notif-hub-time">{n.time}</span>
+                              </div>
+                            </div>
+                          ))
+                        )}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
             </div>
           </header>

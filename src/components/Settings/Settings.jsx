@@ -54,9 +54,9 @@ const Settings = () => {
 
   return (
     <div className="settings-view">
-      <header className="view-header">
-        <h1>System Settings</h1>
-        <p>Configure automation thresholds, plant profiles, and system preferences.</p>
+      <header className="view-header header-text" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', textAlign: 'left', width: '100%' }}>
+        <h1 style={{ textAlign: 'left', width: '100%' }}>System Settings</h1>
+        <p style={{ textAlign: 'left', width: '100%' }}>Configure automation thresholds, plant profiles, and system preferences.</p>
       </header>
 
       <div className="settings-container">

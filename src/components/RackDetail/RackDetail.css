@@ -21,8 +21,7 @@
 }
 .rack-back-btn:hover { background: var(--primary-green); color: white; }
 
-.rack-header-title h1 { font-size: 1.3rem; font-weight: 800; color: var(--text-primary); margin: 0; }
-.rack-subtitle { font-size: 0.68rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+/* Removed overrides to let global header styles apply */
 
 .rack-header-right { 
   display: flex; 

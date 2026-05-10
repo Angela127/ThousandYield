@@ -50,3 +50,26 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background: #bbb;
 }
+
+/* Global Header Styles */
+.header-text h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #344E41 !important;
+  margin: 0 0 0.25rem 0 !important;
+  text-align: left !important;
+}
+
+.header-text p {
+  font-size: 1rem;
+  color: #588157 !important;
+  margin: 0 !important;
+  text-align: left !important;
+}
+
+.header-text {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  text-align: left;
+}
