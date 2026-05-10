@@ -1,39 +1,27 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { MessageSquare, X, Send, Bot, User, Loader } from 'lucide-react';
-import { useLocation } from 'react-router-dom';
-import { useClimateContext } from '../../context/ClimateContext';
-import { useIrrigationContext } from '../../context/IrrigationContext';
-import { useElectricityContext } from '../../context/ElectricityContext';
-import sampleRecord from '../../data/sample_record.json';
-import { db } from '../../firebase';
+import { Bot, User, Send, X, Loader } from 'lucide-react';
+import { useClimateContext } from '../../../context/ClimateContext';
+import { useIrrigationContext } from '../../../context/IrrigationContext';
+import { useElectricityContext } from '../../../context/ElectricityContext';
+import { useAutomationSimulation } from '../../../hooks/useAutomationSimulation';
+import sampleRecord from '../../../data/sample_record.json';
+import { db } from '../../../firebase';
 import { collection, query, orderBy, limit, onSnapshot } from 'firebase/firestore';
-import { useAutomationSimulation } from '../../hooks/useAutomationSimulation';
-import { motion, AnimatePresence } from 'framer-motion';
-import './Chatbot.css';
+import './VirtualChatbox.css';
 
-const Chatbot = () => {
-  const [isOpen, setIsOpen] = useState(false);
+const VirtualChatbox = ({ onClose }) => {
   const [messages, setMessages] = useState([
-    { role: 'bot', text: 'Hello! I am your AI Farm Assistant. How can I help you today?' }
+    { role: 'bot', text: 'Hello! I am your Virtual Farm Assistant. How can I help you in this view?' }
   ]);
   const [inputText, setInputText] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef(null);
-  const location = useLocation();
-  const isVirtualFarm = location.pathname === '/virtual-farm';
 
-  useEffect(() => {
-    const handleOpen = () => setIsOpen(true);
-    window.addEventListener('open-chatbot', handleOpen);
-    return () => window.removeEventListener('open-chatbot', handleOpen);
-  }, []);
-
-  // Fallback to empty objects if context is not available
   const climateContext = useClimateContext() || {};
   const irrigationContext = useIrrigationContext() || {};
   const electricityContext = useElectricityContext() || {};
-  
   const { forecastData } = climateContext;
+  const { state: autoState } = useAutomationSimulation() || { state: {} };
 
   const [latestData, setLatestData] = useState(sampleRecord);
 
@@ -49,13 +37,11 @@ const Chatbot = () => {
         setLatestData(doc.data());
       });
     }, (error) => {
-      console.error('Chatbot Firestore error:', error);
+      console.error('VirtualChatbox Firestore error:', error);
     });
 
     return () => unsubscribe();
   }, []);
-
-  const { state: autoState } = useAutomationSimulation() || { state: {} };
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -75,18 +61,10 @@ const Chatbot = () => {
 
     // Extract Rack Detail Data
     const racks = latestData.room_data?.racks || [];
-    const avgRack = racks[0] || {};
-    const sensors = avgRack.rack_sensors || {};
-    const controllers = avgRack.rack_controllers || {};
-    const plants = avgRack.plants || [];
-    const avgHealth = plants.reduce((acc, p) => acc + (p.health_score || 0), 0) / (plants.length || 1);
-    const avgLAI = plants.reduce((acc, p) => acc + (p.lai_val || 0), 0) / (plants.length || 1);
-
-    // Calculate electricity breakdown matching the 6 UI cards
+    
+    // Calculate electricity breakdown
     const elecRegistry = electricityContext.deviceRegistry || {};
     const breakdown = {};
-    
-    // Initialize all groups to ensure they appear even if 0
     const groups = ['lighting', 'climate', 'fans', 'pumps', 'sprayers', 'system'];
     groups.forEach(g => breakdown[g] = { watts: 0, count: 0, total: 0 });
 
@@ -177,109 +155,85 @@ ${irrigationContext.zones?.map(z => {
         }),
       });
 
-      if (!response.ok) {
-        throw new Error(`API error: ${response.status}`);
-      }
-
+      if (!response.ok) throw new Error('Network response was not ok');
       const data = await response.json();
+      
       setMessages(prev => [...prev, { role: 'bot', text: data.response }]);
     } catch (error) {
-      console.error('Chat failed:', error);
-      setMessages(prev => [...prev, { role: 'bot', text: 'Sorry, I failed to connect to the backend. Please make sure the API is running.' }]);
+      console.error('Chat error:', error);
+      setMessages(prev => [...prev, { role: 'bot', text: 'Sorry, I encountered an error. Please try again.' }]);
     } finally {
       setIsLoading(false);
     }
   };
 
   const renderMessage = (text) => {
-    return text.split('\n').map((line, i) => (
-      <div key={i} style={{ minHeight: '1em' }}>
-        {line.split(/(\*\*.*?\*\*)/).map((part, j) => {
-          if (part.startsWith('**') && part.endsWith('**')) {
-            return <strong key={j}>{part.slice(2, -2)}</strong>;
-          }
-          return part;
-        })}
-      </div>
-    ));
+    const parts = text.split(/(\*\*.*?\*\*|\n)/);
+    return parts.map((part, index) => {
+      if (part.startsWith('**') && part.endsWith('**')) {
+        return <strong key={index}>{part.slice(2, -2)}</strong>;
+      }
+      if (part === '\n') {
+        return <br key={index} />;
+      }
+      return part;
+    });
   };
 
-  const shouldHideButton = isVirtualFarm && !isOpen;
-
   return (
-    <>
-      {/* Floating Button */}
-      {!shouldHideButton && (
-        <div className="chatbot-bubble" onClick={() => setIsOpen(!isOpen)}>
-          <MessageSquare size={24} color="white" />
+    <div className="virtual-chatbox-container">
+      <div className="virtual-chatbox-header">
+        <div className="virtual-chatbox-title">
+          <Bot size={20} />
+          <h3>AI Assistant</h3>
         </div>
-      )}
+        <button className="virtual-chatbox-close" onClick={onClose}>
+          <X size={20} />
+        </button>
+      </div>
 
-      {/* Chat Window */}
-      <AnimatePresence>
-        {isOpen && (
-          <motion.div
-            className="chatbot-window"
-            initial={{ opacity: 0, y: 20, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 20, scale: 0.95 }}
-            transition={{ duration: 0.2 }}
-          >
-            <div className="chatbot-header">
-              <div className="chatbot-title">
-                <Bot size={20} />
-                <h3>Farm Assistant</h3>
+      <div className="virtual-chatbox-messages">
+        {messages.map((msg, index) => (
+          <div key={index} className={`v-message-wrapper ${msg.role}`}>
+            <div className="v-message-icon">
+              {msg.role === 'bot' ? <Bot size={14} /> : <User size={14} />}
+            </div>
+            <div className="v-message-text">
+              {renderMessage(msg.text)}
+            </div>
+          </div>
+        ))}
+        {isLoading && (
+          <div className="v-message-wrapper bot">
+            <div className="v-message-icon">
+              <Bot size={14} />
+            </div>
+            <div className="v-message-text v-loading">
+              <div className="v-typing-indicator">
+                <span></span>
+                <span></span>
+                <span></span>
               </div>
-              <button className="chatbot-close" onClick={() => { setIsOpen(false); window.dispatchEvent(new CustomEvent('close-chatbot')); }}>
-                <X size={20} />
-              </button>
             </div>
-
-            <div className="chatbot-messages">
-              {messages.map((msg, index) => (
-                <div key={index} className={`message-wrapper ${msg.role}`}>
-                  <div className="message-icon">
-                    {msg.role === 'bot' ? <Bot size={14} /> : <User size={14} />}
-                  </div>
-                  <div className="message-text">
-                    {renderMessage(msg.text)}
-                  </div>
-                </div>
-              ))}
-              {isLoading && (
-                <div className="message-wrapper bot">
-                  <div className="message-icon">
-                    <Bot size={14} />
-                  </div>
-                  <div className="message-text loading">
-                    <div className="typing-indicator">
-                      <span></span>
-                      <span></span>
-                      <span></span>
-                    </div>
-                  </div>
-                </div>
-              )}
-              <div ref={messagesEndRef} />
-            </div>
-
-            <div className="chatbot-input">
-              <input
-                type="text"
-                placeholder="Ask about your farm..."
-                value={inputText}
-                onChange={(e) => setInputText(e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' && handleSend()}
-              />
-              <button onClick={handleSend} disabled={isLoading || !inputText.trim()}>
-                <Send size={18} />
-              </button>
-            </div>
-          </motion.div>
+          </div>
         )}
-      </AnimatePresence>
-    </>
+        <div ref={messagesEndRef} />
+      </div>
+
+      <div className="virtual-chatbox-input">
+        <input
+          type="text"
+          placeholder="Ask about the virtual farm..."
+          value={inputText}
+          onChange={(e) => setInputText(e.target.value)}
+          onKeyPress={(e) => e.key === 'Enter' && handleSend()}
+        />
+        <button onClick={handleSend} disabled={isLoading || !inputText.trim()}>
+          <Send size={18} />
+        </button>
+      </div>
+    </div>
   );
 };
 
-export default Chatbot;
+export default VirtualChatbox;
