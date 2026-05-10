@@ -10,6 +10,8 @@ import Settings from './components/Settings/Settings';
 import Placeholder from './components/Placeholder/Placeholder';
 import ElectricityTab from './tabs/ElectricityTab';
 import Notifications from './components/Notifications/Notifications';
+import Help from './components/Help/Help';
+import Chatbot from './components/Chatbot/Chatbot';
 
 // Providers
 import { ClimateProvider } from './context/ClimateContext';
@@ -77,9 +79,10 @@ function App() {
               <Route path="/electricity" element={<ElectricityTab />} />
               {/* Unimplemented pages use the Placeholder component */}
               <Route path="/reports" element={<Placeholder />} />
-              <Route path="/help" element={<Placeholder />} />
+              <Route path="/help" element={<Help />} />
               <Route path="/notifications" element={<Notifications />} />
             </Routes>
+            <Chatbot />
           </div>
         </IrrigationProvider>
       </ElectricityProvider>

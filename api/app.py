@@ -281,6 +281,40 @@ async def cv_analysis(file: UploadFile = File(...)):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"CV Analysis failed: {str(e)}")
 
+@app.post("/chat")
+async def chat(data: dict):
+    """Chat with the farm assistant."""
+    if gemini_model is None:
+        raise HTTPException(
+            status_code=503,
+            detail="Gemini model is not initialized. Check Vertex AI credentials.",
+        )
+    
+    message = data.get("message")
+    context = data.get("context", "")
+    
+    if not message:
+        raise HTTPException(status_code=400, detail="Message is required")
+        
+    try:
+        prompt = f"""
+        You are the ThousandYield AI Farm Assistant.
+        Answer the User's Question based on the Farm Status Snapshot provided below.
+        Be friendly, conversational, and helpful.
+
+        User Question: {message}
+
+        ---
+        Farm Status Snapshot:
+        {context}
+        """
+        
+        response = gemini_model.generate_content(prompt)
+        return {"response": response.text}
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Chat failed: {str(e)}")
+
 # ─── Run ──────────────────────────────────────────────────────────────────────
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)

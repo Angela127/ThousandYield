@@ -25,12 +25,12 @@ import './Sidebar.css';
 const navItems = [
 	{ to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
 	{ to: '/virtual-farm', label: 'Virtual Farm', icon: Sprout },
-	{ to: '/fields', label: 'Camera', icon: Camera },
 	{ to: '/rack-detail', label: 'Rack Detail', icon: Layers },
 	{ to: '/irrigation', label: 'Irrigation', icon: Waves },
 	{ to: '/electricity', label: 'Electricity', icon: Zap },
 	{ to: '/automation', label: 'Automation', icon: Bot },
 	{ to: '/environment', label: 'Environment', icon: CloudSun },
+	{ to: '/fields', label: 'Camera', icon: Camera },
 	{ to: '/notifications', label: 'Notifications', icon: Bell },
 	{ to: '/help', label: 'Help', icon: HelpCircle },
 	{ to: '/settings', label: 'Settings', icon: Settings },
