@@ -1,5 +1,4 @@
 import React from 'react';
-import { ElectricityProvider } from '../context/ElectricityContext';
 import SummaryMetrics from '../components/electricity/SummaryMetrics';
 import BudgetBar from '../components/electricity/BudgetBar';
 import ElectricityGraph from '../components/electricity/ElectricityGraph';
@@ -12,7 +11,7 @@ import '../components/electricity/ElectricityTab.css';
 const ElectricityTabContent = () => {
   return (
     <div className="electricity-tab-container">
-      <div className="electricity-header">
+      <div className="electricity-header" style={{ position: 'relative' }}>
         <div className="header-top-bar">
           <div className="header-text">
             <h1>Electricity Dashboard</h1>
@@ -33,11 +32,7 @@ const ElectricityTabContent = () => {
 };
 
 const ElectricityTab = () => {
-  return (
-    <ElectricityProvider>
-      <ElectricityTabContent />
-    </ElectricityProvider>
-  );
+  return <ElectricityTabContent />;
 };
 
 export default ElectricityTab;

@@ -1,4 +1,5 @@
 .climate-view {
+  position: relative;
   flex: 1;
   padding: 2rem;
   background-color: transparent; /* Let the paper texture show through */
@@ -7,6 +8,7 @@
 }
 
 .view-header {
+  position: relative;
   margin-bottom: 2rem;
 }
 
@@ -258,7 +260,9 @@
 }
 
 .notification-hub {
-  position: relative;
+  position: absolute;
+  top: 0;
+  right: 0;
 }
 
 .bell-btn {

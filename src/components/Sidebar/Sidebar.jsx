@@ -1,37 +1,36 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 import {
-  LayoutDashboard,
-  Leaf,
-  Waves,
-  Sprout,
-  Droplets,
-  CloudSun,
-  Bug,
-  Box,
-  Warehouse,
-  Layers,
-  FileText,
-  HelpCircle,
-  Bell,
-  Settings,
-  User,
-  Bot,
-  Camera,
-  Zap
+	LayoutDashboard,
+	Leaf,
+	Waves,
+	Sprout,
+	Droplets,
+	CloudSun,
+	Bug,
+	Box,
+	Warehouse,
+	Layers,
+	FileText,
+	HelpCircle,
+	Bell,
+	Settings,
+	User,
+	Bot,
+	Camera,
+	Zap
 } from 'lucide-react';
 import './Sidebar.css';
 
 const navItems = [
 	{ to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-	{ to: '/virtual-farm', label: 'Virtual Farm', icon: Sprout},
+	{ to: '/virtual-farm', label: 'Virtual Farm', icon: Sprout },
 	{ to: '/fields', label: 'Camera', icon: Camera },
 	{ to: '/rack-detail', label: 'Rack Detail', icon: Layers },
 	{ to: '/irrigation', label: 'Irrigation', icon: Waves },
 	{ to: '/electricity', label: 'Electricity', icon: Zap },
 	{ to: '/automation', label: 'Automation', icon: Bot },
 	{ to: '/environment', label: 'Environment', icon: CloudSun },
-	{ to: '/reports', label: 'Reports', icon: FileText },
 	{ to: '/notifications', label: 'Notifications', icon: Bell },
 	{ to: '/help', label: 'Help', icon: HelpCircle },
 	{ to: '/settings', label: 'Settings', icon: Settings },
@@ -46,7 +45,6 @@ const menuItems = [
 	{ path: '/electricity', icon: Zap, label: 'Electricity' },
 	{ path: '/environment', icon: CloudSun, label: 'Environment' },
 	{ path: '/automation', icon: Bot, label: 'Automation' },
-	{ path: '/reports', icon: FileText, label: 'Reports' },
 	{ path: '/help', icon: HelpCircle, label: 'Help' },
 ];
 
