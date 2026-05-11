@@ -202,7 +202,7 @@ export const useElectricitySimulator = () => {
           Object.keys(nextRegistry).forEach(id => {
             const device = nextRegistry[id];
             
-            if (device.schedulable && device.status === 'on' && peak && !device.shifted) {
+            if (device.schedulable && device.status === 'on' && peak && !device.shifted && device.preferred_run_time) {
               const sugId = `shift_${id}`;
               if (!newSuggestions.find(s => s.id === sugId)) {
                 newSuggestions.push({

@@ -1,22 +1,9 @@
 import React from 'react';
 import { useIrrigationContext } from '../../context/IrrigationContext';
 import { Waves, FlaskConical, Droplets, Activity } from 'lucide-react';
+import StatCard from '../StatCard/StatCard';
 
-const StatCard = ({ icon: Icon, label, value, unit, subtext, status }) => (
-  <div className={`irrigation-metric-card ${status}`}>
-    <div className="metric-icon-wrapper">
-      <Icon size={24} />
-    </div>
-    <div className="metric-content">
-      <h4 className="metric-title">{label}</h4>
-      <div className="metric-value-row">
-        <span className="metric-value">{value}</span>
-        {unit && <span className="metric-unit">{unit}</span>}
-      </div>
-      {subtext && <p className="metric-subtext">{subtext}</p>}
-    </div>
-  </div>
-);
+
 
 const SummaryMetrics = () => {
   const { reservoir, zones, pump } = useIrrigationContext();

@@ -172,7 +172,7 @@ const AdvancedAnalysis = () => {
   return (
     <div className="advanced-view">
       <header className="view-header">
-        <div className="header-main">
+        <div className="header-text">
           <h1>Advanced Field Analysis</h1>
           <p>AI-powered computer vision and predictive yield modeling.</p>
         </div>

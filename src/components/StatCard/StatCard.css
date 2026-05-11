@@ -60,6 +60,12 @@
   font-weight: 600;
 }
 
+.stat-subtext {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 0.15rem;
+}
+
 .stat-trend {
   font-size: 0.7rem;
   font-weight: 700;
@@ -85,4 +91,8 @@
 
 .status-optimal {
   border-left: 4px solid #4CAF50;
+}
+
+.status-active {
+  border-left: 4px solid #2196F3;
 }

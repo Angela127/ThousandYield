@@ -25,7 +25,7 @@ const Automation = () => {
   return (
     <div className="automation-view">
       <header className="automation-header">
-        <div className="automation-header-left">
+        <div className="header-text">
           <h1>Automation Control</h1>
           <p>Simulated PID control for indoor climate and water balance.</p>
         </div>

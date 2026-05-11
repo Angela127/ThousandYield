@@ -1,6 +1,7 @@
 import React from 'react';
 import { useElectricityContext } from '../../context/ElectricityContext';
 import { Zap, Activity, Calendar, DollarSign } from 'lucide-react';
+import StatCard from '../StatCard/StatCard';
 
 const SummaryMetrics = () => {
   const { summary, budgetW } = useElectricityContext();
@@ -14,26 +15,38 @@ const SummaryMetrics = () => {
 
   return (
     <div className="metrics-grid">
-      <div className="metric-card">
-        <div className="metric-title"><Activity size={16} style={{display:'inline', marginRight:'4px'}}/> Total Now</div>
-        <div className="metric-value">{summary.total_W.toFixed(1)} W</div>
-        <div className="metric-subtext">of {budgetW} W budget</div>
-      </div>
-      <div className="metric-card">
-        <div className="metric-title"><Zap size={16} style={{display:'inline', marginRight:'4px'}}/> Today's kWh</div>
-        <div className="metric-value">{summary.today_kwh.toFixed(3)} kWh</div>
-        <div className="metric-subtext">Est. RM {todayRM.toFixed(2)}</div>
-      </div>
-      <div className="metric-card">
-        <div className="metric-title"><Calendar size={16} style={{display:'inline', marginRight:'4px'}}/> This Month</div>
-        <div className="metric-value">{summary.month_kwh.toFixed(2)} kWh</div>
-        <div className="metric-subtext">Est. RM {monthRM.toFixed(2)}</div>
-      </div>
-      <div className="metric-card">
-        <div className="metric-title"><DollarSign size={16} style={{display:'inline', marginRight:'4px'}}/> Peak Hour Cost</div>
-        <div className="metric-value">RM {peakCost.toFixed(2)}</div>
-        <div className="metric-subtext">vs Off-Peak RM {offpeakCost.toFixed(2)}</div>
-      </div>
+      <StatCard
+        icon={Activity}
+        label="Total Now"
+        value={summary.total_W.toFixed(1)}
+        unit="W"
+        status={summary.total_W > budgetW ? "warning" : "optimal"}
+        subtext={`of ${budgetW} W budget`}
+      />
+      <StatCard
+        icon={Zap}
+        label="Today's kWh"
+        value={summary.today_kwh.toFixed(3)}
+        unit="kWh"
+        status="optimal"
+        subtext={`Est. RM ${todayRM.toFixed(2)}`}
+      />
+      <StatCard
+        icon={Calendar}
+        label="This Month"
+        value={summary.month_kwh.toFixed(2)}
+        unit="kWh"
+        status="optimal"
+        subtext={`Est. RM ${monthRM.toFixed(2)}`}
+      />
+      <StatCard
+        icon={DollarSign}
+        label="Peak Hour Cost"
+        value={`RM ${peakCost.toFixed(2)}`}
+        unit=""
+        status="warning"
+        subtext={`vs Off-Peak RM ${offpeakCost.toFixed(2)}`}
+      />
     </div>
   );
 };

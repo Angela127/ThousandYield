@@ -19,12 +19,154 @@ import { FarmSettings } from './ui/FarmSettings';
 import { FlagSystemModal } from './ui/FlagSystem';
 import RackOverlay from './ui/RackOverlay';
 import './VirtualFarm.css';
+import VirtualChatbox from './ui/VirtualChatbox';
 
 // All valid rack IDs from the data (40 total)
 const ALL_RACK_IDS = [
   ...Array.from({ length: 20 }, (_, i) => `rack_01${String(i + 1).padStart(2, '0')}`),
   ...Array.from({ length: 20 }, (_, i) => `rack_02${String(i + 1).padStart(2, '0')}`),
 ];
+
+// Create a cute robot based on the user's image (Screen head, legs)
+const createRobot = (scene) => {
+  const robotGroup = new THREE.Group();
+  
+  // Materials
+  const lightGrey = new THREE.MeshStandardMaterial({ color: 0xeeeeee, roughness: 0.2 });
+  const lightGreen = new THREE.MeshStandardMaterial({ color: 0x81c784, roughness: 0.2 }); // Light green!
+  const darkScreen = new THREE.MeshStandardMaterial({ color: 0x1a1a1a, roughness: 0.1 });
+  const glowingBlue = new THREE.MeshBasicMaterial({ color: 0x00d2ff });
+  const blackMat = new THREE.MeshStandardMaterial({ color: 0x333333 });
+
+  // === Body ===
+  const bodyGeom = new THREE.BoxGeometry(0.4, 0.25, 0.35);
+  // Round the corners a bit using a sphere if possible, or just keep it boxy
+  const body = new THREE.Mesh(bodyGeom, lightGrey);
+  body.position.y = 0.35;
+  robotGroup.add(body);
+  
+  const bodyAccentGeom = new THREE.BoxGeometry(0.2, 0.15, 0.02);
+  const bodyAccent = new THREE.Mesh(bodyAccentGeom, lightGreen);
+  bodyAccent.position.set(0, -0.02, 0.176);
+  body.add(bodyAccent);
+
+  // === Head ===
+  const headGroup = new THREE.Group();
+  headGroup.position.y = 0.65;
+  
+  const headGeom = new THREE.BoxGeometry(0.45, 0.35, 0.35);
+  const head = new THREE.Mesh(headGeom, lightGrey);
+  headGroup.add(head);
+  
+  // Screen
+  const screenGeom = new THREE.BoxGeometry(0.38, 0.28, 0.02);
+  const screen = new THREE.Mesh(screenGeom, darkScreen);
+  screen.position.set(0, 0, 0.17);
+  headGroup.add(screen);
+  
+  // Eyes (Filled circles with reflections)
+  const eyeGeom = new THREE.CircleGeometry(0.05, 16);
+  const reflectionGeom = new THREE.CircleGeometry(0.015, 16);
+  const reflectionMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
+  
+  const eye1 = new THREE.Mesh(eyeGeom, glowingBlue);
+  eye1.position.set(0.08, 0.02, 0.02);
+  const ref1 = new THREE.Mesh(reflectionGeom, reflectionMat);
+  ref1.position.set(0.015, 0.015, 0.001);
+  eye1.add(ref1);
+
+  const eye2 = new THREE.Mesh(eyeGeom, glowingBlue);
+  eye2.position.set(-0.08, 0.02, 0.02);
+  const ref2 = new THREE.Mesh(reflectionGeom, reflectionMat);
+  ref2.position.set(0.015, 0.015, 0.001);
+  eye2.add(ref2);
+  
+  screen.add(eye1, eye2);
+  
+  // Smile
+  const smileGeom = new THREE.TorusGeometry(0.03, 0.006, 8, 16, Math.PI); // Half circle
+  const smile = new THREE.Mesh(smileGeom, glowingBlue);
+  smile.position.set(0, -0.05, 0.02);
+  smile.rotation.z = Math.PI; // Face up
+  screen.add(smile);
+  
+  // Antenna (Y shape)
+  const antBaseGeom = new THREE.CylinderGeometry(0.02, 0.02, 0.05);
+  const antBase = new THREE.Mesh(antBaseGeom, blackMat);
+  antBase.position.y = 0.2;
+  headGroup.add(antBase);
+  
+  const antStemGeom = new THREE.CylinderGeometry(0.01, 0.01, 0.1);
+  const antStem = new THREE.Mesh(antStemGeom, lightGreen);
+  antStem.position.y = 0.25;
+  headGroup.add(antStem);
+  
+  const antLeftGeom = new THREE.CylinderGeometry(0.01, 0.01, 0.08);
+  const antLeft = new THREE.Mesh(antLeftGeom, lightGreen);
+  antLeft.position.set(0.03, 0.32, 0);
+  antLeft.rotation.z = -Math.PI / 4;
+  headGroup.add(antLeft);
+  
+  const antRightGeom = new THREE.CylinderGeometry(0.01, 0.01, 0.08);
+  const antRight = new THREE.Mesh(antRightGeom, lightGreen);
+  antRight.position.set(-0.03, 0.32, 0);
+  antRight.rotation.z = Math.PI / 4;
+  headGroup.add(antRight);
+
+  robotGroup.add(headGroup);
+  robotGroup.userData.headGroup = headGroup;
+
+  // === Arms ===
+  const armGeom = new THREE.CylinderGeometry(0.02, 0.02, 0.15);
+  
+  const armGroup1 = new THREE.Group();
+  armGroup1.position.set(0.25, 0.35, 0);
+  const arm1 = new THREE.Mesh(armGeom, lightGreen);
+  arm1.position.y = -0.075;
+  armGroup1.add(arm1);
+  const handGeom = new THREE.SphereGeometry(0.03, 8, 8);
+  const hand1 = new THREE.Mesh(handGeom, blackMat);
+  hand1.position.y = -0.16;
+  armGroup1.add(hand1);
+  robotGroup.add(armGroup1);
+  robotGroup.userData.arm = armGroup1; // For waving!
+
+  const armGroup2 = new THREE.Group();
+  armGroup2.position.set(-0.25, 0.35, 0);
+  const arm2 = new THREE.Mesh(armGeom, lightGreen);
+  arm2.position.y = -0.075;
+  armGroup2.add(arm2);
+  const hand2 = new THREE.Mesh(handGeom, blackMat);
+  hand2.position.y = -0.16;
+  armGroup2.add(hand2);
+  robotGroup.add(armGroup2);
+
+  // === Legs ===
+  const legGeom = new THREE.CylinderGeometry(0.03, 0.03, 0.15);
+  
+  const leg1 = new THREE.Mesh(legGeom, lightGreen);
+  leg1.position.set(0.1, 0.15, 0);
+  robotGroup.add(leg1);
+  
+  const leg2 = new THREE.Mesh(legGeom, lightGreen);
+  leg2.position.set(-0.1, 0.15, 0);
+  robotGroup.add(leg2);
+  
+  const footGeom = new THREE.BoxGeometry(0.06, 0.04, 0.1);
+  const foot1 = new THREE.Mesh(footGeom, blackMat);
+  foot1.position.set(0.1, 0.05, 0.02);
+  robotGroup.add(foot1);
+  
+  const foot2 = new THREE.Mesh(footGeom, blackMat);
+  foot2.position.set(-0.1, 0.05, 0.02);
+  robotGroup.add(foot2);
+
+  // Position the robot
+  robotGroup.position.set(0, 0, 8); // Place it near the entrance or center!
+  scene.add(robotGroup);
+  
+  return robotGroup;
+};
 
 const VirtualFarm = () => {
   const canvasRef = useRef(null);
@@ -45,8 +187,14 @@ const VirtualFarm = () => {
   // New State
   const [showSettings, setShowSettings] = useState(false);
   const [showFlagModal, setShowFlagModal] = useState(false);
+  const [isRobotFocus, setIsRobotFocus] = useState(false);
   const [flaggedTowers, setFlaggedTowers] = useState(new Map()); // UUID -> { reason, marker }
   const flaggedTowersRef = useRef(flaggedTowers);
+  const isRobotFocusRef = useRef(isRobotFocus);
+  
+  useEffect(() => {
+    isRobotFocusRef.current = isRobotFocus;
+  }, [isRobotFocus]);
   
   const [farmSettings, setFarmSettings] = useState({
     lightIntensity: 0.8,
@@ -114,6 +262,8 @@ const VirtualFarm = () => {
     const drips = createWaterDrips(scene);
     createToolCart(scene);
 
+    const robot = createRobot(scene);
+
     const sprayers = createSprayers(scene, towerPositions);
     const sprayParticles = createSprayParticles(scene, towerPositions);
 
@@ -134,6 +284,24 @@ const VirtualFarm = () => {
       setShowInstructions(false);
     };
     canvas.addEventListener('click', onCanvasClick);
+
+    // Click on robot to open chatbot
+    const raycaster = new THREE.Raycaster();
+    const mouse = new THREE.Vector2();
+
+    const onRobotClick = (event) => {
+      const rect = canvas.getBoundingClientRect();
+      mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+      mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+      
+      raycaster.setFromCamera(mouse, camera);
+      const intersects = raycaster.intersectObject(robot, true);
+      
+      if (intersects.length > 0) {
+        setIsRobotFocus(true);
+      }
+    };
+    canvas.addEventListener('click', onRobotClick);
 
     // === Resize ===
     const onResize = () => handleResize(camera, renderer);
@@ -164,7 +332,23 @@ const VirtualFarm = () => {
       const delta = clock.getDelta();
       const currentSettings = settingsRef.current;
 
-      controls.update(delta);
+      if (isRobotFocusRef.current) {
+        // Smoothly move camera to position looking at robot (shifted left)
+        camera.position.lerp(new THREE.Vector3(-0.8, 1.2, 10.5), 0.05);
+        camera.lookAt(1.0, 1.0, 8.0); // Point further to the right of the robot to shift it left
+        
+        // Hello Animation (Waving UPWARDS)
+        if (robot.userData.arm) {
+          robot.userData.arm.rotation.z = 1.5 + Math.sin(clock.getElapsedTime() * 8) * 0.3;
+        }
+        
+        // Head Animation (Subtle bobbing, staying attached to body)
+        if (robot.userData.headGroup) {
+          robot.userData.headGroup.position.y = 0.65 + Math.sin(clock.getElapsedTime() * 2) * 0.005;
+        }
+      } else {
+        controls.update(delta);
+      }
 
       // System timers
       sprayTimer += delta;
@@ -214,6 +398,7 @@ const VirtualFarm = () => {
       cancelAnimationFrame(animFrameRef.current);
       window.removeEventListener('resize', onResize);
       canvas.removeEventListener('click', onCanvasClick);
+      canvas.removeEventListener('click', onRobotClick);
       controls.dispose();
       interaction.dispose();
       renderer.dispose();
@@ -495,6 +680,10 @@ const VirtualFarm = () => {
           rackId={rackOverlayId}
           onClose={() => setRackOverlayId(null)}
         />
+      )}
+      {/* Virtual Farm Chatbot */}
+      {isRobotFocus && (
+        <VirtualChatbox onClose={() => setIsRobotFocus(false)} />
       )}
     </div>
   );

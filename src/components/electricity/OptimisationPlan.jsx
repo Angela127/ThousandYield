@@ -23,7 +23,9 @@ const OptimisationPlan = () => {
           return (
             <div key={sug.id} className={`suggestion-card ${sug.type}`}>
               <div className="suggestion-header">
-                <Icon size={20} className="suggestion-icon" />
+                <div className="suggestion-icon-wrapper">
+                  <Icon size={18} />
+                </div>
                 <span className="suggestion-title">{sug.title}</span>
               </div>
               <div className="suggestion-desc">{sug.description}</div>

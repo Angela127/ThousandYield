@@ -10,6 +10,15 @@ import Settings from './components/Settings/Settings';
 import Harvest from './components/Harvest/Harvest';
 import Placeholder from './components/Placeholder/Placeholder';
 import ElectricityTab from './tabs/ElectricityTab';
+import Notifications from './components/Notifications/Notifications';
+import Help from './components/Help/Help';
+import Chatbot from './components/Chatbot/Chatbot';
+
+// Providers
+import { ClimateProvider } from './context/ClimateContext';
+import { IrrigationProvider } from './context/IrrigationContext';
+import { ElectricityProvider } from './context/ElectricityContext';
+
 const VirtualFarm = lazy(() => import('./components/VirtualFarm/VirtualFarm'));
 import RackDetail from './components/RackDetail/RackDetail';
 import './App.css';
@@ -46,33 +55,40 @@ const LoadingScreen = () => (
 
 function App() {
   return (
-    <div className="app-container">
-      <Sidebar />
-      <Routes>
-        <Route path="/" element={<Navigate to="/dashboard" replace />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route 
-          path="/virtual-farm" 
-          element={
-            <Suspense fallback={<LoadingScreen />}>
-              <VirtualFarm />
-            </Suspense>
-          } 
-        />
-        <Route path="/fields" element={<AdvancedAnalysis />} />
-        <Route path="/rack-detail" element={<RackDetail />} />
-        <Route path="/irrigation" element={<Irrigation />} />
-        <Route path="/environment" element={<Climate />} />
-        <Route path="/automation" element={<Automation />} />
-        <Route path="/settings" element={<Settings />} />
-        <Route path="/harvest" element={<Harvest />} />
-        <Route path="/electricity" element={<ElectricityTab />} />
-        {/* Unimplemented pages use the Placeholder component */}
-        <Route path="/reports" element={<Placeholder />} />
-        <Route path="/help" element={<Placeholder />} />
-        <Route path="/notifications" element={<Placeholder title="Notifications" />} />
-      </Routes>
-    </div>
+    <ClimateProvider>
+      <ElectricityProvider>
+        <IrrigationProvider>
+          <div className="app-container">
+            <Sidebar />
+            <Routes>
+              <Route path="/" element={<Navigate to="/dashboard" replace />} />
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route 
+                path="/virtual-farm" 
+                element={
+                  <Suspense fallback={<LoadingScreen />}>
+                    <VirtualFarm />
+                  </Suspense>
+                } 
+              />
+              <Route path="/fields" element={<AdvancedAnalysis />} />
+              <Route path="/rack-detail" element={<RackDetail />} />
+              <Route path="/irrigation" element={<Irrigation />} />
+              <Route path="/environment" element={<Climate />} />
+              <Route path="/automation" element={<Automation />} />
+              <Route path="/settings" element={<Settings />} />
+              <Route path="/harvest" element={<Harvest />} />
+              <Route path="/electricity" element={<ElectricityTab />} />
+              {/* Unimplemented pages use the Placeholder component */}
+              <Route path="/reports" element={<Placeholder />} />
+              <Route path="/help" element={<Help />} />
+              <Route path="/notifications" element={<Notifications />} />
+            </Routes>
+            <Chatbot />
+          </div>
+        </IrrigationProvider>
+      </ElectricityProvider>
+    </ClimateProvider>
   );
 }
 
