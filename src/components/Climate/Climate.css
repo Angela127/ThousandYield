@@ -2,9 +2,10 @@
   position: relative;
   flex: 1;
   padding: 2rem;
-  background-color: transparent; /* Let the paper texture show through */
+  background-color: transparent;
+  /* Let the paper texture show through */
   min-height: 100vh;
-  margin-left: 240px; 
+  margin-left: 240px;
 }
 
 .view-header {
@@ -84,7 +85,8 @@
   color: #333;
 }
 
-.banner-actions, .banner-automation {
+.banner-actions,
+.banner-automation {
   font-size: 0.85rem;
   color: #666;
   margin-top: 0.2rem;
@@ -142,6 +144,7 @@
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 1.5rem;
+  align-items: start;
 }
 
 .forecast-card {
@@ -153,9 +156,11 @@
   border: 1px solid rgba(255, 255, 255, 0.3);
   border-left: 4px solid #eee;
   transition: transform 0.2s;
-  display: flex; /* Added flex */
+  display: flex;
+  /* Added flex */
   flex-direction: column;
-  min-height: 180px; /* Set min-height for balance */
+  min-height: 180px;
+  /* Set min-height for balance */
 }
 
 .forecast-card:hover {
@@ -166,7 +171,8 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 0.5rem; /* Tighter header */
+  margin-bottom: 0.5rem;
+  /* Tighter header */
 }
 
 .forecast-card-name {
@@ -185,10 +191,12 @@
 }
 
 .forecast-card-value {
-  font-size: 1.75rem; /* Slightly smaller font */
+  font-size: 1.75rem;
+  /* Slightly smaller font */
   font-weight: 700;
   color: #1a1a1a;
-  margin-bottom: 0.25rem; /* Tighter space */
+  margin-bottom: 0.25rem;
+  /* Tighter space */
 }
 
 .forecast-card-unit {
@@ -214,7 +222,8 @@
   display: flex;
   align-items: center;
   gap: 0.4rem;
-  padding: 0.5rem 0.75rem; /* Shorter padding */
+  padding: 0.5rem 0.75rem;
+  /* Shorter padding */
   background: #fff3e0;
   border-radius: 8px;
   color: #ef6c00;
@@ -225,9 +234,10 @@
 }
 
 .forecast-card-footer {
-  margin-top: auto; /* Pushes it to the bottom */
+  margin-top: auto;
+  /* Pushes it to the bottom */
   padding-top: 0.75rem;
-  border-top: 1px solid rgba(0,0,0,0.05);
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
   display: flex;
   flex-direction: column;
   gap: 0.2rem;
@@ -267,7 +277,7 @@
 
 .bell-btn {
   background: white;
-  border: 1px solid rgba(0,0,0,0.05);
+  border: 1px solid rgba(0, 0, 0, 0.05);
   width: 40px;
   height: 40px;
   border-radius: 50%;
@@ -278,7 +288,7 @@
   cursor: pointer;
   position: relative;
   transition: all 0.2s;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
 .bell-btn:hover {
@@ -310,8 +320,8 @@
   width: 320px;
   background: white;
   border-radius: 16px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-  border: 1px solid rgba(0,0,0,0.08);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  border: 1px solid rgba(0, 0, 0, 0.08);
   z-index: 1000;
   overflow: hidden;
 }
@@ -426,7 +436,7 @@
 
 .forecast-chart-segment {
   min-width: 0;
-  border-left: 1px dashed rgba(0,0,0,0.1);
+  border-left: 1px dashed rgba(0, 0, 0, 0.1);
 }
 
 .chart-header {
@@ -643,6 +653,7 @@
   font-weight: 700;
   letter-spacing: 1px;
 }
+
 .weather-insights-list ul {
   list-style: none;
   padding: 0;
@@ -662,7 +673,7 @@
   background: white;
   padding: 1.5rem;
   border-radius: 16px;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
 }
 
 .harvest-row {
@@ -733,10 +744,19 @@
 }
 
 @keyframes slideDown {
-  from { opacity: 0; transform: translateY(-10px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }

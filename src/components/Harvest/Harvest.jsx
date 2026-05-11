@@ -309,17 +309,19 @@ const Harvest = () => {
   return (
     <main className="harvest-main">
       {/* ── Page Header ──────────────────────────────────────── */}
-      <header className="harvest-header">
-        <div className="harvest-header-left">
-          <h1>Harvest Intelligence</h1>
+      <header className="view-header">
+        <div className="header-text">
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+            <h1>Harvest Intelligence</h1>
+            {lastUpdated && (
+              <div className="last-updated-badge" style={{ margin: 0 }}>
+                <Clock size={14} />
+                <span>Last updated: {lastUpdated}</span>
+              </div>
+            )}
+          </div>
           <p>AI-powered yield forecasting and growth tracking</p>
         </div>
-        {lastUpdated && (
-          <div className="harvest-last-updated">
-            <Clock size={14} />
-            <span>Last updated: {lastUpdated}</span>
-          </div>
-        )}
       </header>
 
       {/* ── SECTION 1 — Estimated Harvest Date ───────────────── */}

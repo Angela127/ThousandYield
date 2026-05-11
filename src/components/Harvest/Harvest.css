@@ -12,26 +12,23 @@
 }
 
 /* ── Header ─────────────────────────────────────────────────── */
-.harvest-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 2.5rem;
+.view-header {
+  position: relative;
+  margin-bottom: 2rem;
 }
 
-.harvest-header-left h1 {
+.view-header h1 {
   font-size: 1.75rem;
   font-weight: 700;
   color: #1a1a1a;
-  margin-bottom: 0.35rem;
+  margin-bottom: 0.5rem;
 }
 
-.harvest-header-left p {
+.view-header p {
   color: #666;
-  font-size: 0.95rem;
 }
 
-.harvest-last-updated {
+.last-updated-badge {
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -41,7 +38,6 @@
   border-radius: 20px;
   font-size: 0.85rem;
   color: #666;
-  white-space: nowrap;
 }
 
 /* ── Section Titles ─────────────────────────────────────────── */
