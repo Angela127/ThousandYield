@@ -17,7 +17,14 @@ import { SmoothControls } from './controls/SmoothControls';
 import { TowerInteraction } from './interaction/TowerInteraction';
 import { FarmSettings } from './ui/FarmSettings';
 import { FlagSystemModal } from './ui/FlagSystem';
+import RackOverlay from './ui/RackOverlay';
 import './VirtualFarm.css';
+
+// All valid rack IDs from the data (40 total)
+const ALL_RACK_IDS = [
+  ...Array.from({ length: 20 }, (_, i) => `rack_01${String(i + 1).padStart(2, '0')}`),
+  ...Array.from({ length: 20 }, (_, i) => `rack_02${String(i + 1).padStart(2, '0')}`),
+];
 
 const VirtualFarm = () => {
   const canvasRef = useRef(null);
@@ -32,6 +39,8 @@ const VirtualFarm = () => {
   const [selectedPumpInfo, setSelectedPumpInfo] = useState(null);
   const [showInstructions, setShowInstructions] = useState(true);
   const [sceneReady, setSceneReady] = useState(false);
+  const [rackOverlayId, setRackOverlayId] = useState(null);
+  const towerMeshesRef = useRef([]);
   
   // New State
   const [showSettings, setShowSettings] = useState(false);
@@ -87,6 +96,7 @@ const VirtualFarm = () => {
 
     // === Plant Towers ===
     const { towerMeshes, towerPositions } = createTowers(scene);
+    towerMeshesRef.current = towerMeshes;
     createWaterTrays(scene, towerPositions);
 
     // === Details ===
@@ -380,6 +390,23 @@ const VirtualFarm = () => {
           </div>
           
           <div className="vf-panel-actions">
+            <button
+              className="vf-btn-open-rack"
+              onPointerDown={(e) => e.stopPropagation()}
+              onClick={(e) => {
+                e.stopPropagation();
+                e.preventDefault();
+                const tower = interactionRef.current?.getSelectedTowerObject();
+                if (tower) {
+                  const idx = towerMeshesRef.current.indexOf(tower);
+                  // Map tower index to a rack — wrap around if more towers than racks
+                  const rackId = ALL_RACK_IDS[idx % ALL_RACK_IDS.length] || ALL_RACK_IDS[0];
+                  setRackOverlayId(rackId);
+                }
+              }}
+            >
+              📋 Open Rack Detail
+            </button>
             {flaggedTowers.has(interactionRef.current?.getSelectedTowerObject()?.uuid) ? (
               <button 
                 className="vf-btn-unflag"
@@ -461,6 +488,14 @@ const VirtualFarm = () => {
         <span className="vf-legend-dot" style={{ background: '#1b5e20' }} /> Kale
         <span className="vf-legend-dot" style={{ background: '#33691e' }} /> Chard
       </div>
+
+      {/* Rack Detail Overlay */}
+      {rackOverlayId && (
+        <RackOverlay
+          rackId={rackOverlayId}
+          onClose={() => setRackOverlayId(null)}
+        />
+      )}
     </div>
   );
 };

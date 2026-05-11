@@ -1,0 +1,691 @@
+/* =============================================
+   RackOverlay — Full-screen overlay on Virtual Farm
+   ============================================= */
+
+/* ── Backdrop ── */
+.rack-overlay-backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 50;
+  background: rgba(5, 10, 5, 0.7);
+  backdrop-filter: blur(12px);
+  animation: ro-fadeIn 0.3s ease-out;
+  display: flex;
+  align-items: stretch;
+  justify-content: stretch;
+}
+
+/* ── Main Container ── */
+.rack-overlay-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  animation: ro-slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ── Header Bar ── */
+.ro-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 24px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  flex-shrink: 0;
+}
+
+.ro-header-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.ro-header-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: rgba(163, 230, 53, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.3rem;
+}
+
+.ro-header-title {
+  display: flex;
+  flex-direction: column;
+}
+
+.ro-header-title h2 {
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #fff;
+  margin: 0;
+}
+
+.ro-header-sub {
+  font-size: 0.72rem;
+  color: rgba(255, 255, 255, 0.4);
+  font-weight: 500;
+}
+
+.ro-header-stats {
+  display: flex;
+  gap: 20px;
+  margin-left: 32px;
+}
+
+.ro-stat-chip {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 4px 14px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.ro-stat-chip .label {
+  font-size: 0.55rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: rgba(255, 255, 255, 0.35);
+}
+
+.ro-stat-chip .value {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #a3e635;
+}
+
+.ro-close-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.04);
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.ro-close-btn:hover {
+  background: rgba(255, 60, 60, 0.15);
+  border-color: rgba(255, 60, 60, 0.3);
+  color: #ff6b6b;
+  transform: rotate(90deg);
+}
+
+/* ── Body Split ── */
+.ro-body {
+  display: grid;
+  grid-template-columns: 420px 1fr;
+  gap: 0;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* ── Left Panel ── */
+.ro-left-panel {
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid rgba(255, 255, 255, 0.06);
+  overflow: hidden;
+}
+
+.ro-toggle-bar {
+  display: flex;
+  padding: 12px 20px;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.ro-toggle-btn {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.03);
+  color: rgba(255, 255, 255, 0.45);
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.ro-toggle-btn:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.ro-toggle-btn.active {
+  background: rgba(163, 230, 53, 0.12);
+  border-color: rgba(163, 230, 53, 0.25);
+  color: #a3e635;
+  box-shadow: 0 0 16px rgba(163, 230, 53, 0.08);
+}
+
+.ro-toggle-icon {
+  font-size: 1rem;
+}
+
+/* ── Rack Spinner (left) ── */
+.ro-rack-spinner {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  animation: ro-fadeIn 0.3s ease;
+}
+
+.ro-spin-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+  z-index: 5;
+}
+
+.ro-spin-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(255, 255, 255, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.ro-spin-btn:hover {
+  background: rgba(163, 230, 53, 0.15);
+  border-color: rgba(163, 230, 53, 0.3);
+  color: #a3e635;
+}
+
+.ro-spin-hint {
+  font-size: 0.65rem;
+  color: rgba(255, 255, 255, 0.3);
+  font-weight: 600;
+}
+
+.ro-tower-scene {
+  width: 100%;
+  flex: 1;
+  perspective: 1200px;
+  cursor: grab;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ro-tower-scene:active {
+  cursor: grabbing;
+}
+
+/* ── Plant Photos Grid ── */
+.ro-plant-photos {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px 20px 20px;
+  animation: ro-fadeIn 0.3s ease;
+}
+
+.ro-plant-photos::-webkit-scrollbar { width: 5px; }
+.ro-plant-photos::-webkit-scrollbar-track { background: transparent; }
+.ro-plant-photos::-webkit-scrollbar-thumb { background: rgba(163, 230, 53, 0.15); border-radius: 10px; }
+
+.ro-photos-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.ro-photos-title {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.4);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.ro-photos-count {
+  font-size: 0.7rem;
+  color: rgba(255, 255, 255, 0.25);
+}
+
+.ro-photo-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.ro-photo-card {
+  position: relative;
+  border-radius: 12px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.ro-photo-card:hover {
+  border-color: rgba(163, 230, 53, 0.3);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+}
+
+.ro-photo-card.selected {
+  border-color: rgba(163, 230, 53, 0.5);
+  box-shadow: 0 0 20px rgba(163, 230, 53, 0.1);
+}
+
+.ro-photo-img {
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+  display: block;
+  filter: brightness(0.9);
+  transition: filter 0.2s;
+}
+
+.ro-photo-card:hover .ro-photo-img {
+  filter: brightness(1);
+}
+
+.ro-photo-info {
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.ro-photo-id {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.8);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ro-photo-health-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.ro-photo-lastseen {
+  font-size: 0.58rem;
+  color: rgba(255, 255, 255, 0.3);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.ro-photo-lastseen .cam-icon {
+  font-size: 0.65rem;
+  opacity: 0.7;
+}
+
+/* ── Right Panel ── */
+.ro-right-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 16px 24px;
+  overflow-y: auto;
+  min-height: 0;
+}
+
+.ro-right-panel::-webkit-scrollbar { width: 5px; }
+.ro-right-panel::-webkit-scrollbar-track { background: transparent; }
+.ro-right-panel::-webkit-scrollbar-thumb { background: rgba(163, 230, 53, 0.15); border-radius: 10px; }
+
+/* ── Sensor Cards ── */
+.ro-sensor-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+
+.ro-sensor-card {
+  padding: 14px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  transition: all 0.2s;
+}
+
+.ro-sensor-card:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.ro-sensor-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ro-sensor-card.ph .ro-sensor-icon { background: rgba(76, 175, 80, 0.15); color: #66bb6a; }
+.ro-sensor-card.ec .ro-sensor-icon { background: rgba(255, 152, 0, 0.15); color: #ffa726; }
+.ro-sensor-card.water .ro-sensor-icon { background: rgba(33, 150, 243, 0.15); color: #42a5f5; }
+.ro-sensor-card.light .ro-sensor-icon { background: rgba(255, 193, 7, 0.15); color: #ffca28; }
+
+.ro-sensor-label {
+  font-size: 0.58rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: rgba(255, 255, 255, 0.35);
+}
+
+.ro-sensor-value {
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: #fff;
+}
+
+/* ── Chart Card ── */
+.ro-chart-card {
+  padding: 16px 18px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.ro-chart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.ro-chart-header h3 {
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.8);
+  margin: 0;
+}
+
+.ro-chart-tabs {
+  display: flex;
+  gap: 4px;
+}
+
+.ro-chart-tab {
+  padding: 4px 10px;
+  border: none;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.05);
+  font-size: 0.62rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.4);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.ro-chart-tab:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.ro-chart-tab.active {
+  background: rgba(163, 230, 53, 0.15);
+  color: #a3e635;
+}
+
+/* ── Controllers Card ── */
+.ro-ctrl-card {
+  padding: 16px 18px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.ro-ctrl-card h3 {
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.8);
+  margin: 0 0 12px;
+}
+
+.ro-ctrl-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ro-ctrl-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 0;
+}
+
+.ro-ctrl-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.ro-ctrl-pill {
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 0.62rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.ro-ctrl-pill.on, .ro-ctrl-pill.balanced {
+  background: rgba(76, 175, 80, 0.15);
+  color: #66bb6a;
+}
+
+.ro-ctrl-pill.off {
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(255, 255, 255, 0.35);
+}
+
+.ro-ctrl-progress {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.ro-ctrl-track {
+  width: 80px;
+  height: 5px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.06);
+  overflow: hidden;
+}
+
+.ro-ctrl-fill {
+  height: 100%;
+  border-radius: 10px;
+  background: linear-gradient(90deg, #22c55e, #a3e635);
+  transition: width 0.4s ease;
+}
+
+.ro-ctrl-val {
+  font-size: 0.7rem;
+  font-weight: 800;
+  color: #a3e635;
+}
+
+/* ── Plant Detail Inline ── */
+.ro-plant-detail {
+  padding: 16px 18px;
+  border-radius: 16px;
+  background: rgba(163, 230, 53, 0.04);
+  border: 1px solid rgba(163, 230, 53, 0.1);
+  animation: ro-fadeIn 0.3s ease;
+}
+
+.ro-plant-detail-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.ro-plant-detail-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.ro-plant-emoji {
+  font-size: 1.8rem;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+}
+
+.ro-plant-title h4 {
+  font-family: 'Outfit', sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #fff;
+  margin: 0;
+}
+
+.ro-plant-title span {
+  font-size: 0.68rem;
+  color: rgba(255, 255, 255, 0.35);
+}
+
+.ro-plant-close {
+  background: none;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.4);
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  transition: all 0.2s;
+}
+
+.ro-plant-close:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+}
+
+.ro-plant-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.ro-plant-stat {
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.ro-plant-stat-label {
+  font-size: 0.55rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.3);
+  margin-bottom: 2px;
+}
+
+.ro-plant-stat-val {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #fff;
+}
+
+.ro-plant-stat-val.excellent { color: #66bb6a; }
+.ro-plant-stat-val.good { color: #ffa726; }
+.ro-plant-stat-val.poor { color: #ef5350; }
+
+.ro-plant-anomaly {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+  padding: 8px 14px;
+  border-radius: 10px;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.ro-plant-anomaly.none {
+  background: rgba(76, 175, 80, 0.1);
+  color: #66bb6a;
+  border: 1px solid rgba(76, 175, 80, 0.15);
+}
+
+.ro-plant-anomaly.detected {
+  background: rgba(244, 67, 54, 0.1);
+  color: #ef5350;
+  border: 1px solid rgba(244, 67, 54, 0.15);
+}
+
+/* ── Animations ── */
+@keyframes ro-fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes ro-slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Responsive ── */
+@media (max-width: 1100px) {
+  .ro-body {
+    grid-template-columns: 1fr;
+  }
+  .ro-left-panel {
+    border-right: none;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    max-height: 50%;
+  }
+  .ro-sensor-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}

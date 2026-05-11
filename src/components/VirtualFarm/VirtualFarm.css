@@ -15,6 +15,8 @@
   display: block;
   width: 100%;
   height: 100%;
+  position: relative;
+  z-index: 1;
 }
 
 /* ── Loading Overlay ── */
@@ -218,7 +220,8 @@
   border: 1px solid rgba(163, 230, 53, 0.15);
   border-radius: 16px;
   backdrop-filter: blur(20px);
-  z-index: 10;
+  z-index: 30;
+  pointer-events: auto;
   animation: vf-slideIn 0.3s ease-out;
 }
 
@@ -472,7 +475,31 @@
 .vf-panel-actions {
   margin-top: 20px;
   display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.vf-btn-open-rack {
+  width: 100%;
+  padding: 10px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
   justify-content: center;
+  gap: 8px;
+  background: rgba(163, 230, 53, 0.12);
+  border: 1px solid rgba(163, 230, 53, 0.25);
+  color: #a3e635;
+}
+
+.vf-btn-open-rack:hover {
+  background: rgba(163, 230, 53, 0.2);
+  border-color: rgba(163, 230, 53, 0.4);
+  box-shadow: 0 0 20px rgba(163, 230, 53, 0.1);
 }
 
 .vf-btn-flag, .vf-btn-unflag {
