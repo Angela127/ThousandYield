@@ -114,9 +114,10 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 2rem;
-  padding: 1rem 0;
-  border-top: 1px solid rgba(0,0,0,0.05);
+  gap: 1rem;
+  padding: 0;
+  margin: 0;
+  z-index: 20;
 }
 
 .pag-btn {
@@ -128,84 +129,26 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0.5rem;
+  padding: 0.25rem;
 }
 
 .pag-btn:hover:not(:disabled) {
   color: var(--primary-green);
-  transform: scale(1.4);
+  transform: scale(1.1);
 }
 
 .pag-btn:disabled {
-  opacity: 0.2;
+  opacity: 0.1;
   cursor: not-allowed;
 }
 
-.pag-info {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.pag-info span {
-  font-size: 0.75rem;
+.pag-text {
+  font-size: 0.8rem;
   font-weight: 700;
   color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.pag-jump {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  background: rgba(0,0,0,0.03);
-  padding: 0.25rem 0.5rem;
-  border-radius: 8px;
-  border: 1px solid rgba(0,0,0,0.05);
-}
-
-.jump-label {
-  font-size: 0.65rem !important;
-  color: var(--text-muted);
-}
-
-.pag-input {
-  width: 32px;
-  background: white;
-  border: 1px solid rgba(0,0,0,0.1);
-  border-radius: 4px;
+  letter-spacing: 0.02em;
+  min-width: 70px;
   text-align: center;
-  font-size: 0.75rem;
-  font-weight: 700;
-  color: var(--primary-green);
-  outline: none;
-}
-
-.pag-input:focus {
-  border-color: var(--primary-green);
-  box-shadow: 0 0 0 2px rgba(67, 160, 71, 0.1);
-}
-
-.pag-dots {
-  display: flex;
-  gap: 0.5rem;
-}
-
-.pag-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: rgba(0,0,0,0.1);
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.pag-dot.active {
-  background: var(--primary-green);
-  width: 20px;
-  border-radius: 10px;
 }
 
 /* ===================== LEVEL 2: DETAIL ===================== */

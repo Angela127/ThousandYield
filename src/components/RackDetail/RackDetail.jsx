@@ -237,48 +237,6 @@ const RackDetail = () => {
           </div>
         ))}
       </div>
-      
-      {totalPages > 1 && (
-        <div className="rack-pagination">
-          <button 
-            className="pag-btn" 
-            disabled={currentPage === 1} 
-            onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-          >
-            <ChevronLeft size={28} />
-          </button>
-          <div className="pag-info">
-            <span>Page {currentPage} of {totalPages}</span>
-            <div className="pag-jump">
-              <span className="jump-label">Go to</span>
-              <input 
-                type="text" 
-                value={pageInput} 
-                onChange={handlePageInputChange}
-                onKeyDown={handlePageJump}
-                onBlur={handlePageJump}
-                className="pag-input"
-              />
-            </div>
-            <div className="pag-dots">
-              {Array.from({ length: totalPages }, (_, i) => (
-                <div 
-                  key={i} 
-                  className={`pag-dot ${currentPage === i + 1 ? 'active' : ''}`}
-                  onClick={() => setCurrentPage(i + 1)}
-                />
-              ))}
-            </div>
-          </div>
-          <button 
-            className="pag-btn" 
-            disabled={currentPage === totalPages} 
-            onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-          >
-            <ChevronRight size={28} />
-          </button>
-        </div>
-      )}
     </div>
   );
 
@@ -486,6 +444,27 @@ const RackDetail = () => {
             <span className="rack-subtitle">{subtitles[view]}</span>
           </div>
         </div>
+
+        {view === 'overview' && totalPages > 1 && (
+          <div className="rack-pagination">
+            <button 
+              className="pag-btn" 
+              disabled={currentPage === 1} 
+              onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+            >
+              <ChevronLeft size={20} />
+            </button>
+            <span className="pag-text">page {currentPage}/{totalPages}</span>
+            <button 
+              className="pag-btn" 
+              disabled={currentPage === totalPages} 
+              onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+            >
+              <ChevronRight size={20} />
+            </button>
+          </div>
+        )}
+
         <div className="rack-header-right">
           <div className="rack-header-stats">
             <div className="rack-mini-stat"><span className="label">Racks</span><span className="value">{racks.length}</span></div>
