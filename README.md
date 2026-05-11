@@ -1,4 +1,4 @@
-<h1 align="center">ThousandYield — AI Vertical Farming Intelligence</h1>
+<h1 align="center">🥬ThousandYield — AI Vertical Farming Intelligence</h1>
 
 <p align="center">
   <strong>An AI-powered platform that provides real-time monitoring, computer vision disease detection, and predictive forecasting to help anyone maximize crop yield while minimizing water and energy waste.</strong>
@@ -13,6 +13,7 @@
   <b>📊 <a href="./public/ThousandYield.pdf">View our Prototype Documentation</a></b>
 </p>
 
+---
 ## Team Introduction
 We are a team of five passionate developers building ThousandYield — an AI-powered vertical farming intelligence system. By combining real-time IoT sensor monitoring, computer vision disease detection, and predictive forecasting, we aim to help urban farmers maximize crop yield while minimizing water and energy waste. ThousandYield puts smart agriculture into the hands of anyone, from campus greenhouses to community gardens.
 
