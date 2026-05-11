@@ -149,6 +149,26 @@ Based on the project's hardware setup, the following components are integrated w
     npm install
     ```
 
+### Environment Setup
+This project requires specific configuration files and environment variables to connect to Firebase and Google services. These files are ignored by git for security.
+
+1. **Firebase Configuration**:
+   - Create a file named `firebase.js` in the `src/` directory.
+   - You can use `src/firebase.js.example` as a template.
+   - Fill in your Firebase project configuration.
+
+2. **Environment Variables**:
+   - Create a file named `.env` in the root directory.
+   - You can use `.env.example` as a template.
+   - Fill in your Firebase keys and Google Service Account details.
+
+3. **Google Credentials (Backend)**:
+   - The backend API expects a Google Service Account key at `credentials/google.json`.
+   - You can use `credentials/google.json.example` as a template.
+   - Ensure you place your valid `google.json` file in the `credentials` folder before running the API or Docker container.
+
+
+
 ### Running the Application
 
 #### Option 1: Running with Docker (Recommended)
