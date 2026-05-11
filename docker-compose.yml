@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "5173:5173"
+    depends_on:
+      - api
+      - intelligence-engine
+    environment:
+      - VITE_API_URL=http://localhost:8000
+      - VITE_INTELLIGENCE_URL=http://localhost:5001
+
+  api:
+    build:
+      context: ./api
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./credentials:/credentials
+    environment:
+      - GOOGLE_APPLICATION_CREDENTIALS=/credentials/google.json
+
+  intelligence-engine:
+    build:
+      context: ./intelligence-engine
+    ports:
+      - "5001:5001"

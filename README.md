@@ -150,7 +150,16 @@ Based on the project's hardware setup, the following components are integrated w
     ```
 
 ### Running the Application
-Start the development server:
+
+#### Option 1: Running with Docker (Recommended)
+Make sure you have Docker and Docker Compose installed. Then run:
+```bash
+docker-compose up --build
+```
+This will start the frontend (5173), API server (8000), and Intelligence Engine (5001) simultaneously.
+
+#### Option 2: Running Locally
+Start the development server (runs all services concurrently):
 ```bash
 npm run dev
 ```

@@ -1,0 +1,11 @@
+node_modules
+.git
+api
+intelligence-engine
+credentials
+ml
+scripts
+.env
+README.md
+Hardware Implementation.pdf
+ThousandYield.pdf
