@@ -1,9 +1,21 @@
-# ThousandYield
+<h1 align="center">ThousandYield — AI Vertical Farming Intelligence</h1>
 
-## 1. Project Intro
-ThousandYield is an advanced, AI-powered vertical farming management platform designed to address the challenges of urban agriculture and food security. By combining IoT sensor monitoring, computer vision, and machine learning, ThousandYield provides a scalable solution for managing controlled environment agriculture efficiently.
+<p align="center">
+  <strong>An AI-powered platform that provides real-time monitoring, computer vision disease detection, and predictive forecasting to help anyone maximize crop yield while minimizing water and energy waste.</strong>
+</p>
 
-## 2. Team Introduction
+<p align="center">
+  <em><b>Thousand</b> — Abundance and scalability</em> · <em><b>Yield</b> — Agricultural production and efficiency</em><br/>
+</p>
+
+<p align="center">
+  <b>🎥 <a href="#">Watch our Pitching Video (YouTube)</a></b> •
+  <b>📊 <a href="./public/ThousandYield.pdf">View our Prototype Documentation</a></b>
+</p>
+
+<br/>
+
+## Team Introduction
 We are a team of five passionate developers building ThousandYield — an AI-powered vertical farming intelligence system. By combining real-time IoT sensor monitoring, computer vision disease detection, and predictive forecasting, we aim to help urban farmers maximize crop yield while minimizing water and energy waste. ThousandYield puts smart agriculture into the hands of anyone, from campus greenhouses to community gardens.
 
 ![Our Team](./public/images/team.jpg)
@@ -16,7 +28,8 @@ We are a team of five passionate developers building ThousandYield — an AI-pow
 | **Evelyn Ang** | Member | **Backend Architecture & Weather API**: Developing the Python intelligence engine framework, integrating weather forecasting APIs, and managing data pipelines. |
 | **Teoh Xin Yee** | Member | **Core Logic & Automation**: Implementing automated control systems for LED lighting, cooling fans, and hydroponic pumps based on plant profiles. |
 
-## 3. Project Overview
+---
+## Project Overview
 
 ### Problem Statement
 -   **Overwhelmed by Urbanization**: Rapid urbanization and climate change are pushing traditional food systems beyond their limits.
@@ -37,14 +50,16 @@ Our system integrates IoT-enabled hardware with a sophisticated software dashboa
 -   **Universal Scalability** — Fits any farm, any size.
 -   **Integrated Multi-Platform Control** — Full control, anywhere, anytime.
 
-## 4. Key Features
+---
+## Key Features
 -   **Real-Time Monitoring**: Live tracking of temperature, humidity, soil moisture, and pH.
 -   **Automated Control**: Smart adjustments for LED spectrums, fans, and hydroponic pumps.
 -   **AI Recommendation Engine**: Suggestions for optimal harvest times and nutrient mixtures.
 -   **Computer Vision (CCTV)**: Real-time plant health scoring and disease detection.
 -   **Resource Optimization**: Detailed tracking and budgeting for electricity and water usage.
 
-## 5. Technology Architecture
+---
+## Technology Architecture
 
 <div align="center">
   <img src="./public/images/TechStack.png" alt="MCP Architecture Diagram" width="80%" />
@@ -56,7 +71,22 @@ Our system integrates IoT-enabled hardware with a sophisticated software dashboa
 - **IoT & Hardware**: ESP32/Arduino, Sensors & Actuators, MQTT Telemetry.
 - **AI & Machine Learning**: OpenCV, TensorFlow/Keras (MobileNetV2), Google Cloud Vertex AI / Gemini API, Pandas, NumPy, Statsmodels.
 
-## 6. System Feasibility & Scalability
+### Hardware Implementation
+Based on the project's hardware setup, the following components are integrated with the ESP32 gateway (Detailed documentation available in the [Hardware Implementation PDF](./public/Hardware%20Implementation.pdf)):
+
+| Component | Model/Type | Connection / Protocol | Purpose |
+| :--- | :--- | :--- | :--- |
+| **Microcontroller** | ESP32 | Main Gateway (Wi-Fi) | Processes sensor data and controls actuators. |
+| **Temp & Humidity** | DHT22 | GPIO 4 | Measures ambient temperature and relative humidity. |
+| **Power Monitoring** | SCT-013 | ADC Pin | Measures total electricity usage of the farm. |
+| **Water Level** | HC-SR04 | Trig: GPIO 5, Echo: GPIO 18 | Monitors water level in the storage tank. |
+| **Soil Moisture** | Capacitive v1.2 | ADC Pin (e.g., GPIO 34) | Measures moisture level in the root zone. |
+| **Nutrient Level** | EC Sensor | Analog Pin (e.g., GPIO 32/35) | Measures electrical conductivity (nutrients). |
+| **Light Intensity** | BH1750 | I2C (SDA: 21, SCL: 22) | Measures light brightness in Lux. |
+| **Control System** | 5V Relay Module | GPIO 13 | Controls the Solenoid Valve for the sprayer. |
+
+---
+## System Feasibility & Scalability
 
 ### System Feasibility
 - **Technical Feasibility**: Uses accessible hardware (ESP32/Arduino) and lightweight edge models (MobileNetV2) for on-device processing. Cloud sync via Firebase ensures low latency.
@@ -67,7 +97,8 @@ Our system integrates IoT-enabled hardware with a sophisticated software dashboa
 - **Edge Scalability**: Modular hardware design allows new racks to be added independently with minimal configuration.
 - **Software Scalability**: FastAPI and Firebase can scale from a single user to a distributed network of community farms.
 
-## 7. Business & Impact
+---
+## Business & Impact
 
 ### Market Segments
 - **SME Urban Farms**: Restaurants & Food Tech Companies. Harvest estimator gives small business owners a real-time Days-to-Harvest countdown with 90% confidence. Every prediction ThousandYield makes comes with a confidence score to prevents unnecessary panic adjustments that waste time, nutrients, and money.
@@ -105,7 +136,8 @@ Our system integrates IoT-enabled hardware with a sophisticated software dashboa
 - **Energy Efficiency**: Smart scheduling ensures lights and fans are active only when needed, minimizing carbon footprint.
 - **Reduced Food Miles**: Growing food where it is consumed drastically cuts down transportation emissions.
 
-## 8. Getting Started
+---
+## Getting Started
 
 ### Prerequisites
 -   Node.js (v18 or higher)
@@ -124,7 +156,8 @@ Start the development server:
 npm run dev
 ```
 
-## 9. Future Improvements
+---
+## Future Improvements
 -   **Predictive Farm Simulation** Scrub a timeline slider to preview a 3D time-lapse of your farm up to 14 days ahead, turning passive monitoring into active harvest planning.
 -   **Self-Evolving Crop Recipes** A genetic algorithm continuously evolves light, irrigation, and temperature variables each cycle to auto-generate optimized growth recipes unique to your seeds and location.
 -   **Multi-Modal Deep Diagnosis** Cross-references camera footage, sensor anomalies, and academic research to deliver a precise scientific report with root cause analysis and exact corrective action.
