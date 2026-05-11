@@ -11,7 +11,7 @@ import './VirtualChatbox.css';
 
 const VirtualChatbox = ({ onClose }) => {
   const [messages, setMessages] = useState([
-    { role: 'bot', text: 'Hello! I am your Virtual Farm Assistant. How can I help you in this view?' }
+    { role: 'bot', text: 'Hello! I am Seedy, your Virtual Farm Assistant. How can I help you today?' }
   ]);
   const [inputText, setInputText] = useState('');
   const [isLoading, setIsLoading] = useState(false);
