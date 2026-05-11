@@ -9,6 +9,7 @@ import {
   Droplets, Zap, Sun, FlaskConical, ChevronLeft, ChevronRight,
   ShieldCheck, AlertTriangle, Camera, RotateCcw
 } from 'lucide-react';
+import PlantHealthDrill from './PlantHealthDrill';
 import './RackOverlay.css';
 
 // ── Constants ──
@@ -139,6 +140,7 @@ const RackOverlay = ({ rackId, onClose }) => {
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState(0);
   const [rotStart, setRotStart] = useState(0);
+  const [drillPlant, setDrillPlant] = useState(null);
 
   // Firestore subscription
   useEffect(() => {
@@ -237,6 +239,14 @@ const RackOverlay = ({ rackId, onClose }) => {
         </div>
 
         {/* ── Body ── */}
+        {drillPlant ? (
+          <PlantHealthDrill
+            plant={drillPlant}
+            cropType={currentRack.crop_type}
+            rackId={currentRack.rack_id}
+            onBack={() => setDrillPlant(null)}
+          />
+        ) : (
         <div className="ro-body">
 
           {/* ── LEFT PANEL ── */}
@@ -271,7 +281,7 @@ const RackOverlay = ({ rackId, onClose }) => {
                   onMouseUp={onMouseUp}
                   onMouseLeave={onMouseUp}
                 >
-                  <Tower3D rack={currentRack} rotation={rotation} onBowlClick={(p) => setSelectedPlant(p)} />
+                  <Tower3D rack={currentRack} rotation={rotation} onBowlClick={(p) => { setSelectedPlant(p); setDrillPlant(p); }} />
                 </div>
               </div>
             ) : (
@@ -290,7 +300,7 @@ const RackOverlay = ({ rackId, onClose }) => {
                       <div
                         key={plant.plant_id}
                         className={`ro-photo-card ${selectedPlant?.plant_id === plant.plant_id ? 'selected' : ''}`}
-                        onClick={() => setSelectedPlant(plant)}
+                        onClick={() => { setSelectedPlant(plant); setDrillPlant(plant); }}
                       >
                         <img
                           src={cropImage}
@@ -462,6 +472,7 @@ const RackOverlay = ({ rackId, onClose }) => {
           </div>
 
         </div>
+        )}
       </div>
     </div>
   );

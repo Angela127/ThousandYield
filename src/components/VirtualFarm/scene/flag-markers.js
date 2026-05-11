@@ -9,14 +9,14 @@ export function createFlagMarker(scene, position) {
   group.userData.isFlagMarker = true;
 
   // Pin stick
-  const stickGeo = new THREE.CylinderGeometry(0.015, 0.015, 1.2, 6);
+  const stickGeo = new THREE.CylinderGeometry(0.015, 0.015, 0.7, 6);
   const stickMat = new THREE.MeshStandardMaterial({
     color: 0xcc2222,
     roughness: 0.4,
     metalness: 0.3,
   });
   const stick = new THREE.Mesh(stickGeo, stickMat);
-  stick.position.y = 0.6;
+  stick.position.y = 0.35;
   group.add(stick);
 
   // Pin head (sphere)
@@ -29,7 +29,7 @@ export function createFlagMarker(scene, position) {
     metalness: 0.2,
   });
   const head = new THREE.Mesh(headGeo, headMat);
-  head.position.y = 1.25;
+  head.position.y = 0.75;
   group.add(head);
 
   // Exclamation mark — canvas texture on a sprite
@@ -54,7 +54,7 @@ export function createFlagMarker(scene, position) {
     depthWrite: false,
   });
   const sprite = new THREE.Sprite(spriteMat);
-  sprite.position.y = 1.25;
+  sprite.position.y = 0.75;
   sprite.scale.set(0.2, 0.2, 0.2);
   group.add(sprite);
 
@@ -76,7 +76,7 @@ export function createFlagMarker(scene, position) {
 
   // Point light for red glow
   const glow = new THREE.PointLight(0xff3333, 0.5, 3);
-  glow.position.y = 1.3;
+  glow.position.y = 0.8;
   group.add(glow);
 
   // Position above the tower

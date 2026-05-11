@@ -1,0 +1,542 @@
+/* ═══ Plant Health Drill-In ═══ */
+.phd-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  background: rgba(10, 15, 10, 0.4);
+  backdrop-filter: blur(8px);
+  animation: phd-slideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes phd-slideIn {
+  from { opacity: 0; transform: translateX(20px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+/* ── Left Panel ── */
+.phd-left {
+  display: flex;
+  flex-direction: column;
+  padding: 20px 24px;
+  border-right: 1px solid rgba(255, 255, 255, 0.06);
+  overflow-y: auto;
+  gap: 16px;
+}
+
+.phd-back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  align-self: flex-start;
+}
+
+.phd-back-btn:hover {
+  background: rgba(163, 230, 53, 0.1);
+  border-color: rgba(163, 230, 53, 0.25);
+  color: #a3e635;
+}
+
+/* Photo Frame */
+.phd-photo-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.phd-photo-frame {
+  position: relative;
+  border-radius: 16px;
+  overflow: hidden;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  flex: 1;
+  min-height: 200px;
+  max-height: 420px;
+}
+
+.phd-photo-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  filter: brightness(0.95) contrast(1.05);
+  transition: filter 0.3s;
+}
+
+.phd-photo-frame:hover .phd-photo-img {
+  filter: brightness(1) contrast(1.08);
+}
+
+/* Scan Overlay */
+.phd-scan-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  color: #a3e635;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+}
+
+.phd-scan-line {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(to right, transparent, #a3e635, transparent);
+  box-shadow: 0 0 15px #a3e635;
+  animation: phd-scan 2s linear infinite;
+}
+
+@keyframes phd-scan {
+  0% { top: 0; opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { top: 100%; opacity: 0; }
+}
+
+.phd-spinner {
+  animation: phd-spin 1s linear infinite;
+}
+
+@keyframes phd-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Photo Meta */
+.phd-photo-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 10px;
+}
+
+.phd-plant-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  background: rgba(163, 230, 53, 0.1);
+  border: 1px solid rgba(163, 230, 53, 0.2);
+  border-radius: 20px;
+  color: #a3e635;
+  font-size: 0.72rem;
+  font-weight: 800;
+}
+
+.phd-crop-label {
+  font-size: 0.68rem;
+  color: rgba(255, 255, 255, 0.35);
+  font-weight: 600;
+}
+
+/* Upload Zone */
+.phd-upload-zone {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 16px;
+  border: 2px dashed rgba(255, 255, 255, 0.1);
+  border-radius: 14px;
+  color: rgba(255, 255, 255, 0.35);
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+}
+
+.phd-upload-zone:hover,
+.phd-upload-zone.drag-over {
+  border-color: rgba(163, 230, 53, 0.4);
+  background: rgba(163, 230, 53, 0.05);
+  color: #a3e635;
+}
+
+/* ── Right Panel ── */
+.phd-right {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 20px 24px;
+  overflow-y: auto;
+}
+
+.phd-right::-webkit-scrollbar { width: 5px; }
+.phd-right::-webkit-scrollbar-track { background: transparent; }
+.phd-right::-webkit-scrollbar-thumb { background: rgba(163, 230, 53, 0.15); border-radius: 10px; }
+
+.phd-section-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #fff;
+  margin: 0 0 4px;
+}
+
+/* Status Card */
+.phd-status-card {
+  padding: 16px 18px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.phd-status-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.phd-status-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.4);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.phd-health-ring {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: 3px solid;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.phd-health-ring span {
+  font-size: 0.85rem;
+  font-weight: 800;
+}
+
+.phd-status-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.phd-status-row > span:first-child {
+  font-size: 0.72rem;
+  color: rgba(255, 255, 255, 0.45);
+  font-weight: 600;
+}
+
+.phd-val {
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: #fff;
+}
+
+.phd-pill {
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 0.62rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.phd-pill.ok {
+  background: rgba(76, 175, 80, 0.15);
+  color: #66bb6a;
+}
+
+.phd-pill.alert {
+  background: rgba(244, 67, 54, 0.12);
+  color: #ef5350;
+}
+
+/* AI Card */
+.phd-ai-card,
+.phd-cv-card,
+.phd-history-card {
+  padding: 16px 18px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.phd-ai-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.7);
+  margin-bottom: 14px;
+}
+
+.phd-ai-loading {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 20px 0;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.phd-ai-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 24px 0;
+  color: rgba(255, 255, 255, 0.25);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+.phd-ai-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 16px 0;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 0.75rem;
+  text-align: center;
+}
+
+/* AI Result */
+.phd-ai-result {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.phd-ai-verdict {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.phd-verdict-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.phd-verdict-icon.healthy {
+  background: rgba(76, 175, 80, 0.15);
+  color: #66bb6a;
+}
+
+.phd-verdict-icon.unhealthy {
+  background: rgba(244, 67, 54, 0.15);
+  color: #ef5350;
+}
+
+.phd-verdict-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.phd-verdict-main {
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: #fff;
+}
+
+.phd-verdict-conf {
+  font-size: 0.68rem;
+  color: rgba(255, 255, 255, 0.4);
+  font-weight: 600;
+}
+
+.phd-reasoning {
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.phd-reasoning-label {
+  font-size: 0.6rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: rgba(255, 255, 255, 0.3);
+}
+
+.phd-reasoning p {
+  margin: 6px 0 0;
+  font-size: 0.72rem;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.phd-rescan-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background: rgba(163, 230, 53, 0.1);
+  border: 1px solid rgba(163, 230, 53, 0.2);
+  border-radius: 10px;
+  color: #a3e635;
+  font-size: 0.72rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.25s;
+  align-self: flex-start;
+}
+
+.phd-rescan-btn:hover {
+  background: rgba(163, 230, 53, 0.2);
+  border-color: rgba(163, 230, 53, 0.35);
+}
+
+/* CV Metrics */
+.phd-cv-metrics {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.phd-cv-bar {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.phd-cv-bar > span {
+  font-size: 0.6rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: rgba(255, 255, 255, 0.35);
+}
+
+.phd-bar-track {
+  height: 6px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.06);
+  overflow: hidden;
+}
+
+.phd-bar-fill {
+  height: 100%;
+  border-radius: 10px;
+  transition: width 0.6s ease;
+}
+
+.phd-bar-fill.green {
+  background: linear-gradient(90deg, #22c55e, #a3e635);
+}
+
+.phd-bar-fill.yellow {
+  background: linear-gradient(90deg, #f59e0b, #fbbf24);
+}
+
+/* History */
+.phd-history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.phd-history-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  transition: background 0.2s;
+}
+
+.phd-history-item:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.phd-hist-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.phd-hist-dot.ok { background: #66bb6a; }
+.phd-hist-dot.alert { background: #ef5350; }
+
+.phd-hist-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.phd-hist-pred {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.8);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.phd-hist-time {
+  font-size: 0.6rem;
+  color: rgba(255, 255, 255, 0.3);
+}
+
+.phd-hist-conf {
+  font-size: 0.7rem;
+  font-weight: 800;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+/* Responsive */
+@media (max-width: 1100px) {
+  .phd-container {
+    grid-template-columns: 1fr;
+  }
+  .phd-left {
+    border-right: none;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    max-height: 50%;
+  }
+}
