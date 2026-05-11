@@ -6,7 +6,7 @@ ThousandYield is an advanced, AI-powered vertical farming management platform de
 ## 2. Team Introduction
 We are a team of five passionate developers building ThousandYield — an AI-powered vertical farming intelligence system. By combining real-time IoT sensor monitoring, computer vision disease detection, and predictive forecasting, we aim to help urban farmers maximize crop yield while minimizing water and energy waste. ThousandYield puts smart agriculture into the hands of anyone, from campus greenhouses to community gardens.
 
-![Our Team](./public/assets/ourteam.png)
+![Our Team](./public/images/team.jpg)
 
 | Member | Role | Responsibility |
 | :--- | :--- | :--- |
