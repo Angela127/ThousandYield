@@ -310,7 +310,7 @@ const Harvest = () => {
     <main className="harvest-main">
       {/* ── Page Header ──────────────────────────────────────── */}
       <header className="harvest-header">
-        <div className="harvest-header-left">
+        <div className="harvest-header-left header-text">
           <h1>Harvest Intelligence</h1>
           <p>AI-powered yield forecasting and growth tracking</p>
         </div>

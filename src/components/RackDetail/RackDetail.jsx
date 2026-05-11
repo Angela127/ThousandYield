@@ -109,6 +109,9 @@ const RackDetail = () => {
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState(0);
   const [rotStart, setRotStart] = useState(0);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageInput, setPageInput] = useState('1');
+  const itemsPerPage = 12;
 
   useEffect(() => {
     const q = query(collection(db, "telemetry"), orderBy("room_data.timestamp", "asc"), limit(288));
@@ -131,6 +134,11 @@ const RackDetail = () => {
 
   const latestDoc = allDocs.length > 0 ? allDocs[allDocs.length - 1] : null;
   const racks = latestDoc?.room_data?.racks || [];
+  
+  // Pagination logic
+  const totalPages = Math.ceil(racks.length / itemsPerPage);
+  const paginatedRacks = racks.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
   const currentRack = useMemo(() => selectedRackId ? racks.find(r => r.rack_id === selectedRackId) : null, [selectedRackId, racks]);
 
   const rackHistoryData = useMemo(() => {
@@ -161,6 +169,28 @@ const RackDetail = () => {
   const spinLeft = () => setRotation(r => r + 45);
   const spinRight = () => setRotation(r => r - 45);
 
+  const handlePageInputChange = (e) => {
+    const val = e.target.value;
+    if (val === '' || /^\d+$/.test(val)) {
+      setPageInput(val);
+    }
+  };
+
+  const handlePageJump = (e) => {
+    if (e.key === 'Enter' || e.type === 'blur') {
+      const page = parseInt(pageInput);
+      if (!isNaN(page) && page >= 1 && page <= totalPages) {
+        setCurrentPage(page);
+      } else {
+        setPageInput(String(currentPage));
+      }
+    }
+  };
+
+  useEffect(() => {
+    setPageInput(String(currentPage));
+  }, [currentPage]);
+
   const openRack = (rackId) => { setSelectedRackId(rackId); setView('rack'); setRotation(-30); setIsFloorPlanOpen(false); };
   const openPlant = (plant) => { setSelectedPlant(plant); setView('plant'); };
   const openFloorPlan = () => { setIsFloorPlanOpen(true); };
@@ -182,29 +212,73 @@ const RackDetail = () => {
 
   // ========== LEVEL 1: OVERVIEW ==========
   const renderOverview = () => (
-    <div className="rack-overview-grid">
-      {racks.map(rack => (
-        <div 
-          key={rack.rack_id} 
-          className={`rack-block tall ${hoveredRackId === rack.rack_id ? 'is-hovered' : ''}`} 
-          onClick={() => openRack(rack.rack_id)}
-          onMouseEnter={() => setHoveredRackId(rack.rack_id)}
-          onMouseLeave={() => setHoveredRackId(null)}
-        >
-          <div className="rack-block-header">
-            <span className="rbh-name">{rack.rack_id.replace('rack_', 'Rack ')}</span>
-            <span className="rbh-crop">{rack.crop_type}</span>
-          </div>
-          <div className="rack-block-tower-full">
-            <div className="tower-3d-scene tall">
-              <Tower3D rack={rack} rotation={-25} interactive={false} />
+    <div className="rack-overview-container">
+      <div className="rack-overview-grid">
+        {paginatedRacks.map(rack => (
+          <div 
+            key={rack.rack_id} 
+            className={`rack-block tall ${hoveredRackId === rack.rack_id ? 'is-hovered' : ''}`} 
+            onClick={() => openRack(rack.rack_id)}
+            onMouseEnter={() => setHoveredRackId(rack.rack_id)}
+            onMouseLeave={() => setHoveredRackId(null)}
+          >
+            <div className="rack-block-header">
+              <span className="rbh-name">{rack.rack_id.replace('rack_', 'Rack ')}</span>
+              <span className="rbh-crop">{rack.crop_type}</span>
+            </div>
+            <div className="rack-block-tower-full">
+              <div className="tower-3d-scene tall">
+                <Tower3D rack={rack} rotation={-25} interactive={false} />
+              </div>
+            </div>
+            <div className="rack-block-footer">
+              <span className="rbf-stat">{rack.plants?.length || 0}/40 Plants</span>
             </div>
           </div>
-          <div className="rack-block-footer">
-            <span className="rbf-stat">{rack.plants?.length || 0}/40 Plants</span>
+        ))}
+      </div>
+      
+      {totalPages > 1 && (
+        <div className="rack-pagination">
+          <button 
+            className="pag-btn" 
+            disabled={currentPage === 1} 
+            onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+          >
+            <ChevronLeft size={28} />
+          </button>
+          <div className="pag-info">
+            <span>Page {currentPage} of {totalPages}</span>
+            <div className="pag-jump">
+              <span className="jump-label">Go to</span>
+              <input 
+                type="text" 
+                value={pageInput} 
+                onChange={handlePageInputChange}
+                onKeyDown={handlePageJump}
+                onBlur={handlePageJump}
+                className="pag-input"
+              />
+            </div>
+            <div className="pag-dots">
+              {Array.from({ length: totalPages }, (_, i) => (
+                <div 
+                  key={i} 
+                  className={`pag-dot ${currentPage === i + 1 ? 'active' : ''}`}
+                  onClick={() => setCurrentPage(i + 1)}
+                />
+              ))}
+            </div>
           </div>
+          <button 
+            className="pag-btn" 
+            disabled={currentPage === totalPages} 
+            onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+          >
+            <ChevronRight size={28} />
+          </button>
         </div>
-      ))}
+      )}
     </div>
   );
 
@@ -241,14 +315,22 @@ const RackDetail = () => {
 
           <div className="rack-sensor-grid-2x2">
             {[
-              { icon: <FlaskConical size={18}/>, cls: 'ph', label: 'PH', val: sensors.ph?.toFixed(2) },
-              { icon: <Zap size={18}/>, cls: 'ec', label: 'EC', val: sensors.ec_mscmn?.toFixed(2) },
-              { icon: <Droplets size={18}/>, cls: 'water', label: 'WATER', val: `${sensors.water_level_pct?.toFixed(0)}%` },
-              { icon: <Sun size={18}/>, cls: 'light', label: 'LIGHT', val: `${sensors.light_intensity_lux?.toFixed(0)} lx` },
+              { icon: FlaskConical, cls: 'ph', label: 'PH', val: sensors.ph?.toFixed(2), unit: '' },
+              { icon: Zap, cls: 'ec', label: 'EC', val: sensors.ec_mscmn?.toFixed(2), unit: ' mS/cm' },
+              { icon: Droplets, cls: 'water', label: 'WATER', val: sensors.water_level_pct?.toFixed(0), unit: '%' },
+              { icon: Sun, cls: 'light', label: 'LIGHT', val: sensors.light_intensity_lux?.toFixed(0), unit: ' lx' },
             ].map(s => (
-              <div key={s.cls} className={`rs-card-simple ${s.cls}`}>
-                <div className="rs-icon-simple">{s.icon}</div>
-                <div className="rs-info-simple"><span className="rs-label-simple">{s.label}</span><span className="rs-val-simple">{s.val || '--'}</span></div>
+              <div key={s.cls} className="stat-card status-optimal">
+                <div className="stat-card-header">
+                  <div className="stat-icon-wrapper">
+                    <s.icon size={18} />
+                  </div>
+                  <span className="stat-label">{s.label}</span>
+                </div>
+                <div className="stat-card-body">
+                  <span className="stat-value">{s.val || '--'}</span>
+                  <span className="stat-unit">{s.unit}</span>
+                </div>
               </div>
             ))}
           </div>
@@ -322,9 +404,24 @@ const RackDetail = () => {
         </div>
 
         <div className="plant-page-stats">
-          <div className="pp-stat"><span className="pp-stat-label">Health Score</span><span className={`pp-stat-val health-${getHealthClass(selectedPlant.health_score)}`}>{selectedPlant.health_score?.toFixed(1)}%</span></div>
-          <div className="pp-stat"><span className="pp-stat-label">LAI Value</span><span className="pp-stat-val">{selectedPlant.lai_val?.toFixed(2)}</span></div>
-          <div className="pp-stat"><span className="pp-stat-label">Status</span><span className={`pp-stat-val health-${hasAnomaly ? 'poor' : 'excellent'}`}>{hasAnomaly ? 'Alert' : 'Healthy'}</span></div>
+          {[
+            { label: 'Health Score', val: selectedPlant.health_score?.toFixed(1), unit: '%', icon: ShieldCheck },
+            { label: 'LAI Value', val: selectedPlant.lai_val?.toFixed(2), unit: '', icon: Sun },
+            { label: 'Status', val: hasAnomaly ? 'Alert' : 'Healthy', unit: '', icon: AlertTriangle, status: hasAnomaly ? 'warning' : 'optimal' }
+          ].map(s => (
+            <div key={s.label} className={`stat-card status-${s.status || 'optimal'}`}>
+              <div className="stat-card-header">
+                <div className="stat-icon-wrapper">
+                  <s.icon size={18} />
+                </div>
+                <span className="stat-label">{s.label}</span>
+              </div>
+              <div className="stat-card-body">
+                <span className={`stat-value ${s.status ? `health-${s.status}` : ''}`}>{s.val}</span>
+                <span className="stat-unit">{s.unit}</span>
+              </div>
+            </div>
+          ))}
         </div>
 
         <div className={`pp-anomaly ${hasAnomaly ? 'detected' : 'none'}`}>
@@ -384,9 +481,9 @@ const RackDetail = () => {
           {view !== 'overview' && (
             <div className="rack-back-btn" onClick={goBack}><ArrowLeft size={20}/></div>
           )}
-          <div className="rack-header-title header-text">
+          <div className="rack-header-title">
             <h1>{titles[view]}</h1>
-            <p>{subtitles[view]}</p>
+            <span className="rack-subtitle">{subtitles[view]}</span>
           </div>
         </div>
         <div className="rack-header-right">
