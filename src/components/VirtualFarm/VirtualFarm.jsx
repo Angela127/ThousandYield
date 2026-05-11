@@ -161,6 +161,46 @@ const createRobot = (scene) => {
   foot2.position.set(-0.1, 0.05, 0.02);
   robotGroup.add(foot2);
 
+  // === Nameplate (Seedy) ===
+  const canvas = document.createElement('canvas');
+  const context = canvas.getContext('2d');
+  canvas.width = 256;
+  canvas.height = 128;
+  
+  // Background bubble
+  context.fillStyle = 'rgba(58, 90, 64, 0.85)'; // Primary green with opacity
+  
+  // Draw rounded rect manually for compatibility if needed, or use roundRect
+  if (context.roundRect) {
+    context.roundRect(40, 30, 176, 68, 34);
+  } else {
+    context.fillRect(40, 30, 176, 68);
+  }
+  context.fill();
+  
+  // Border
+  context.strokeStyle = 'rgba(255, 255, 255, 0.9)';
+  context.lineWidth = 3;
+  context.stroke();
+  
+  // Text
+  context.fillStyle = 'white';
+  context.font = 'bold 44px Outfit, Inter, sans-serif';
+  context.textAlign = 'center';
+  context.textBaseline = 'middle';
+  context.fillText('Seedy', 128, 64);
+  
+  const texture = new THREE.CanvasTexture(canvas);
+  const spriteMat = new THREE.SpriteMaterial({ 
+    map: texture, 
+    transparent: true,
+    depthTest: false // Ensure it's always visible or at least doesn't clip weirdly
+  });
+  const nameplate = new THREE.Sprite(spriteMat);
+  nameplate.scale.set(0.6, 0.3, 1);
+  nameplate.position.set(0, 1.25, 0); // Above the antenna
+  robotGroup.add(nameplate);
+
   // Position the robot
   robotGroup.position.set(0, 0, 8); // Place it near the entrance or center!
   scene.add(robotGroup);
