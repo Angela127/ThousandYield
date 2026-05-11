@@ -9,7 +9,7 @@
 </p>
 
 <p align="center">
-  <b>🎥 <a href="#">Watch our Pitching Video (YouTube)</a></b> •
+  <b>🎥 <a href="https://youtu.be/zQF-Hpw2YjU?si=5GGOg7V_uwC2f3Ya">Watch our Pitching Video (YouTube)</a></b> •
   <b>📊 <a href="./public/ThousandYield.pdf">View our Prototype Documentation</a></b>
 </p>
 
