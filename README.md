@@ -9,6 +9,7 @@
 </p>
 
 <p align="center">
+  <b>🚀 <a href="https://thousandyield-frontend-295390256746.us-central1.run.app">Live Demo (Deployed Link)</a></b> •
   <b>🎥 <a href="https://youtu.be/zQF-Hpw2YjU?si=5GGOg7V_uwC2f3Ya">Watch our Pitching Video (YouTube)</a></b> •
   <b>📊 <a href="./public/ThousandYield.pdf">View our Prototype Documentation</a></b>
 </p>
@@ -183,6 +184,11 @@ Start the development server (runs all services concurrently):
 ```bash
 npm run dev
 ```
+
+---
+## 🌐 Live Deployment
+The application is deployed and can be accessed at:
+[**https://thousandyield-frontend-295390256746.us-central1.run.app**](https://thousandyield-frontend-295390256746.us-central1.run.app)
 
 ---
 ## Future Improvements
