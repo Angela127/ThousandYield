@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useEffect } from 'react';
 import { useElectricitySimulator } from '../hooks/useElectricitySimulator';
 import { ref, set } from 'firebase/database';
-import { rtdb } from '../firebase';
+import { rtdb } from '../firebase-config.js';
 import { isPeak } from '../constants/electricityConfig';
 
 const ElectricityContext = createContext(null);

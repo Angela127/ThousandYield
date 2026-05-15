@@ -5,7 +5,7 @@ import { useIrrigationContext } from '../../../context/IrrigationContext';
 import { useElectricityContext } from '../../../context/ElectricityContext';
 import { useAutomationSimulation } from '../../../hooks/useAutomationSimulation';
 import sampleRecord from '../../../data/sample_record.json';
-import { db } from '../../../firebase';
+import { db } from '../../../firebase-config.js';
 import { collection, query, orderBy, limit, onSnapshot } from 'firebase/firestore';
 import './VirtualChatbox.css';
 
@@ -144,7 +144,8 @@ ${irrigationContext.zones?.map(z => {
     `.trim();
 
     try {
-      const response = await fetch('http://localhost:8000/chat', {
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+      const response = await fetch(`${apiUrl}/chat`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

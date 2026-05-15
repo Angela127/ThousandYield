@@ -9,7 +9,7 @@ import {
   Area
 } from 'recharts';
 import historicalData from '../../data/historical_24h.json';
-import { db } from '../../firebase';
+import { db } from '../../firebase-config.js';
 import { collection, query, orderBy, limit, onSnapshot } from 'firebase/firestore';
 import './HistoricalCharts.css';
 

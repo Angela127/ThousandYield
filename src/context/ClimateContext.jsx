@@ -2,7 +2,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 
 const ClimateContext = createContext(null);
 
-const INTELLIGENCE_API = 'http://localhost:5001';
+const INTELLIGENCE_API = import.meta.env.VITE_INTELLIGENCE_API || 'http://localhost:5001';
 
 export const ClimateProvider = ({ children }) => {
   const [insightsData, setInsightsData] = useState(null);

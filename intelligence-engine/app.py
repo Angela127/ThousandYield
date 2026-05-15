@@ -36,8 +36,7 @@ import simulator
 # ---------------------------------------------------------------------------
 app = Flask(__name__)
 
-# Enable CORS for ALL origins during development
-# In production, restrict to specific origins like "http://localhost:5173"
+# Enable CORS for ALL origins
 CORS(app, resources={r"/api/*": {"origins": "*"}})
 
 # ---------------------------------------------------------------------------
@@ -576,4 +575,6 @@ if __name__ == '__main__':
     print(f"   Insights:     http://localhost:5001/api/insights")
     print("=" * 60 + "\n")
 
-    app.run(debug=True, port=5001)
+    import os
+    port = int(os.environ.get("PORT", 5001))
+    app.run(debug=False, host="0.0.0.0", port=port)

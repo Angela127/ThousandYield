@@ -3,7 +3,7 @@ import './Dashboard.css';
 import StatCard from '../StatCard/StatCard';
 import HistoricalCharts from '../Charts/HistoricalCharts';
 import sampleRecord from '../../data/sample_record.json';
-import { db } from '../../firebase';
+import { db } from '../../firebase-config.js';
 import { collection, query, orderBy, limit, onSnapshot, doc, updateDoc } from 'firebase/firestore';
 import { 
   Thermometer, 

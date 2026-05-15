@@ -25,7 +25,7 @@ import {
 } from 'lucide-react';
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ReferenceLine } from 'recharts';
 
-const INTELLIGENCE_API = 'http://localhost:5001';
+const INTELLIGENCE_API = import.meta.env.VITE_INTELLIGENCE_API || 'http://localhost:5001';
 
 const data = [
   { time: '00:00', temp: 22, humidity: 65, co2: 800 },

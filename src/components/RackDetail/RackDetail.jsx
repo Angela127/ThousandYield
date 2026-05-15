@@ -2,7 +2,7 @@ import React, { useEffect, useState, useMemo } from 'react';
 import {
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area
 } from 'recharts';
-import { db } from '../../firebase';
+import { db } from '../../firebase-config.js';
 import { collection, query, orderBy, limit, onSnapshot } from 'firebase/firestore';
 import historicalData from '../../data/historical_24h.json';
 import {
